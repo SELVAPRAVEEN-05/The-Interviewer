@@ -50,7 +50,6 @@ export default function RootLayout({
           >
             <Navbar />
             <main>{children}</main>
-            <Footer />
           </div>
         </Providers>
       </body>
