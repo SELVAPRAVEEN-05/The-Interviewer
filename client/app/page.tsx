@@ -1,9 +1,13 @@
 import Login from "./login/login";
+import backgroundImage from "../components/assets/canva.png";
 
-export default function page() {
+export default function Page() {
   return (
-    <div className="flex items-center justify-center h-screen">
-        <Login />
+    <div
+      className="flex items-center justify-end h-screen p-6  bg-no-repeat  bg-cover"
+      style={{ backgroundImage: `url(${backgroundImage.src})` }}
+    >
+      <Login />
     </div>
   );
 }
