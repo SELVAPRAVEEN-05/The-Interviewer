@@ -1,8 +1,7 @@
-// "use clients"
+"use client"
 
-import { Uploadphoto } from '@/components/ui/imageUploder'
-import { Input } from '@heroui/input'
-import React from 'react'
+import { Uploadphoto } from '@/components/ui/imageUploder';
+import { Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, Button, Input } from '@nextui-org/react';
 
 export default function OnBoarding() {
     return (
@@ -64,6 +63,15 @@ export default function OnBoarding() {
                             variant="bordered"
                             isRequired
                         />
+                        <Dropdown >
+                            <DropdownTrigger >
+                                <Button variant="bordered">Open Menu</Button>
+                            </DropdownTrigger>
+                            <DropdownMenu aria-label="Static Actions" emptyContent={true}>
+                                <DropdownItem key="new">New file</DropdownItem>
+                                <DropdownItem key="copy">Copy link</DropdownItem>
+                            </DropdownMenu>
+                        </Dropdown>
                     </div>
                 </div>
             </div>
