@@ -27,8 +27,8 @@ interface IndexProps {
 export function Uploadphoto({
   inputtype = 'file',
   uploadimage = false,
-  title = 'Upload photo',
-  content = 'Only PNG and JPEG formats, not more than 2 MB',
+  title = 'Upload file',
+  content = 'Only PNG, JPEG, or PDF formats, not more than 2 MB',
   inputField = <Image src={Uplode} alt="Upload Icon" />,
   deleteIcon = <MdDeleteForever />,
   imageValue = '',
@@ -74,6 +74,7 @@ export function Uploadphoto({
           setLoading(false);
           onChange(result, e);
         };
+
         reader.readAsDataURL(file);
       }
     }, 100);
@@ -87,7 +88,6 @@ export function Uploadphoto({
     setProgress(0);
     onChange(null, null);
 
-    // Reset file input to allow re-upload of same file
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
@@ -95,23 +95,37 @@ export function Uploadphoto({
     fileInputRef.current?.click();
   };
 
+  const renderPreview = () => {
+    if (accept === 'video/*') {
+      return (
+        <video
+          src={imagePreview ?? ''}
+          className={classNameUploadImage}
+          controls
+        />
+      );
+    } else if (accept === 'application/pdf') {
+      return (
+        <div className={`${classNameUploadImage} bg-gray-100 text-center flex items-center justify-center text-sm font-semibold`}>
+          PDF
+        </div>
+      );
+    } else {
+      return (
+        <img
+          src={imageUrl || imagePreview || ''}
+          alt='uploaded'
+          className={classNameUploadImage}
+        />
+      );
+    }
+  };
+
   return (
     <div className={classNameUploadContainer}>
       <div className='flex items-center gap-[0.75rem] w-full'>
         {uploadStatus && !loading ? (
-          accept === 'video/*' ? (
-            <video
-              src={imagePreview ?? ''}
-              className={classNameUploadImage}
-              controls
-            />
-          ) : (
-            <img
-              src={imageUrl || imagePreview || ''}
-              alt='uploaded'
-              className={classNameUploadImage}
-            />
-          )
+          renderPreview()
         ) : (
           <div onClick={handleUploadClick} className='cursor-pointer'>
             {inputField}
