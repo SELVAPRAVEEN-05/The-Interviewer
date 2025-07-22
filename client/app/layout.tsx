@@ -42,13 +42,13 @@ export default function RootLayout({
         <Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
           <div
             id="scroll-container"
-            className="h-screen
+            className="h-screen overflow-y-auto
             [&::-webkit-scrollbar]:w-1.5
             [&::-webkit-scrollbar-thumb]:rounded-full
             [&::-webkit-scrollbar-track]:bg-[transparent]
             [&::-webkit-scrollbar-thumb]:bg-primary"
           >
-            {/* <Navbar /> */}
+            {/* <Navbar />  */}
             <main>{children}</main>
           </div>
         </Providers>
