@@ -11,8 +11,8 @@ export default function OnBoarding() {
             <div className='bg-white h-full w-full rounded-2xl p-3 flex gap-5'>
                 <div className='w-1/3 h-full rounded-lg bg-gray-100 p-2'> hii</div>
                 <div className='h-full w-full pr-2 py-3'>
-                    {/* <Personal /> */}
-                    {/* <Education /> */}
+                    <Personal />
+                    <Education />
                     <Skills />
                 </div>
             </div>
