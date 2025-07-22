@@ -1,13 +1,7 @@
-import Login from "./login/login";
-import backgroundImage from "../components/assets/canva.png";
+import React from 'react'
 
-export default function Page() {
+export default function page() {
   return (
-    <div
-      className="flex items-center justify-end h-screen p-6  bg-no-repeat  bg-cover"
-      style={{ backgroundImage: `url(${backgroundImage.src})` }}
-    >
-      <Login />
-    </div>
-  );
+    <div>page</div>
+  )
 }

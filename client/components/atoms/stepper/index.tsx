@@ -20,7 +20,7 @@ interface CompanyRegistrationStepperProps {
   steps: StepItem[];
 }
 
-export default function CompanyRegistrationStepper({
+export default function StepperAtom({
   steps,
 }: CompanyRegistrationStepperProps) {
 //   const steps = [
