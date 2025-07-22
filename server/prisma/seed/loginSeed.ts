@@ -40,7 +40,7 @@ const data = [
    {
     id: 2,
     name: "ram",
-    email: "coauthor",
+    email: "coauthor2",
     role: "police",
     logo: "ff",
     isDeleted: false,
