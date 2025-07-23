@@ -1,5 +1,4 @@
 "use client";
-import React from "react";
 import {
   Autocomplete,
   AutocompleteItem,
@@ -8,11 +7,13 @@ import {
   Select,
   SelectItem,
 } from "@nextui-org/react";
+import { useFormStore } from "../../../store/onBoarding/index";
 
 type VerticalStepperProps = {
   activeStep: number;
   setActiveStep: React.Dispatch<React.SetStateAction<number>>;
 };
+
 export default function Education({
   activeStep,
   setActiveStep,
@@ -55,8 +56,20 @@ export default function Education({
     { label: "Chemistry", key: "9" },
   ];
 
+  const {
+    setFormData,
+    college,
+    qualification,
+    specialization,
+    passingYear,
+    cgpa,
+    educationEmail,
+    tenth,
+    twelfth,
+  } = useFormStore();
+
   return (
-    <div className="h-full w-full  flex flex-col justify-between">
+    <div className="h-full w-full flex flex-col justify-between">
       <div>
         <p className="font-semibold">Education Information</p>
         <p className="text-sm text-gray-500 pt-1">
@@ -65,107 +78,122 @@ export default function Education({
         </p>
         <div className="grid grid-cols-2 gap-x-4 gap-y-6 pt-4 w-full">
           <Autocomplete
-            className=""
+            label="College Name"
+            placeholder="Select your college"
             radius="sm"
             size="lg"
             variant="bordered"
             defaultItems={collegeNames}
-            label="College Name"
-            placeholder="Select your college"
+            selectedKey={college}
+            onSelectionChange={(val) => setFormData({ college: val as string })}
           >
             {(item) => (
-              <AutocompleteItem key={item.key}>{item.label}</AutocompleteItem>
+              <AutocompleteItem key={item.label}>{item.label}</AutocompleteItem>
             )}
           </Autocomplete>
+
           <Autocomplete
             label="Highest Qualification"
             placeholder="Select your highest qualification"
-            variant="bordered"
-            size="lg"
             radius="sm"
+            size="lg"
+            variant="bordered"
             defaultItems={qualifications}
-            isRequired
+            selectedKey={qualification}
+            onSelectionChange={(val) =>
+              setFormData({ qualification: val as string })
+            }
           >
             {(item) => (
-              <AutocompleteItem key={item.key}>{item.label}</AutocompleteItem>
+              <AutocompleteItem key={item.label}>{item.label}</AutocompleteItem>
             )}
           </Autocomplete>
 
           <Autocomplete
             label="Specialization"
             placeholder="Select your specialization"
-            variant="bordered"
-            size="lg"
             radius="sm"
+            size="lg"
+            variant="bordered"
             defaultItems={specializations}
-            isRequired
+            selectedKey={specialization}
+            onSelectionChange={(val) =>
+              setFormData({ specialization: val as string })
+            }
           >
             {(item) => (
-              <AutocompleteItem key={item.key}>{item.label}</AutocompleteItem>
+              <AutocompleteItem key={item.label}>{item.label}</AutocompleteItem>
             )}
           </Autocomplete>
 
           <Select
-            className=""
             label="Year of Passing"
             placeholder="Select your year of passing"
-            variant="bordered"
-            size="lg"
-            isRequired
             radius="sm"
+            size="lg"
+            variant="bordered"
+            selectedKeys={passingYear ? new Set([passingYear]) : new Set()}
+            onSelectionChange={(keys) => {
+              const val = Array.from(keys)[0] as string;
+              setFormData({ passingYear: val });
+            }}
           >
-            <SelectItem>2025</SelectItem>
-            <SelectItem>2026</SelectItem>
-            <SelectItem>2027</SelectItem>
-            <SelectItem>2028</SelectItem>
-            <SelectItem>2029</SelectItem>
+            <SelectItem key="2025">2025</SelectItem>
+            <SelectItem key="2026">2026</SelectItem>
+            <SelectItem key="2027">2027</SelectItem>
+            <SelectItem key="2028">2028</SelectItem>
+            <SelectItem key="2029">2029</SelectItem>
           </Select>
+
           <Input
-            className=""
             label="Percentage/CGPA"
             placeholder="Enter your percentage or CGPA"
             radius="sm"
-            type="text"
             size="lg"
             variant="bordered"
+            value={cgpa}
+            onChange={(e) => setFormData({ cgpa: e.target.value })}
             isRequired
           />
+
           <Input
-            className=""
             label="Email ID"
             placeholder="Enter your email ID"
             radius="sm"
             type="email"
             size="lg"
             variant="bordered"
+            value={educationEmail}
+            onChange={(e) => setFormData({ educationEmail: e.target.value })}
             isRequired
           />
 
           <Input
-            className=""
             label="10th Percentage"
             placeholder="Enter your 10th percentage"
             radius="sm"
-            type="text"
             size="lg"
             variant="bordered"
+            value={tenth}
+            onChange={(e) => setFormData({ tenth: e.target.value })}
             isRequired
           />
+
           <Input
-            className=""
             label="12th Percentage"
             placeholder="Enter your 12th percentage"
             radius="sm"
-            type="text"
             size="lg"
             variant="bordered"
+            value={twelfth}
+            onChange={(e) => setFormData({ twelfth: e.target.value })}
             isRequired
           />
         </div>
       </div>
+
       <div className="flex justify-end gap-4 pt-6">
         <Button
-          className=""
           color="primary"
           size="md"
           radius="sm"
@@ -175,9 +203,20 @@ export default function Education({
           Go Back
         </Button>
         <Button
-          className=""
           color="primary"
           size="md"
+          isDisabled={
+            !(
+              college &&
+              qualification &&
+              specialization &&
+              passingYear &&
+              cgpa &&
+              educationEmail &&
+              tenth &&
+              twelfth
+            )
+          }
           radius="sm"
           onPress={() => setActiveStep(activeStep + 1)}
         >
