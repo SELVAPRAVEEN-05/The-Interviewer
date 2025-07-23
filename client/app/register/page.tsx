@@ -1,3 +1,4 @@
+"use client";
 import HeroButton from "@/components/atoms/button";
 import HeroInput from "@/components/atoms/input";
 import backgroundImage from "../../components/assets/canva.png";

@@ -90,6 +90,7 @@ export default function Skills({
           color="primary"
           size="md"
           radius="sm"
+          isDisabled={!(github && linkedin && portfolio && skills)}
           onPress={() => setActiveStep(activeStep + 1)}
         >
           Submit
