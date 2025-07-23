@@ -39,7 +39,7 @@ export default function RootLayout({
           fontSans.variable,
         )}
       >
-        <Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
+        {/* <Providers themeProps={{ attribute: "class", defaultTheme: "light" }}> */}
           <div
             id="scroll-container"
             className="h-screen overflow-y-auto
@@ -51,7 +51,7 @@ export default function RootLayout({
             {/* <Navbar />  */}
             <main>{children}</main>
           </div>
-        </Providers>
+        {/* </Providers> */}
       </body>
     </html>
   );

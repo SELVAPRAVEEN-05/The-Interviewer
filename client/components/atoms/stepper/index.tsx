@@ -36,7 +36,7 @@ export default function VerticalStepper({
         // connector={<CustomConnector />}
         orientation="vertical"
         sx={{
-          backgroundColor: "#f9f9f9",
+          backgroundColor: "transparent",
           padding: 2,
           borderRadius: 2,
         }}
