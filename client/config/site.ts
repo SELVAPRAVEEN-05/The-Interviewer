@@ -1,5 +1,5 @@
 export const siteConfig = {
-  name: "Layout",
+  name: "CodeMeet",
   description: "Build beautiful websites",
   navItems: [
     { label: "Home", targetId: "home" },
