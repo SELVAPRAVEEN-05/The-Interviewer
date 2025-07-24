@@ -3,7 +3,7 @@
 import { Uploadphoto } from "@/components/ui/imageUploder";
 import { Button, Input } from "@nextui-org/react";
 import React from "react";
-import { useFormStore } from "../../../store/onBoarding/index";
+import { useFormStore } from "@/components/store/onBoarding/index";
 
 type VerticalStepperProps = {
   activeStep: number;

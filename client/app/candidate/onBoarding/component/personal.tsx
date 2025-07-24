@@ -8,7 +8,7 @@ import {
   Select,
   SelectItem,
 } from "@nextui-org/react";
-import { useFormStore } from "../../../store/onBoarding/index";
+import { useFormStore } from "@/components/store/onBoarding/index";
 
 type VerticalStepperProps = {
   activeStep: number;
