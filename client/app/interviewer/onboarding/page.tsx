@@ -2,7 +2,7 @@
 
 import { Uploadphoto } from "@/components/ui/imageUploder";
 import { Button, Input, Select, SelectItem } from "@nextui-org/react";
-import { useFormStore } from "@/components/store/onBoarding/index"; // adjust the path as needed
+import { useFormStore } from "@/components/store/onBoarding/index";
 
 export default function InterviewerOnboarding() {
   const {
