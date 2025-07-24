@@ -3,7 +3,7 @@
 import { create } from "zustand";
 
 type FormData = {
-  // Personal
+  // Candidate Personal
   profilePhoto: File | null;
   firstName: string;
   lastName: string;
@@ -14,7 +14,7 @@ type FormData = {
   language: string;
   country: string;
 
-  // Education
+  // Candidate Education
   college: string;
   qualification: string;
   specialization: string;
@@ -24,12 +24,23 @@ type FormData = {
   twelfth: string;
   educationEmail: string;
 
-  // Skills
+  // Candidate Skills
   resumeFile: File | null;
   github: string;
   linkedin: string;
   portfolio: string;
   skills: string;
+
+  // Interviewer Fields
+  interviewerName: string;
+  interviewerMobile: string;
+  interviewerEmail: string;
+  interviewerGender: string;
+  company: string;
+  experience: string;
+  designation: string;
+  domain: string;
+  interviewerProfileImage: File | null;
 };
 
 type FormStore = FormData & {
@@ -37,7 +48,7 @@ type FormStore = FormData & {
 };
 
 export const useFormStore = create<FormStore>((set) => ({
-  // Initial values
+  // Candidate Personal
   profilePhoto: null,
   firstName: "",
   lastName: "",
@@ -48,6 +59,7 @@ export const useFormStore = create<FormStore>((set) => ({
   language: "",
   country: "",
 
+  // Candidate Education
   college: "",
   qualification: "",
   specialization: "",
@@ -57,11 +69,23 @@ export const useFormStore = create<FormStore>((set) => ({
   twelfth: "",
   educationEmail: "",
 
+  // Candidate Skills
   resumeFile: null,
   github: "",
   linkedin: "",
   portfolio: "",
   skills: "",
+
+  // Interviewer Fields
+  interviewerName: "",
+  interviewerMobile: "",
+  interviewerEmail: "",
+  interviewerGender: "",
+  company: "",
+  experience: "",
+  designation: "",
+  domain: "",
+  interviewerProfileImage: null,
 
   setFormData: (data) => set((state) => ({ ...state, ...data })),
 }));
