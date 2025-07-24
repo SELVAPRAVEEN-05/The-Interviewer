@@ -99,7 +99,7 @@ export default function Personal({
           radius="sm"
           isRequired
           size="lg"
-          value={dob ? parseDate(dob) : undefined}
+          value={dob ? (parseDate(dob) as any) : undefined}
           onChange={(dateValue) => {
             if (dateValue) {
               setFormData({ dob: dateValue.toString() });
