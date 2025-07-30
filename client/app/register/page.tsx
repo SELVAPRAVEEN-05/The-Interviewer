@@ -6,6 +6,8 @@ import { useRegisterStore } from "@/components/store/account/register";
 import { Input } from "@heroui/input";
 import { Button } from "@nextui-org/react";
 import React from "react";
+import logo from "@/components/assets/regbg.jpg";
+import Image from "next/image";
 
 export default function Register() {
   const router = useRouter();
@@ -17,7 +19,8 @@ export default function Register() {
 
   return (
     <div className="flex items-center justify-end h-screen">
-      <div className="w-1/2 h-full p-10 flex justify-center items-center rounded-xl">
+      <Image className="h-full w-full" src={logo} alt=""/>
+      <div className="absolute w-1/2 h-full p-10 flex justify-center items-center rounded-xl">
         <div className="w-4/5 h-full p-10">
           <div className="w-full text-start text-5xl font-bold">Sign Up</div>
           <p className="pt-3 text-gray-400">Create your account to get started</p>
