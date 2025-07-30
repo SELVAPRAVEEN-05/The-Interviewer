@@ -6,6 +6,8 @@ import React from "react";
 import { FaEyeSlash, FaRegEye } from "react-icons/fa";
 import { useRouter } from "next/navigation";
 import { useLoginStore } from "@/components/store/account/login";
+import logo from "@/components/assets/logobg.jpg";
+import Image from "next/image";
 
 export default function Login() {
   const router = useRouter();
@@ -16,7 +18,8 @@ export default function Login() {
 
   return (
     <div className="flex items-center justify-end h-screen">
-      <div className="h-full p-10 flex justify-center items-center rounded-xl w-1/2">
+      <Image className="h-full w-full" src={logo} alt=""/>
+      <div className=" absolute h-full p-10 flex justify-center items-center rounded-xl w-1/2">
         <div className="w-4/5 h-full p-10">
           <div className="w-full text-start text-5xl font-bold">Login</div>
           <p className="pt-3 text-gray-400">

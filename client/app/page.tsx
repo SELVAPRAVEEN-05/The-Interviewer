@@ -1,6 +1,8 @@
-"use client";
-import React from "react";
+import React from 'react'
+import Register from './register/page'
 
 export default function page() {
-  return <div>page</div>;
+  return (
+    <div><Register /></div>
+  )
 }
