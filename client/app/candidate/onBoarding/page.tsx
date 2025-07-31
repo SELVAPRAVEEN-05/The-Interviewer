@@ -1,10 +1,10 @@
 "use client";
 
 import VerticalStepper from "@/components/atoms/stepper";
-import Education from "./component/education";
-import Personal from "./component/personal";
-import Skills from "./component/skills";
 import { useState } from "react";
+import Personal from "./component/personal";
+import Education from "./component/education";
+import Skills from "./component/skills";
 
 export default function CandidateOnBoarding() {
   const [activeStep, setActiveStep] = useState(0);
