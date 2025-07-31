@@ -6,7 +6,7 @@ import Personal from "./component/personal";
 import Skills from "./component/skills";
 import { useState } from "react";
 
-export default function OnBoarding() {
+export default function CandidateOnBoarding() {
   const [activeStep, setActiveStep] = useState(0);
 
   return (
