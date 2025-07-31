@@ -2,6 +2,6 @@ import React from 'react'
 
 export default function InterviewerDashboard() {
   return (
-    <div>InterviewerDashboard</div>
+    <div className='h-full w-full'>InterviewerDashboard</div>
   )
 }

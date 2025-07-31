@@ -2,6 +2,6 @@ import React from 'react'
 
 export default function CandidateDashboard() {
   return (
-    <div>CandidateDashboard</div>
+    <div className='h-full w-full' >CandidateDashboard</div>
   )
 }
