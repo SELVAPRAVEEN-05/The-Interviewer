@@ -1,3 +1,4 @@
+
 "use client";
 
 import { Uploadphoto } from "@/components/ui/imageUploder";

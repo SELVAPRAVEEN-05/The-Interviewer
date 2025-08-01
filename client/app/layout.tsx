@@ -49,8 +49,10 @@ export default function RootLayout({
             [&::-webkit-scrollbar-thumb]:bg-primary"
           >
             {/* <Navbar />  */}
+
             <main>{children}</main>
           </div>
+          
         {/* </Providers> */}
       </body>
     </html>
