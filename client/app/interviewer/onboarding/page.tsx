@@ -24,8 +24,7 @@ export default function InterviewerOnboarding() {
         <div className="w-full">
           <p className="font-semibold">Let’s Get to Know You</p>
           <p className="text-sm text-gray-500 pt-1">
-            Please provide your basic details so we can personalize your
-            experience.
+            Please provide your basic details so we can personalize your experience.
           </p>
 
           <div className="pt-5">

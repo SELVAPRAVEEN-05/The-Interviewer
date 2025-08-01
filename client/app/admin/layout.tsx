@@ -1,17 +1,29 @@
-import SideBar from '@/components/atoms/sidebar'
-import React from 'react'
+// app/admin/layout.tsx
+"use client";
+
+import SideBar from "@/components/atoms/sidebar";
+import React, { useState } from "react";
 
 export default function AdminLayout() {
-    return (
-        <div className='flex h-screen w-full'>
+    const data = ["Dashboard", "Settings", "Profile"];
+    const [selectedTab, setSelectedTab] = useState("Dashboard");
 
-            <div className='bg-gray-800 text-white p-4 w-2/12 h-full'>
-                <div><SideBar /></div>
+    return (
+        <div className="flex h-screen w-full">
+            {/* Sidebar */}
+            <div className="w-2/12">
+                <SideBar data={data} selected={selectedTab} onSelect={setSelectedTab} />
             </div>
-            <div className='flex-1 p-4'>
-                {/* Main content goes here */}
-                <h1 className='text-xl'>Main Content Area</h1>
+
+            {/* Main Content */}
+            <div className="flex-1 p-6">
+                <h1 className="text-2xl font-semibold">{selectedTab}</h1>
+                <div className="mt-4">
+                    {selectedTab === "Dashboard" && <p>Welcome to your dashboard.</p>}
+                    {selectedTab === "Settings" && <p>Here are your settings.</p>}
+                    {selectedTab === "Profile" && <p>This is your profile.</p>}
+                </div>
             </div>
         </div>
-    )
+    );
 }

@@ -19,11 +19,14 @@ export default function CandidateOnBoarding() {
           />
         </div>
         <div className="h-full w-full pr-2 py-3">
-          {activeStep == 0 ? (
+          {activeStep == 0 ? 
+          (
             <Personal activeStep={activeStep} setActiveStep={setActiveStep} />
-          ) : activeStep == 1 ? (
+          ) : activeStep == 1 ? 
+          (
             <Education activeStep={activeStep} setActiveStep={setActiveStep} />
-          ) : (
+          ) : 
+          (
             <Skills activeStep={activeStep} setActiveStep={setActiveStep} />
           )}
         </div>
