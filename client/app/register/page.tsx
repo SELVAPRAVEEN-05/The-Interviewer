@@ -6,7 +6,7 @@ import { useRegisterStore } from "@/components/store/account/register";
 import { Input } from "@heroui/input";
 import { Button } from "@nextui-org/react";
 import React from "react";
-import logo from "@/components/assets/istockphoto.jpg";
+import logo from "@/components/assets/loginwith.jpg";
 import Image from "next/image";
 
 export default function Register() {
@@ -18,10 +18,10 @@ export default function Register() {
   console.log(userName, emailId, password);
 
   return (
-    <div className="flex items-center justify-end h-screen">
+    <div className="flex w-full items-center justify-end h-screen text-white">
       <Image className="h-full w-full" src={logo} alt="img"/>
-      <div className="absolute w-1/2 h-full p-10 flex justify-center items-center rounded-xl">
-        <div className="w-4/5 h-full p-10">
+      <div className="absolute w-1/2 h-full py-10 pl-36 flex justify-center items-center rounded-xl">
+        <div className="w-4/5 h-full py-10 ">
           <div className="w-full text-start text-5xl font-bold">Sign Up</div>
           <p className="pt-3 text-gray-400">Create your account to get started</p>
 
@@ -73,13 +73,13 @@ export default function Register() {
             Sign Up
           </Button>
 
-          <div className="flex items-center p-5">
-            <div className="flex-grow border-t border-black"></div>
+          <div className="flex items-center py-5">
+            <div className="flex-grow border-t border-white"></div>
             <span className="mx-4 font-medium">or</span>
-            <div className="flex-grow border-t border-black"></div>
+            <div className="flex-grow border-t border-white"></div>
           </div>
 
-          <Button className="w-full p-7 text-black" variant="bordered" size="lg">
+          <Button className="w-full p-7 text-white" variant="bordered" size="lg">
             <GoogleIcon /> Signin with Google
           </Button>
 
