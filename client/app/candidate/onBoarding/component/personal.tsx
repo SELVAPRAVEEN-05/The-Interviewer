@@ -40,21 +40,22 @@ export default function Personal({
 
   console.log(gender);
   return (
-    <div>
+    <div className="h-full w-full flex flex-col justify-between">
+      <div className="h-[90%] overflow-y-auto scrollbar-hide">
       <p className="font-semibold">Let’s Get to Know You</p>
-      <p className="text-sm text-gray-500 pt-1">
+      <p className="text-sm text-gray-500 pt-1 ">
         Please provide your basic details so we can personalize your experience.
       </p>
       <div className="pt-5">
         <Uploadphoto />
       </div>
-      <div className="grid grid-cols-2 gap-x-4 gap-y-6 pt-4 w-full">
+      <div className="grid md:grid-cols-2 grid-cols-1 overflow-y-auto scrollbar-hide gap-x-4 gap-y-6 pt-4 w-full">
         <Input
           label="First Name"
-          placeholder="Enter your first name"
+          // placeholder="Enter your first name"
           value={firstName}
           onChange={(e) => setFormData({ firstName: e.target.value })}
-          size="lg"
+          size="md"
           type="text"
           radius="sm"
           variant="bordered"
@@ -62,34 +63,34 @@ export default function Personal({
         />
         <Input
           label="Last Name"
-          placeholder="Enter your last name"
+          // placeholder="Enter your last name"
           value={lastName}
           onChange={(e) => setFormData({ lastName: e.target.value })}
           radius="sm"
           type="text"
-          size="lg"
+          size="md"
           variant="bordered"
           isRequired
         />
         <Input
           label="Mobile Number"
-          placeholder="Enter your mobile number"
+          // placeholder="Enter your mobile number"
           value={mobile}
           onChange={(e) => setFormData({ mobile: e.target.value })}
           radius="sm"
           type="number"
-          size="lg"
+          size="md"
           variant="bordered"
           isRequired
         />
         <Input
           label="Email ID"
-          placeholder="Enter your email ID"
+          // placeholder="Enter your email ID"
           value={email}
           onChange={(e) => setFormData({ email: e.target.value })}
           radius="sm"
           type="email"
-          size="lg"
+          size="md"
           variant="bordered"
           isRequired
         />
@@ -98,7 +99,7 @@ export default function Personal({
           variant="bordered"
           radius="sm"
           isRequired
-          size="lg"
+          size="md"
           value={dob ? (parseDate(dob) as any) : undefined}
           onChange={(dateValue) => {
             if (dateValue) {
@@ -108,9 +109,9 @@ export default function Personal({
         />
         <Select
           label="Gender"
-          placeholder="Select your Gender"
+          // placeholder="Select your Gender"
           variant="bordered"
-          size="lg"
+          size="md"
           isRequired
           radius="sm"
           selectedKeys={gender ? new Set([gender]) : new Set()}
@@ -129,9 +130,9 @@ export default function Personal({
 
         <Select
           label="Choose Language"
-          placeholder="Select your Language"
+          // placeholder="Select your Language"
           variant="bordered"
-          size="lg"
+          size="md"
           isRequired
           radius="sm"
           selectedKeys={language ? new Set([language]) : new Set()}
@@ -149,10 +150,11 @@ export default function Personal({
         </Select>
         <Select
           label="Choose Country"
-          placeholder="Select your Country"
+          // placeholder="Select your Country"
           variant="bordered"
+          isRequired
           radius="sm"
-          size="lg"
+          size="md"
           classNames={{ trigger: "py-3" }}
           selectedKeys={country ? new Set([country]) : new Set()}
           onSelectionChange={(keys) => {
@@ -177,7 +179,8 @@ export default function Personal({
           ))}
         </Select>
       </div>
-      <div className="flex justify-end pt-6">
+      </div>
+      <div className="flex justify-end pt-4 xl:pt-6">
         <Button
           color="primary"
           size="md"

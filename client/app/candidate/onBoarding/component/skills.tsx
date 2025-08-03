@@ -19,7 +19,8 @@ export default function Skills({
     useFormStore();
 
   return (
-    <div>
+    <div className="h-full w-full flex flex-col justify-between overflow-y-auto scrollbar-hide">
+      <div>
       <p className="font-semibold">Links & Resume Upload</p>
       <p className="text-sm text-gray-500 pt-1">
         Share your portfolio, resume and showcase your skills.
@@ -35,10 +36,10 @@ export default function Skills({
       <div className="grid grid-cols-1 gap-x-4 gap-y-6 pt-4 w-full">
         <Input
           label="GitHub Profile"
-          placeholder="Enter your GitHub profile URL"
+          // placeholder="Enter your GitHub profile URL"
           radius="sm"
           type="text"
-          size="lg"
+          size="md"
           variant="bordered"
           isRequired
           value={github}
@@ -46,10 +47,10 @@ export default function Skills({
         />
         <Input
           label="LinkedIn Profile"
-          placeholder="Enter your LinkedIn profile URL"
+          // placeholder="Enter your LinkedIn profile URL"
           radius="sm"
           type="text"
-          size="lg"
+          size="md"
           variant="bordered"
           isRequired
           value={linkedin}
@@ -57,10 +58,10 @@ export default function Skills({
         />
         <Input
           label="Portfolio Website "
-          placeholder="Enter your portfolio website URL"
+          // placeholder="Enter your portfolio website URL"
           radius="sm"
           type="text"
-          size="lg"
+          size="md"
           variant="bordered"
           value={portfolio}
           onChange={(e) => setFormData({ portfolio: e.target.value })}
@@ -70,14 +71,15 @@ export default function Skills({
           placeholder="Enter your skills (comma separated)"
           radius="sm"
           type="text"
-          size="lg"
+          size="md"
           variant="bordered"
           isRequired
           value={skills}
           onChange={(e) => setFormData({ skills: e.target.value })}
         />
       </div>
-      <div className="flex justify-end gap-4 pt-6">
+      </div>
+      <div className="flex justify-end gap-4 pt-4 xl:pt-6">
         <Button
           color="primary"
           size="md"
