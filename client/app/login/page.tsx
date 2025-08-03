@@ -1,13 +1,13 @@
 "use client";
+import logo from "@/components/assets/loginwith.jpg";
 import { GoogleIcon } from "@/components/icons";
+import { useLoginStore } from "@/components/store/account/login";
 import { Input } from "@heroui/input";
 import { Button, Checkbox } from "@nextui-org/react";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
 import React from "react";
 import { FaEyeSlash, FaRegEye } from "react-icons/fa";
-import { useRouter } from "next/navigation";
-import { useLoginStore } from "@/components/store/account/login";
-import logo from "@/components/assets/cof.jpg";
-import Image from "next/image";
 
 export default function Login() {
   const router = useRouter();
@@ -18,7 +18,7 @@ export default function Login() {
 
   return (
     <div className="flex items-center justify-end h-screen text-white">
-      <Image className="h-full w-full" src={logo} alt="img"/>
+      <Image className="h-full w-full" src={logo} alt="img" />
       <div className=" absolute h-full py-10 pl-36 flex justify-center items-center rounded-xl w-1/2">
         <div className="w-4/5 h-full py-10">
           <div className="w-full text-start text-5xl font-bold">Login</div>

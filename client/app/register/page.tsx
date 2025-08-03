@@ -69,7 +69,7 @@ export default function Register() {
             />
           </div>
 
-          <Button className="w-full p-7 text-white" color="primary" size="lg">
+          <Button className="w-full p-7 text-white" color="primary" size="lg" onClick={() => router.push("/candidate/onBoarding")}>
             Sign Up
           </Button>
 
