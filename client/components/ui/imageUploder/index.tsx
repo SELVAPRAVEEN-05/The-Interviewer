@@ -17,9 +17,9 @@ interface IndexProps {
   classNameUploadContent?: string;
   classNameLoaderBgcolor?: string;
   classNameLoaderColor?: string;
-  imageValue?: string;
-  getImgFile?: (img: string) => void;
-  onChange?: (imageUrl: string | null, e: any) => void;
+  imageValue?: any;
+  getImgFile?: (img: string | any) => void;
+  onChange?: (imageUrl: string | null | any, e: any) => void;
   accept?: string;
   imageUrl?: string;
 }

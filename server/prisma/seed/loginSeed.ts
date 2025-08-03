@@ -40,7 +40,7 @@ const data = [
    {
     id: 2,
     name: "ram",
-    email: "thiruselvan.cs23@bitsathy.ac.in",
+    email: "coauthor2",
     role: "police",
     logo: "ff",
     isDeleted: false,
