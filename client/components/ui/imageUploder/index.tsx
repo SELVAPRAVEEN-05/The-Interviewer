@@ -27,14 +27,14 @@ interface IndexProps {
 export function Uploadphoto({
   inputtype = 'file',
   uploadimage = false,
-  title = 'Upload file',
-  content = 'Only PNG, JPEG, or PDF formats, not more than 2 MB',
+  title = 'Upload Your Profile Picture',
+  content = 'Only PNG, JPEG not more than 2 MB',
   inputField = <Image src={Uplode} alt="Upload Icon" />,
   deleteIcon = <MdDeleteForever />,
   imageValue = '',
   classNameUploadContainer = 'h-[3.75rem] w-[20.875rem]',
   classNameUploadImage = 'h-[3.75rem] w-[3.75rem]',
-  classNameUploadTitle = 'font-medium',
+  classNameUploadTitle = 'font-medium mb-1 mt-2',
   classNameUploadContent = 'text-gray-500 text-xs font-regular text-ellipsis whitespace-nowrap',
   classNameLoaderBgcolor = 'h-[0.25rem] rounded-full w-[11.063rem]',
   classNameLoaderColor = 'bg-[#008545] h-[0.25rem] rounded-full',
@@ -123,7 +123,7 @@ export function Uploadphoto({
 
   return (
     <div className={classNameUploadContainer}>
-      <div className='flex items-center gap-[0.75rem] w-full'>
+      <div className='flex gap-3 w-full'>
         {uploadStatus && !loading ? (
           renderPreview()
         ) : (

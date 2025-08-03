@@ -70,18 +70,18 @@ export default function Education({
 
   return (
     <div className="h-full w-full flex flex-col justify-between">
-      <div>
+      <div className="h-[90%] overflow-y-auto scrollbar-hide">
         <p className="font-semibold">Education Information</p>
         <p className="text-sm text-gray-500 pt-1">
           Please provide your education details to help us understand your
           background.
         </p>
-        <div className="grid grid-cols-2 gap-x-4 gap-y-6 pt-4 w-full">
+        <div className="grid md:grid-cols-2 grid-cols-1 gap-x-4 gap-y-6 pt-4 w-full">
           <Autocomplete
             label="College Name"
-            placeholder="Select your college"
+            // placeholder="Select your college"
             radius="sm"
-            size="lg"
+            size="md"
             variant="bordered"
             defaultItems={collegeNames}
             selectedKey={college}
@@ -94,9 +94,9 @@ export default function Education({
 
           <Autocomplete
             label="Highest Qualification"
-            placeholder="Select your highest qualification"
+            // placeholder="Select your highest qualification"
             radius="sm"
-            size="lg"
+            size="md"
             variant="bordered"
             defaultItems={qualifications}
             selectedKey={qualification}
@@ -111,9 +111,9 @@ export default function Education({
 
           <Autocomplete
             label="Specialization"
-            placeholder="Select your specialization"
+            // placeholder="Select your specialization"
             radius="sm"
-            size="lg"
+            size="md"
             variant="bordered"
             defaultItems={specializations}
             selectedKey={specialization}
@@ -128,9 +128,9 @@ export default function Education({
 
           <Select
             label="Year of Passing"
-            placeholder="Select your year of passing"
+            // placeholder="Select your year of passing"
             radius="sm"
-            size="lg"
+            size="md"
             variant="bordered"
             selectedKeys={passingYear ? new Set([passingYear]) : new Set()}
             onSelectionChange={(keys) => {
@@ -147,9 +147,9 @@ export default function Education({
 
           <Input
             label="Percentage/CGPA"
-            placeholder="Enter your percentage or CGPA"
+            // placeholder="Enter your percentage or CGPA"
             radius="sm"
-            size="lg"
+            size="md"
             variant="bordered"
             value={cgpa}
             onChange={(e) => setFormData({ cgpa: e.target.value })}
@@ -158,10 +158,10 @@ export default function Education({
 
           <Input
             label="Email ID"
-            placeholder="Enter your email ID"
+            // placeholder="Enter your email ID"
             radius="sm"
             type="email"
-            size="lg"
+            size="md"
             variant="bordered"
             value={educationEmail}
             onChange={(e) => setFormData({ educationEmail: e.target.value })}
@@ -170,9 +170,9 @@ export default function Education({
 
           <Input
             label="10th Percentage"
-            placeholder="Enter your 10th percentage"
+            // placeholder="Enter your 10th percentage"
             radius="sm"
-            size="lg"
+            size="md"
             variant="bordered"
             value={tenth}
             onChange={(e) => setFormData({ tenth: e.target.value })}
@@ -181,9 +181,9 @@ export default function Education({
 
           <Input
             label="12th Percentage"
-            placeholder="Enter your 12th percentage"
+            // placeholder="Enter your 12th percentage"
             radius="sm"
-            size="lg"
+            size="md"
             variant="bordered"
             value={twelfth}
             onChange={(e) => setFormData({ twelfth: e.target.value })}
@@ -192,7 +192,7 @@ export default function Education({
         </div>
       </div>
 
-      <div className="flex justify-end gap-4 pt-6">
+      <div className="flex justify-end gap-4 pt-4 xl:pt-6">
         <Button
           color="primary"
           size="md"
