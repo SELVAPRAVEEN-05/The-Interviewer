@@ -1,4 +1,4 @@
-// This is your Prisma schema file for the CrimeX project
+// schema.prisma
 
 generator client {
   provider = "prisma-client-js"
@@ -9,20 +9,193 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// User authentication and roles
-model Login {
-  id                Int            @id @default(autoincrement())
-  name              String
-  email             String         @unique
-  password          String         @default("123")
-  role              String         @default("public")
-  logo              String?
-  policeStationId   Int?
-  isDeleted         Boolean        @default(false)
-  createdAt         DateTime       @default(now())
-  updatedAt         DateTime       @default(now()) @updatedAt
+model Gender {
+  id    String @id @default(uuid())
+  value String @unique
+
+  users User[]
 }
 
-// Police station information
+model Country {
+  id       String @id @default(uuid())
+  name     String @unique
+  iso_code String
 
+  users     User[]
+  institutes Institute[]
+}
 
+model Language {
+  id       String @id @default(uuid())
+  name     String @unique
+  iso_code String
+
+  users User[]
+}
+
+model EducationLevel {
+  id         String @id @default(uuid())
+  level_name String @unique
+
+  educationDetails EducationDetail[]
+}
+
+model Institute {
+  id        String @id @default(uuid())
+  name      String @unique
+  city      String
+  state     String
+  countryId String
+  country   Country @relation(fields: [countryId], references: [id])
+
+  educationDetails EducationDetail[]
+}
+
+model Skill {
+  id       String @id @default(uuid())
+  name     String @unique
+  category String
+
+  userSkills UserSkill[]
+}
+
+model User {
+  id                String @id @default(uuid())
+  first_name        String
+  last_name         String
+  email             String @unique
+  mobile_number     String
+  date_of_birth     DateTime
+  genderId          String
+  countryId         String
+  languageId        String
+  role              String
+  github_url        String
+  linkedin_url      String
+  portfolio_url     String
+  resume_url        String
+  profile_picture_url String
+  created_at        DateTime @default(now())
+
+  gender   Gender   @relation(fields: [genderId], references: [id])
+  country  Country  @relation(fields: [countryId], references: [id])
+  language Language @relation(fields: [languageId], references: [id])
+
+  educationDetails EducationDetail[]
+  userSkills       UserSkill[]
+  interviewParticipations InterviewParticipant[]
+  codeSubmissions  CodeSubmission[]
+  feedbackGiven    Feedback[] @relation("FeedbackGivenBy")
+  feedbackReceived Feedback[] @relation("FeedbackGivenTo")
+}
+
+model EducationDetail {
+  id                String @id @default(uuid())
+  userId            String
+  educationLevelId  String
+  instituteId       String
+  specialization    String
+  board_or_university String
+  marks_obtained    Decimal @db.Decimal(5, 2)
+  max_marks         Decimal @db.Decimal(5, 2)
+  year_of_passing   Int
+
+  user            User            @relation(fields: [userId], references: [id])
+  educationLevel  EducationLevel  @relation(fields: [educationLevelId], references: [id])
+  institute       Institute       @relation(fields: [instituteId], references: [id])
+}
+
+model UserSkill {
+  id                 String @id @default(uuid())
+  userId             String
+  skillId            String
+  proficiency        String
+  years_of_experience Int
+
+  user  User  @relation(fields: [userId], references: [id])
+  skill Skill @relation(fields: [skillId], references: [id])
+}
+
+model Interview {
+  id           String   @id @default(uuid())
+  scheduled_at DateTime
+  status       String
+  session_link String
+  prize        Decimal? @db.Decimal(10, 2)
+  created_at   DateTime @default(now())
+
+  participants    InterviewParticipant[]
+  codeSubmissions CodeSubmission[]
+  feedbacks       Feedback[]
+}
+
+model InterviewParticipant {
+  id         String   @id @default(uuid())
+  interviewId String
+  userId     String
+  role       String
+  joined_at  DateTime
+  left_at    DateTime
+  note       String
+
+  interview Interview @relation(fields: [interviewId], references: [id])
+  user      User      @relation(fields: [userId], references: [id])
+}
+
+model CodeSubmission {
+  id           String   @id @default(uuid())
+  interviewId  String
+  userId       String
+  language     String
+  code         String
+  submitted_at DateTime @default(now())
+
+  interview Interview @relation(fields: [interviewId], references: [id])
+  user      User      @relation(fields: [userId], references: [id])
+}
+
+model Brand {
+  id         String   @id @default(uuid())
+  name       String   @unique
+  website_url String
+  industry   String
+  created_at DateTime @default(now())
+
+  brandPositions BrandPosition[]
+}
+
+model Position {
+  id         String   @id @default(uuid())
+  title      String   @unique
+  level      String
+  department String
+  created_at DateTime @default(now())
+
+  brandPositions BrandPosition[]
+}
+
+model BrandPosition {
+  id         String   @id @default(uuid())
+  brandId    String
+  positionId String
+  location   String
+  is_active  Boolean  @default(true)
+  created_at DateTime @default(now())
+
+  brand    Brand    @relation(fields: [brandId], references: [id])
+  position Position @relation(fields: [positionId], references: [id])
+}
+
+model Feedback {
+  id               String   @id @default(uuid())
+  interviewId      String
+  given_by_user_id String
+  given_to_user_id String
+  rating           Int
+  comments         String
+  created_at       DateTime @default(now())
+
+  interview Interview @relation(fields: [interviewId], references: [id])
+  givenBy   User      @relation("FeedbackGivenBy", fields: [given_by_user_id], references: [id])
+  givenTo   User      @relation("FeedbackGivenTo", fields: [given_to_user_id], references: [id])
+}

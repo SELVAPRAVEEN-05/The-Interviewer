@@ -52,7 +52,7 @@ const data = [
 
 async function loginSeed() {
   for (const record of data) {
-    await prisma.login.upsert({
+    await prisma.user.upsert({
       where: { id: record.id },
       create: record,
       update: record

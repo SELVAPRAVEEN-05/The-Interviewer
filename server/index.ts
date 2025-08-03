@@ -12,6 +12,7 @@ fastify.get('/jwt', async (request:any, reply:any) => {
   return reply.status(200).send({ hello: 'world' })
 })
 fastify.register(LoginUserRoute,{prefix:"/api/auth"})
+
 const start = async () => {
   try {
     await fastify.listen({ port: 5000 })
