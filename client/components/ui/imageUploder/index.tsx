@@ -1,8 +1,8 @@
 'use client';
-import { useRef, useState } from 'react';
 import Uplode from "@/components/assets/uplodeImage.png";
-import { MdDeleteForever } from "react-icons/md";
 import Image from 'next/image';
+import { useRef, useState } from 'react';
+import { MdDeleteForever } from "react-icons/md";
 
 interface IndexProps {
   inputtype?: string;
@@ -32,14 +32,14 @@ export function Uploadphoto({
   inputField = <Image src={Uplode} alt="Upload Icon" />,
   deleteIcon = <MdDeleteForever />,
   imageValue = '',
-  classNameUploadContainer = 'h-[3.75rem] w-[20.875rem]',
+  classNameUploadContainer = 'h-[3.75rem] min-w-[20.875rem]',
   classNameUploadImage = 'h-[3.75rem] w-[3.75rem]',
-  classNameUploadTitle = 'font-medium mb-1 mt-2',
-  classNameUploadContent = 'text-gray-500 text-xs font-regular text-ellipsis whitespace-nowrap',
+  classNameUploadTitle = 'font-medium mb-1 mt-[-1px]',
+  classNameUploadContent = 'text-gray-700 text-sm font-regular text-ellipsis whitespace-nowrap',
   classNameLoaderBgcolor = 'h-[0.25rem] rounded-full w-[11.063rem]',
   classNameLoaderColor = 'bg-[#008545] h-[0.25rem] rounded-full',
   getImgFile,
-  onChange = () => {},
+  onChange = () => { },
   accept = 'image/png, image/jpeg',
   imageUrl = '',
 }: IndexProps) {
@@ -123,7 +123,7 @@ export function Uploadphoto({
 
   return (
     <div className={classNameUploadContainer}>
-      <div className='flex gap-3 w-full'>
+      <div className='flex gap-3 w-full h-full items-center'>
         {uploadStatus && !loading ? (
           renderPreview()
         ) : (
@@ -142,7 +142,11 @@ export function Uploadphoto({
         <div
           className={`flex flex-col ${uploadStatus && !loading ? 'w-[10.438rem]' : 'w-[13.625rem]'}`}
         >
-          <div className={classNameUploadTitle}>{title}</div>
+          {/* ✅ Hide title after upload */}
+          {!uploadStatus && !loading && (
+            <div className={classNameUploadTitle}>{title}</div>
+          )}
+
           {!uploadStatus && !loading ? (
             <div className={classNameUploadContent}>{content}</div>
           ) : (
@@ -174,7 +178,7 @@ export function Uploadphoto({
         </div>
 
         {uploadStatus && !loading && (
-          <div onClick={handleDelete} className='cursor-pointer text-red-500 text-2xl'>
+          <div onClick={handleDelete} className='cursor-pointer text-red-500 text-2xl h-full flex items-center'>
             {deleteIcon}
           </div>
         )}
