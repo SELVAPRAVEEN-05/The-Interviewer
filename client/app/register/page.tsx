@@ -1,5 +1,6 @@
 "use client";
 import logo from "@/components/assets/loginwith.jpg";
+import Mob from "@/components/assets/or.jpg";
 import { GoogleIcon } from "@/components/icons";
 import { useRegisterStore } from "@/components/store/account/register";
 import { Button, Input } from "@nextui-org/react";
@@ -7,6 +8,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import React from "react";
 import { FaEyeSlash, FaRegEye } from "react-icons/fa";
+
 
 export default function Register() {
   const router = useRouter();
@@ -19,7 +21,9 @@ export default function Register() {
     <div className="flex items-center justify-end h-screen text-white bg-black">
       {/* Left Side Image (Hidden on small screens) */}
       <Image className="hidden lg:flex h-full w-full" src={logo} alt="img" />
-      
+      <Image className="flex lg:hidden h-full w-full" src={Mob} alt="img" />
+
+
       {/* Right Side Form */}
       <div className="w-full xl:w-1/2 lg:w-3/5 px-4 md:px-6 absolute lg:h-full lg:flex justify-center items-center lg:py-10 lg:pl-36 bg-transparent">
         <div className="w-full lg:w-4/5 h-full py-10">

@@ -1,5 +1,6 @@
 "use client";
 import logo from "@/components/assets/loginwith.jpg";
+import Mob from "@/components/assets/or.jpg";
 import { GoogleIcon } from "@/components/icons";
 import { useLoginStore } from "@/components/store/account/login";
 import { Input } from "@heroui/input";
@@ -18,6 +19,7 @@ export default function Login() {
 
   return (
     <div className="flex items-center justify-end h-screen text-white bg-black">
+      <Image className="flex lg:hidden h-full w-full" src={Mob} alt="img" />
       <Image className="hidden lg:flex h-full w-full" src={logo} alt="img" />
       <div className="w-full xl:w-1/2 lg:w-3/5 px-4 md:px-6 absolute lg:h-full lg:flex justify-center items-center lg:py-10 lg:pl-36 bg-transparent">
         <div className="w-full lg:w-4/5 h-full py-10">
