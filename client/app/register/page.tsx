@@ -19,12 +19,9 @@ export default function Register() {
 
   return (
     <div className="flex items-center justify-end h-screen text-white bg-black">
-      {/* Left Side Image (Hidden on small screens) */}
       <Image className="hidden lg:flex h-full w-full" src={logo} alt="img" />
       <Image className="flex lg:hidden h-full w-full" src={Mob} alt="img" />
 
-
-      {/* Right Side Form */}
       <div className="w-full xl:w-1/2 lg:w-3/5 px-4 md:px-6 absolute lg:h-full lg:flex justify-center items-center lg:py-10 lg:pl-36 bg-transparent">
         <div className="w-full lg:w-4/5 h-full py-10">
           <h1 className="text-5xl font-bold">Sign Up</h1>
@@ -85,7 +82,7 @@ export default function Register() {
               className="w-full text-white"
               color="primary"
               size="lg"
-              onClick={() => router.push("/candidate/onBoarding")}
+              onClick={() => router.push("/interviewer/onboarding")}
             >
               Sign Up
             </Button>

@@ -1,8 +1,10 @@
 "use client";
 
+import logo from "@/components/assets/or.jpg";
+import { useFormStore } from "@/components/store/onBoarding/index";
 import { Uploadphoto } from "@/components/ui/imageUploder";
 import { Button, Input, Select, SelectItem } from "@nextui-org/react";
-import { useFormStore } from "@/components/store/onBoarding/index";
+import Image from "next/image";
 
 export default function InterviewerOnboarding() {
   const {
@@ -19,8 +21,10 @@ export default function InterviewerOnboarding() {
   } = useFormStore();
 
   return (
-    <div className="h-screen px-52 py-24 w-full bg-blue-950">
-      <div className="bg-white h-full w-full rounded-2xl py-5 px-7 flex gap-5">
+    <div className="h-screen lg:px-28 xl:px-52 flex items-center w-full">
+      <Image className="absolute -z-10 left-0 top-0 lg:flex h-full w-full" src={logo} alt="img" />
+
+      <div className="bg-white h-full md:h-fit w-full md:rounded-2xl p-5 flex gap-5 overflow-y-auto scrollbar-hide">
         <div className="w-full">
           <p className="font-semibold">Let’s Get to Know You</p>
           <p className="text-sm text-gray-500 pt-1">
@@ -36,13 +40,12 @@ export default function InterviewerOnboarding() {
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-x-4 gap-y-6 pt-4 w-full">
+          <div className="grid md:grid-cols-2 grid-cols-1 gap-x-4 gap-y-6 pt-4 w-full">
             <Input
               label="Name"
-              placeholder="Enter your name"
               value={interviewerName}
               onChange={(e) => setFormData({ interviewerName: e.target.value })}
-              size="lg"
+              size="md"
               type="text"
               radius="sm"
               variant="bordered"
@@ -50,35 +53,32 @@ export default function InterviewerOnboarding() {
             />
             <Input
               label="Mobile Number"
-              placeholder="Enter your mobile number"
               value={interviewerMobile}
               onChange={(e) =>
                 setFormData({ interviewerMobile: e.target.value })
               }
               radius="sm"
               type="tel"
-              size="lg"
+              size="md"
               variant="bordered"
               isRequired
             />
             <Input
               label="Email ID"
-              placeholder="Enter your email ID"
               value={interviewerEmail}
               onChange={(e) =>
                 setFormData({ interviewerEmail: e.target.value })
               }
               radius="sm"
               type="email"
-              size="lg"
+              size="md"
               variant="bordered"
               isRequired
             />
             <Select
               label="Gender"
-              placeholder="Select your Gender"
               variant="bordered"
-              size="lg"
+              size="md"
               isRequired
               radius="sm"
               selectedKeys={interviewerGender ? [interviewerGender] : []}
@@ -95,51 +95,47 @@ export default function InterviewerOnboarding() {
             </Select>
             <Input
               label="Company Name"
-              placeholder="Enter your company name"
               value={company}
               onChange={(e) => setFormData({ company: e.target.value })}
               radius="sm"
               type="text"
-              size="lg"
+              size="md"
               variant="bordered"
               isRequired
             />
             <Input
               label="Years of Experience"
-              placeholder="Enter your years of experience"
               value={experience}
               onChange={(e) => setFormData({ experience: e.target.value })}
               radius="sm"
               type="number"
-              size="lg"
+              size="md"
               variant="bordered"
               isRequired
             />
             <Input
               label="Designation / Job Title"
-              placeholder="e.g., Software Engineer, HR Specialist"
               value={designation}
               onChange={(e) => setFormData({ designation: e.target.value })}
               radius="sm"
               type="text"
-              size="lg"
+              size="md"
               variant="bordered"
               isRequired
             />
             <Input
               label="Domain/Specialization"
-              placeholder="e.g., Web Development, Data Science, HR, etc."
               value={domain}
               onChange={(e) => setFormData({ domain: e.target.value })}
               radius="sm"
               type="text"
-              size="lg"
+              size="md"
               variant="bordered"
               isRequired
             />
           </div>
 
-          <div className="flex justify-end pt-6">
+          <div className="flex justify-end pt-6 md:pb-0 pb-5">
             <Button
               color="primary"
               size="md"
