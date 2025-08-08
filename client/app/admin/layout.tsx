@@ -12,7 +12,7 @@ export default function AdminLayout() {
         <div className="flex h-screen w-full">
             {/* Sidebar */}
             <div className="w-2/12">
-                <SideBar data={data} selected={selectedTab} onSelect={setSelectedTab} />
+                <SideBar />
             </div>
 
             {/* Main Content */}
