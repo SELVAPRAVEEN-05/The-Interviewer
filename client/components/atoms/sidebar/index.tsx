@@ -33,7 +33,7 @@ export default function SideBar() {
         const parentRect = parentElement.getBoundingClientRect();
         const activeRect = activeElement.getBoundingClientRect();
         const relativeTop = activeRect.top - parentRect.top;
-        
+
         setLineStyle({
           top: relativeTop,
           opacity: 1
@@ -51,7 +51,7 @@ export default function SideBar() {
       <h2 className="text-xl font-semibold italic text-gray-800 mb-8">
         REWARD <span className="font-bold not-italic">POINTS</span>
       </h2>
-      
+
       <nav className="flex-1">
         <ul className="space-y-2 relative">
           {/* Animated blue line */}
@@ -63,23 +63,25 @@ export default function SideBar() {
               opacity: lineStyle.opacity,
             }}
           />
-          
+
           {sidebarItems.map((item) => (
             <li key={item.id}>
               <button
-                ref={(el) => (itemRefs.current[item.id] = el)}
+                ref={(el) => {
+                  itemRefs.current[item.id] = el;
+                }}
                 onClick={() => handleItemClick(item.id)}
                 className={`relative w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-all duration-300
                   ${activeId === item.id
                     ? 'text-blue-600 bg-white'
                     : 'text-gray-400 hover:text-gray-600'}
-                `}
-              >
+                  `}>
                 <span>{item.icon}</span>
                 <span>{item.label}</span>
               </button>
             </li>
           ))}
+
         </ul>
       </nav>
     </div>
