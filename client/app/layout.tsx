@@ -43,6 +43,7 @@ export default function RootLayout({
           <div
             id="scroll-container"
             className="h-screen overflow-y-auto
+            overflow-hidden
             [&::-webkit-scrollbar]:w-1.5
             [&::-webkit-scrollbar-thumb]:rounded-full
             [&::-webkit-scrollbar-track]:bg-[transparent]
