@@ -8,7 +8,7 @@ import AdminDashboard from "./dashboard/page";
 export default function AdminLayout() {
 
     return (
-        <div className="h-screen w-full">
+        <div className="h-screen w-full overflow-y-auto scrollbar-hide overflow-hidden bg-red-400">
             <Header />
             <div className="flex ">
                 <div className="w-2/12">

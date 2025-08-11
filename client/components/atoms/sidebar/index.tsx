@@ -47,7 +47,7 @@ export default function SideBar() {
   };
 
   return (
-    <div className="w-64 bg-white border-r border-gray-100 h-screen flex flex-col px-4 pt-6">
+    <div className="w-64 bg-white border-r border-gray-100 flex flex-col px-4 pt-6">
       <h2 className="text-xl font-semibold italic text-gray-800 mb-8">
         REWARD <span className="font-bold not-italic">POINTS</span>
       </h2>

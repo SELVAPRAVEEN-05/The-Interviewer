@@ -21,14 +21,12 @@ import Tabs from './components/tabs';
 const AdminDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'overview' | 'interviews' | 'approvals' | 'users'>('overview');
 
-  const stats = {
-    todayInterviews: 8,
-    weeklyInterviews: 45,
-    approvedCandidates: 156,
-    activeInterviewers: 23,
-    pendingApprovals: 12,
-    completedToday: 5,
-  };
+  const statsData = [
+    { icon: <Calendar />, title: "Today's Interviews", value: 8, change: "+12%", color: "blue-600" },
+    { icon: <Clock />, title: "Weekly Interviews", value: 45, change: "+8%", color: "green-600" },
+    { icon: <Users />, title: "Active Interviewers", value: 23, change: "+5%", color: "purple-600" },
+    { icon: <CheckCircle />, title: "Pending Approvals", value: 12, color: "orange-600" },
+  ];
 
   const ongoingInterviews = [
     {
@@ -89,11 +87,11 @@ const AdminDashboard: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="h-[90vh] bg-gray-50 overflow-y-scroll scrollbar-hide">
       {/* Header */}
 
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="px-4 sm:px-6 lg:px-8 py-8">
         {/* Tabs */}
         <Tabs activeTab={activeTab} onTabChange={setActiveTab} />
 
@@ -102,12 +100,17 @@ const AdminDashboard: React.FC = () => {
           <div className="space-y-8">
             {/* Stats Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <StatCard icon={Calendar} title="Today's Interviews" value={stats.todayInterviews} change="+12%" color="bg-blue-600" />
-              <StatCard icon={Clock} title="Weekly Interviews" value={stats.weeklyInterviews} change="+8%" color="bg-green-600" />
-              <StatCard icon={Users} title="Active Interviewers" value={stats.activeInterviewers} change="+5%" color="bg-purple-600" />
-              <StatCard icon={CheckCircle} title="Pending Approvals" value={stats.pendingApprovals} color="bg-orange-600" />
+              {statsData.map((item, idx) => (
+                <StatCard
+                  key={idx}
+                  icon={item.icon}
+                  title={item.title}
+                  value={item.value}
+                  change={item.change}
+                  color={item.color}
+                />
+              ))}
             </div>
-
             {/* Ongoing Interviews */}
             <div className="bg-white rounded-lg shadow-sm border border-gray-200">
               <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">

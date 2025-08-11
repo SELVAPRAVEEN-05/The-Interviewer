@@ -10,9 +10,9 @@ type StatCardProps = {
   color: string;
 };
 
-const StatCard: React.FC<StatCardProps> = ({ icon: Icon, title, value, change, color }) => (
+const StatCard = ({ icon, title, value, change, color }:StatCardProps) => (
   <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
-    <div className="flex items-center justify-between">
+    <div className="flex items-center justify-between h-full">
       <div>
         <p className="text-sm font-medium text-gray-600">{title}</p>
         <p className="text-2xl font-bold text-gray-900 mt-1">{value}</p>
@@ -22,8 +22,8 @@ const StatCard: React.FC<StatCardProps> = ({ icon: Icon, title, value, change, c
           </p>
         )}
       </div>
-      <div className={`p-3 rounded-lg ${color}`}>
-        <Icon className="h-6 w-6 text-white" />
+      <div className={`p-3 text-white rounded-lg  bg-${color}`}>
+        {icon}
       </div>
     </div>
   </div>
