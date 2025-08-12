@@ -8,16 +8,18 @@ import AdminDashboard from "./dashboard/page";
 export default function AdminLayout() {
 
     return (
-        <div className="h-screen w-full overflow-y-auto scrollbar-hide overflow-hidden bg-red-400">
-            <Header />
-            <div className="flex ">
-                <div className="w-2/12">
+        <div className="h-screen w-screen overflow-hidden">
+            <div className=" shadow-md h-[10vh] w-full">
+                <Header />
+            </div>
+            <div className="flex h-[90vh] w-full overflow-hidden">
+                <div className="h-full">
                     <SideBar />
                 </div>
 
-                <div className="flex-1 p-6">
+                {/* <div className="flex-1 p-6 overflow-y-auto scrollbar-hide overflow-hidden">
                     <AdminDashboard />
-                </div>
+                </div> */}
             </div>
         </div>
     );
