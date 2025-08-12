@@ -42,7 +42,8 @@ export default function RootLayout({
         {/* <Providers themeProps={{ attribute: "class", defaultTheme: "light" }}> */}
           <div
             id="scroll-container"
-            className="h-screen overflow-y-auto
+            className="h-screen  w-screen
+            overflow-y-auto
             overflow-hidden
             [&::-webkit-scrollbar]:w-1.5
             [&::-webkit-scrollbar-thumb]:rounded-full
