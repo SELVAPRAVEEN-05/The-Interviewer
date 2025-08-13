@@ -22,7 +22,7 @@ const StatCard = ({ icon, title, value, change, color }:StatCardProps) => (
           </p>
         )}
       </div>
-      <div className={`p-3 text-white rounded-lg  bg-${color}`}>
+      <div className={`p-3 text-white rounded-lg ${color}`}>
         {icon}
       </div>
     </div>
