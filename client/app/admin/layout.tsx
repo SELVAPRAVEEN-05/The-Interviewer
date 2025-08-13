@@ -17,9 +17,9 @@ export default function AdminLayout() {
                     <SideBar />
                 </div>
 
-                {/* <div className="flex-1 p-6 overflow-y-auto scrollbar-hide overflow-hidden">
+                <div className="flex-1 p-6 overflow-y-auto scrollbar-hide overflow-hidden">
                     <AdminDashboard />
-                </div> */}
+                </div>
             </div>
         </div>
     );
