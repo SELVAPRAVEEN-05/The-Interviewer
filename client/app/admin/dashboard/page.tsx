@@ -111,7 +111,7 @@ const AdminDashboard: React.FC = () => {
 
   return (
     <HeroUIProvider>
-      <div className="h-full w-full bg-gray-50 overflow-y-scroll scrollbar-hide px-4 sm:px-6 lg:px-8 py-8">
+      <div className="h-full w-full bg-white rounded-lg overflow-y-scroll scrollbar-hide px-4 sm:px-6 lg:px-8 py-8">
         {/* HeroUI Tabs */}
         <Tabs
           className='w-full'

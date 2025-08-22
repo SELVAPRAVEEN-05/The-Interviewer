@@ -16,12 +16,10 @@ export default function SideBar() {
 
   const sidebarItems = [
     { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard size={18} /> },
-    { id: 'customers', label: 'Customers', icon: <Users size={18} /> },
-    { id: 'advisor', label: 'Advisor', icon: <MessageSquare size={18} /> },
-    { id: 'reviews', label: 'Reviews & Ratings', icon: <Star size={18} /> },
-    { id: 'call', label: 'Call/Chat', icon: <Phone size={18} /> },
-    { id: 'wallet', label: 'Wallet plan', icon: <CreditCard size={18} /> },
-    { id: 'referrals', label: 'Referrals', icon: <Gift size={18} /> },
+    { id: 'managecandidates', label: 'Manage Candidates', icon: <Users size={18} /> },
+    { id: 'manageinterviewers', label: 'Manage Interviewers', icon: <MessageSquare size={18} /> },
+    { id: 'interviewcheduling', label: 'Interview Scheduling', icon: <Star size={18} /> },
+    { id: 'feedbackreports', label: 'Feedback & Reports', icon: <Phone size={18} /> },
   ];
 
   useEffect(() => {
@@ -48,7 +46,7 @@ export default function SideBar() {
   return (
     <div className="w-full h-full pt-5 border-r border-gray-100 flex flex-col ">
       <div>
-        <div className="space-y-3 relative">
+        <div className="space-y-3 relative mt-6">
           {/* Animated blue line */}
           <div
             className="absolute hidden md:block right-0 w-[3px] bg-blue-600 rounded-md transition-all duration-300 ease-in-out z-10"
@@ -66,7 +64,7 @@ export default function SideBar() {
                   itemRefs.current[item.id] = el;
                 }}
                 onClick={() => handleItemClick(item.id)}
-                className={`relative w-full flex items-center gap-3 px-4 md:pr-10 lg:pl-6 lg:pr-16  py-2 rounded-md text-sm font-medium transition-all duration-300
+                className={`relative w-full flex items-center gap-3 px-4 md:pr-10 lg:pl-6 lg:pr-16  py-3 rounded-md text-sm font-medium transition-all duration-300
                   ${activeId === item.id
                     ? 'text-blue-600 bg-white'
                     : 'text-gray-400 hover:text-gray-600'}
