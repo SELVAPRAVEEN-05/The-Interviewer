@@ -4,6 +4,8 @@
 import SideBar from "@/components/atoms/sidebar";
 import Header from "./dashboard/components/header";
 import AdminDashboard from "./dashboard/page";
+import ManageCandidates from "./manageCandidates/page";
+import ManageInterviewers from "./manageInterviewers/page";
 
 export default function AdminLayout() {
 
@@ -17,8 +19,8 @@ export default function AdminLayout() {
                     <SideBar />
                 </div>
 
-                <div className="flex-1 p-6 overflow-y-auto scrollbar-hide overflow-hidden">
-                    <AdminDashboard />
+                <div className="flex-1 p-6 overflow-y-auto scrollbar-hide overflow-hidden bg-gray-50">
+                    <ManageInterviewers />
                 </div>
             </div>
         </div>
