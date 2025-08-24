@@ -28,6 +28,7 @@ import FirstPageIcon from "@mui/icons-material/FirstPage";
 import KeyboardArrowLeft from "@mui/icons-material/KeyboardArrowLeft";
 import KeyboardArrowRight from "@mui/icons-material/KeyboardArrowRight";
 import LastPageIcon from "@mui/icons-material/LastPage";
+import StatCard from "../components/statCard";
 
 // ---------------- Pagination Actions ----------------
 interface TablePaginationActionsProps {
@@ -203,38 +204,7 @@ const AdminDashboard = () => {
     setPage(0);
   };
 
-  // ---------------- Stat Card ----------------
-  type StatCardProps = {
-    title: string;
-    value: number;
-    icon: React.ElementType;
-    color: string;
-    subtitle?: string;
-  };
-
-  const StatCard = ({
-    title,
-    value,
-    icon: Icon,
-    color,
-    subtitle,
-  }: StatCardProps) => (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow">
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-sm font-medium text-gray-600 mb-1">{title}</p>
-          <p className={`text-3xl font-bold ${color}`}>{value}</p>
-          {subtitle && <p className="text-xs text-gray-500 mt-1">{subtitle}</p>}
-        </div>
-        <div
-          className={`p-3 rounded-lg ${color.replace("text", "bg").replace("-600", "-100")}`}
-        >
-          <Icon className={`w-6 h-6 ${color}`} />
-        </div>
-      </div>
-    </div>
-  );
-
+  
   // ---------------- Quick Action Button ----------------
   type QuickActionButtonProps = {
     title: string;
@@ -276,7 +246,7 @@ const AdminDashboard = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200 px-6 py-4 rounded-lg">
+      <div className="bg-white shadow-lg px-6 py-4 rounded-lg">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
@@ -320,7 +290,7 @@ const AdminDashboard = () => {
             title="Completed Interviews"
             value={stats.completedInterviews}
             icon={CheckCircle}
-            color="text-emerald-600"
+            color="text-emerald-600 "
           />
         </div>
 
