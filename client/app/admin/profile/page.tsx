@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
-import { 
-  User, 
-  Mail, 
-  Phone, 
-  MapPin, 
+"use client";
+
+import React, { useState } from "react";
+import {
+  User,
+  Mail,
+  Phone,
+  MapPin,
   Calendar,
   Key,
   LogOut,
@@ -13,8 +15,8 @@ import {
   Shield,
   Bell,
   Eye,
-  EyeOff
-} from 'lucide-react';
+  EyeOff,
+} from "lucide-react";
 
 interface AdminProfile {
   id: string;
@@ -29,7 +31,9 @@ interface AdminProfile {
 }
 
 const AdminProfilePage: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'profile' | 'password' | 'settings'>('profile');
+  const [activeTab, setActiveTab] = useState<
+    "profile" | "password" | "settings"
+  >("profile");
   const [isEditing, setIsEditing] = useState(false);
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
@@ -37,22 +41,22 @@ const AdminProfilePage: React.FC = () => {
 
   // Mock admin data
   const [adminData, setAdminData] = useState<AdminProfile>({
-    id: 'ADM001',
-    name: 'Darkdevil',
-    email: 'admin@codemeet.com',
-    phone: '+91 98765 43210',
-    role: 'Super Admin',
-    department: 'IT Administration',
-    joinDate: '2023-01-15',
-    lastLogin: '2024-08-24 10:30 AM'
+    id: "ADM001",
+    name: "Darkdevil",
+    email: "admin@codemeet.com",
+    phone: "+91 98765 43210",
+    role: "Super Admin",
+    department: "IT Administration",
+    joinDate: "2023-01-15",
+    lastLogin: "2024-08-24 10:30 AM",
   });
 
   const [editData, setEditData] = useState(adminData);
-  
+
   const [passwordData, setPasswordData] = useState({
-    currentPassword: '',
-    newPassword: '',
-    confirmPassword: ''
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
   });
 
   const [settings, setSettings] = useState({
@@ -60,45 +64,45 @@ const AdminProfilePage: React.FC = () => {
     smsNotifications: false,
     interviewReminders: true,
     weeklyReports: true,
-    systemAlerts: true
+    systemAlerts: true,
   });
 
   const handleSaveProfile = () => {
     setAdminData(editData);
     setIsEditing(false);
-    alert('Profile updated successfully!');
+    alert("Profile updated successfully!");
   };
 
   const handleChangePassword = () => {
     if (passwordData.newPassword !== passwordData.confirmPassword) {
-      alert('New passwords do not match!');
+      alert("New passwords do not match!");
       return;
     }
     if (passwordData.newPassword.length < 6) {
-      alert('Password must be at least 6 characters long!');
+      alert("Password must be at least 6 characters long!");
       return;
     }
     // Here you would typically call an API to change the password
-    alert('Password changed successfully!');
+    alert("Password changed successfully!");
     setPasswordData({
-      currentPassword: '',
-      newPassword: '',
-      confirmPassword: ''
+      currentPassword: "",
+      newPassword: "",
+      confirmPassword: "",
     });
   };
 
   const handleLogout = () => {
-    if (window.confirm('Are you sure you want to logout?')) {
+    if (window.confirm("Are you sure you want to logout?")) {
       // Here you would typically clear session/tokens and redirect
-      alert('Logging out...');
+      alert("Logging out...");
       // In a real app: router.push('/login')
     }
   };
 
   const handleSettingsChange = (setting: string, value: boolean) => {
-    setSettings(prev => ({
+    setSettings((prev) => ({
       ...prev,
-      [setting]: value
+      [setting]: value,
     }));
   };
 
@@ -112,8 +116,12 @@ const AdminProfilePage: React.FC = () => {
               <ArrowLeft className="w-5 h-5 text-gray-600" />
             </button>
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Profile Settings</h1>
-              <p className="text-gray-600">Manage your account and preferences</p>
+              <h1 className="text-3xl font-bold text-gray-900">
+                Profile Settings
+              </h1>
+              <p className="text-gray-600">
+                Manage your account and preferences
+              </p>
             </div>
           </div>
           <button
@@ -133,9 +141,13 @@ const AdminProfilePage: React.FC = () => {
                 <User className="w-10 h-10 text-white" />
               </div>
               <div>
-                <h2 className="text-2xl font-bold text-gray-900">{adminData.name}</h2>
+                <h2 className="text-2xl font-bold text-gray-900">
+                  {adminData.name}
+                </h2>
                 <p className="text-gray-600">{adminData.role}</p>
-                <p className="text-sm text-gray-500">Last login: {adminData.lastLogin}</p>
+                <p className="text-sm text-gray-500">
+                  Last login: {adminData.lastLogin}
+                </p>
               </div>
             </div>
           </div>
@@ -144,11 +156,11 @@ const AdminProfilePage: React.FC = () => {
           <div className="border-b">
             <nav className="flex space-x-8 px-6">
               <button
-                onClick={() => setActiveTab('profile')}
+                onClick={() => setActiveTab("profile")}
                 className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                  activeTab === 'profile'
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  activeTab === "profile"
+                    ? "border-blue-500 text-blue-600"
+                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                 }`}
               >
                 <div className="flex items-center space-x-2">
@@ -157,11 +169,11 @@ const AdminProfilePage: React.FC = () => {
                 </div>
               </button>
               <button
-                onClick={() => setActiveTab('password')}
+                onClick={() => setActiveTab("password")}
                 className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                  activeTab === 'password'
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  activeTab === "password"
+                    ? "border-blue-500 text-blue-600"
+                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                 }`}
               >
                 <div className="flex items-center space-x-2">
@@ -170,11 +182,11 @@ const AdminProfilePage: React.FC = () => {
                 </div>
               </button>
               <button
-                onClick={() => setActiveTab('settings')}
+                onClick={() => setActiveTab("settings")}
                 className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                  activeTab === 'settings'
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  activeTab === "settings"
+                    ? "border-blue-500 text-blue-600"
+                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                 }`}
               >
                 <div className="flex items-center space-x-2">
@@ -188,10 +200,12 @@ const AdminProfilePage: React.FC = () => {
           {/* Tab Content */}
           <div className="p-6">
             {/* Profile Tab */}
-            {activeTab === 'profile' && (
+            {activeTab === "profile" && (
               <div>
                 <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-lg font-semibold text-gray-900">Personal Information</h3>
+                  <h3 className="text-lg font-semibold text-gray-900">
+                    Personal Information
+                  </h3>
                   {!isEditing ? (
                     <button
                       onClick={() => setIsEditing(true)}
@@ -224,12 +238,19 @@ const AdminProfilePage: React.FC = () => {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Full Name
+                    </label>
                     {isEditing ? (
                       <input
                         type="text"
                         value={editData.name}
-                        onChange={(e) => setEditData(prev => ({ ...prev, name: e.target.value }))}
+                        onChange={(e) =>
+                          setEditData((prev) => ({
+                            ...prev,
+                            name: e.target.value,
+                          }))
+                        }
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                       />
                     ) : (
@@ -241,12 +262,19 @@ const AdminProfilePage: React.FC = () => {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Email Address
+                    </label>
                     {isEditing ? (
                       <input
                         type="email"
                         value={editData.email}
-                        onChange={(e) => setEditData(prev => ({ ...prev, email: e.target.value }))}
+                        onChange={(e) =>
+                          setEditData((prev) => ({
+                            ...prev,
+                            email: e.target.value,
+                          }))
+                        }
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                       />
                     ) : (
@@ -258,12 +286,19 @@ const AdminProfilePage: React.FC = () => {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Phone Number
+                    </label>
                     {isEditing ? (
                       <input
                         type="tel"
                         value={editData.phone}
-                        onChange={(e) => setEditData(prev => ({ ...prev, phone: e.target.value }))}
+                        onChange={(e) =>
+                          setEditData((prev) => ({
+                            ...prev,
+                            phone: e.target.value,
+                          }))
+                        }
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                       />
                     ) : (
@@ -275,12 +310,19 @@ const AdminProfilePage: React.FC = () => {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Department</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Department
+                    </label>
                     {isEditing ? (
                       <input
                         type="text"
                         value={editData.department}
-                        onChange={(e) => setEditData(prev => ({ ...prev, department: e.target.value }))}
+                        onChange={(e) =>
+                          setEditData((prev) => ({
+                            ...prev,
+                            department: e.target.value,
+                          }))
+                        }
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                       />
                     ) : (
@@ -292,7 +334,9 @@ const AdminProfilePage: React.FC = () => {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Role</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Role
+                    </label>
                     <p className="flex items-center space-x-2 text-gray-900">
                       <Shield className="w-4 h-4 text-gray-400" />
                       <span>{adminData.role}</span>
@@ -300,7 +344,9 @@ const AdminProfilePage: React.FC = () => {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Join Date</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Join Date
+                    </label>
                     <p className="flex items-center space-x-2 text-gray-900">
                       <Calendar className="w-4 h-4 text-gray-400" />
                       <span>{adminData.joinDate}</span>
@@ -311,37 +357,59 @@ const AdminProfilePage: React.FC = () => {
             )}
 
             {/* Password Tab */}
-            {activeTab === 'password' && (
+            {activeTab === "password" && (
               <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-6">Change Password</h3>
+                <h3 className="text-lg font-semibold text-gray-900 mb-6">
+                  Change Password
+                </h3>
                 <div className="max-w-md space-y-6">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Current Password</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Current Password
+                    </label>
                     <div className="relative">
                       <input
-                        type={showCurrentPassword ? 'text' : 'password'}
+                        type={showCurrentPassword ? "text" : "password"}
                         value={passwordData.currentPassword}
-                        onChange={(e) => setPasswordData(prev => ({ ...prev, currentPassword: e.target.value }))}
+                        onChange={(e) =>
+                          setPasswordData((prev) => ({
+                            ...prev,
+                            currentPassword: e.target.value,
+                          }))
+                        }
                         className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                         placeholder="Enter current password"
                       />
                       <button
                         type="button"
-                        onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                        onClick={() =>
+                          setShowCurrentPassword(!showCurrentPassword)
+                        }
                         className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
                       >
-                        {showCurrentPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                        {showCurrentPassword ? (
+                          <EyeOff className="w-4 h-4" />
+                        ) : (
+                          <Eye className="w-4 h-4" />
+                        )}
                       </button>
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">New Password</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      New Password
+                    </label>
                     <div className="relative">
                       <input
-                        type={showNewPassword ? 'text' : 'password'}
+                        type={showNewPassword ? "text" : "password"}
                         value={passwordData.newPassword}
-                        onChange={(e) => setPasswordData(prev => ({ ...prev, newPassword: e.target.value }))}
+                        onChange={(e) =>
+                          setPasswordData((prev) => ({
+                            ...prev,
+                            newPassword: e.target.value,
+                          }))
+                        }
                         className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                         placeholder="Enter new password"
                       />
@@ -350,27 +418,44 @@ const AdminProfilePage: React.FC = () => {
                         onClick={() => setShowNewPassword(!showNewPassword)}
                         className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
                       >
-                        {showNewPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                        {showNewPassword ? (
+                          <EyeOff className="w-4 h-4" />
+                        ) : (
+                          <Eye className="w-4 h-4" />
+                        )}
                       </button>
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Confirm New Password</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Confirm New Password
+                    </label>
                     <div className="relative">
                       <input
-                        type={showConfirmPassword ? 'text' : 'password'}
+                        type={showConfirmPassword ? "text" : "password"}
                         value={passwordData.confirmPassword}
-                        onChange={(e) => setPasswordData(prev => ({ ...prev, confirmPassword: e.target.value }))}
+                        onChange={(e) =>
+                          setPasswordData((prev) => ({
+                            ...prev,
+                            confirmPassword: e.target.value,
+                          }))
+                        }
                         className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                         placeholder="Confirm new password"
                       />
                       <button
                         type="button"
-                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        onClick={() =>
+                          setShowConfirmPassword(!showConfirmPassword)
+                        }
                         className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
                       >
-                        {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                        {showConfirmPassword ? (
+                          <EyeOff className="w-4 h-4" />
+                        ) : (
+                          <Eye className="w-4 h-4" />
+                        )}
                       </button>
                     </div>
                   </div>
@@ -384,7 +469,9 @@ const AdminProfilePage: React.FC = () => {
                   </button>
 
                   <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                    <h4 className="text-sm font-medium text-yellow-800 mb-2">Password Requirements:</h4>
+                    <h4 className="text-sm font-medium text-yellow-800 mb-2">
+                      Password Requirements:
+                    </h4>
                     <ul className="text-sm text-yellow-700 space-y-1">
                       <li>• At least 6 characters long</li>
                       <li>• Include uppercase and lowercase letters</li>
@@ -397,20 +484,31 @@ const AdminProfilePage: React.FC = () => {
             )}
 
             {/* Settings Tab */}
-            {activeTab === 'settings' && (
+            {activeTab === "settings" && (
               <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-6">Notification Preferences</h3>
+                <h3 className="text-lg font-semibold text-gray-900 mb-6">
+                  Notification Preferences
+                </h3>
                 <div className="space-y-6">
                   <div className="flex items-center justify-between py-4 border-b">
                     <div>
-                      <h4 className="text-sm font-medium text-gray-900">Email Notifications</h4>
-                      <p className="text-sm text-gray-500">Receive notifications via email</p>
+                      <h4 className="text-sm font-medium text-gray-900">
+                        Email Notifications
+                      </h4>
+                      <p className="text-sm text-gray-500">
+                        Receive notifications via email
+                      </p>
                     </div>
                     <label className="relative inline-flex items-center cursor-pointer">
                       <input
                         type="checkbox"
                         checked={settings.emailNotifications}
-                        onChange={(e) => handleSettingsChange('emailNotifications', e.target.checked)}
+                        onChange={(e) =>
+                          handleSettingsChange(
+                            "emailNotifications",
+                            e.target.checked
+                          )
+                        }
                         className="sr-only peer"
                       />
                       <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
@@ -419,14 +517,23 @@ const AdminProfilePage: React.FC = () => {
 
                   <div className="flex items-center justify-between py-4 border-b">
                     <div>
-                      <h4 className="text-sm font-medium text-gray-900">SMS Notifications</h4>
-                      <p className="text-sm text-gray-500">Receive notifications via SMS</p>
+                      <h4 className="text-sm font-medium text-gray-900">
+                        SMS Notifications
+                      </h4>
+                      <p className="text-sm text-gray-500">
+                        Receive notifications via SMS
+                      </p>
                     </div>
                     <label className="relative inline-flex items-center cursor-pointer">
                       <input
                         type="checkbox"
                         checked={settings.smsNotifications}
-                        onChange={(e) => handleSettingsChange('smsNotifications', e.target.checked)}
+                        onChange={(e) =>
+                          handleSettingsChange(
+                            "smsNotifications",
+                            e.target.checked
+                          )
+                        }
                         className="sr-only peer"
                       />
                       <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
@@ -435,14 +542,23 @@ const AdminProfilePage: React.FC = () => {
 
                   <div className="flex items-center justify-between py-4 border-b">
                     <div>
-                      <h4 className="text-sm font-medium text-gray-900">Interview Reminders</h4>
-                      <p className="text-sm text-gray-500">Get reminded about upcoming interviews</p>
+                      <h4 className="text-sm font-medium text-gray-900">
+                        Interview Reminders
+                      </h4>
+                      <p className="text-sm text-gray-500">
+                        Get reminded about upcoming interviews
+                      </p>
                     </div>
                     <label className="relative inline-flex items-center cursor-pointer">
                       <input
                         type="checkbox"
                         checked={settings.interviewReminders}
-                        onChange={(e) => handleSettingsChange('interviewReminders', e.target.checked)}
+                        onChange={(e) =>
+                          handleSettingsChange(
+                            "interviewReminders",
+                            e.target.checked
+                          )
+                        }
                         className="sr-only peer"
                       />
                       <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
@@ -451,14 +567,23 @@ const AdminProfilePage: React.FC = () => {
 
                   <div className="flex items-center justify-between py-4 border-b">
                     <div>
-                      <h4 className="text-sm font-medium text-gray-900">Weekly Reports</h4>
-                      <p className="text-sm text-gray-500">Receive weekly summary reports</p>
+                      <h4 className="text-sm font-medium text-gray-900">
+                        Weekly Reports
+                      </h4>
+                      <p className="text-sm text-gray-500">
+                        Receive weekly summary reports
+                      </p>
                     </div>
                     <label className="relative inline-flex items-center cursor-pointer">
                       <input
                         type="checkbox"
                         checked={settings.weeklyReports}
-                        onChange={(e) => handleSettingsChange('weeklyReports', e.target.checked)}
+                        onChange={(e) =>
+                          handleSettingsChange(
+                            "weeklyReports",
+                            e.target.checked
+                          )
+                        }
                         className="sr-only peer"
                       />
                       <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
@@ -467,14 +592,20 @@ const AdminProfilePage: React.FC = () => {
 
                   <div className="flex items-center justify-between py-4">
                     <div>
-                      <h4 className="text-sm font-medium text-gray-900">System Alerts</h4>
-                      <p className="text-sm text-gray-500">Important system notifications and updates</p>
+                      <h4 className="text-sm font-medium text-gray-900">
+                        System Alerts
+                      </h4>
+                      <p className="text-sm text-gray-500">
+                        Important system notifications and updates
+                      </p>
                     </div>
                     <label className="relative inline-flex items-center cursor-pointer">
                       <input
                         type="checkbox"
                         checked={settings.systemAlerts}
-                        onChange={(e) => handleSettingsChange('systemAlerts', e.target.checked)}
+                        onChange={(e) =>
+                          handleSettingsChange("systemAlerts", e.target.checked)
+                        }
                         className="sr-only peer"
                       />
                       <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
@@ -484,7 +615,7 @@ const AdminProfilePage: React.FC = () => {
 
                 <div className="mt-8 pt-6 border-t">
                   <button
-                    onClick={() => alert('Settings saved successfully!')}
+                    onClick={() => alert("Settings saved successfully!")}
                     className="flex items-center space-x-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
                   >
                     <Save className="w-4 h-4" />
