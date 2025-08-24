@@ -1,0 +1,4 @@
+LIVEKIT_URL=wss://interview-io-86kv85aj.livekit.cloud
+LIVEKIT_API_KEY=API2pWs6C4Sftd9
+LIVEKIT_API_SECRET=JOUH205bQHt0wCnsmllFjeXl9Ej9PJSLQ2PlOeayxC0
+NEXT_PUBLIC_LIVEKIT_URL=wss://your-livekit-server.com
