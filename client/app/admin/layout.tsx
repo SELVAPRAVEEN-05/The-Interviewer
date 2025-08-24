@@ -6,6 +6,7 @@ import Header from "./dashboard/components/header";
 import AdminDashboard from "./dashboard/page";
 import ManageCandidates from "./manageCandidates/page";
 import ManageInterviewers from "./manageInterviewers/page";
+import InterviewScheduling from "./InterviewScheduling/page";
 
 export default function AdminLayout() {
 
@@ -20,7 +21,7 @@ export default function AdminLayout() {
                 </div>
 
                 <div className="flex-1 p-6 overflow-y-auto scrollbar-hide overflow-hidden bg-gray-50">
-                    <ManageInterviewers />
+                    <InterviewScheduling />
                 </div>
             </div>
         </div>
