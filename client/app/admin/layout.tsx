@@ -1,16 +1,35 @@
 "use client";
 
 import SideBar from "@/components/atoms/sidebar";
-import Header from "./dashboard/components/header";
-import { LayoutDashboard, MessageSquare, Phone, Star, Users } from "lucide-react";
+import { LayoutDashboard, MessageSquare, Star, Users } from "lucide-react";
+import Header from "./components/header";
 
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
+export default function AdminLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const sidebarItems = [
-    { id: "dashboard", label: "Dashboard", icon: <LayoutDashboard size={18} /> },
-    { id: "manageCandidates", label: "Manage Candidates", icon: <Users size={18} /> },
-    { id: "manageInterviewers", label: "Manage Interviewers", icon: <MessageSquare size={18} /> },
-    { id: "InterviewScheduling", label: "Interview Scheduling", icon: <Star size={18} /> },
-    { id: "feedbacksReports", label: "Feedback & Reports", icon: <Phone size={18} /> },
+    {
+      id: "dashboard",
+      label: "Dashboard",
+      icon: <LayoutDashboard size={18} />,
+    },
+    {
+      id: "manageCandidates",
+      label: "Manage Candidates",
+      icon: <Users size={18} />,
+    },
+    {
+      id: "manageInterviewers",
+      label: "Manage Interviewers",
+      icon: <MessageSquare size={18} />,
+    },
+    {
+      id: "InterviewScheduling",
+      label: "Interview Scheduling",
+      icon: <Star size={18} />,
+    },
   ];
 
   return (
