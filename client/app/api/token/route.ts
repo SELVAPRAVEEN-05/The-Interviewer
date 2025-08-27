@@ -22,6 +22,8 @@ export async function GET(req: NextRequest) {
   }
 
   const at = new AccessToken(apiKey, apiSecret, { identity: username });
+
+  at.ttl='24h'
   at.addGrant({ room, roomJoin: true, canPublish: true, canSubscribe: true });
 
   return NextResponse.json(

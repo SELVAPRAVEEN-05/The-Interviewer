@@ -7,7 +7,7 @@ import { NextRequest } from "next/server";
  */
 
 const liveblocks = new Liveblocks({
-  secret: "sk_dev_AnN3i5hBeV_iqwx_78v40VHVh_Rw2G66X7lnSSOJqPifVcTsALFJmud7GWeYqHr0",
+  secret: "sk_dev_RDJwsuOtkr13Mbn1sxbXcpUxUCdOLukkX7WG2-DQRj2SzSLueHmgN9crH6Wm--Ap",
 });
 
 export async function POST(request: NextRequest) {

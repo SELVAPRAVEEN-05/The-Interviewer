@@ -86,5 +86,8 @@
   "tailwind-variants": "0.3.0",
   "tailwindcss": "3.4.16",
   "typescript": "5.6.3"
- }
+ },
+   "overrides": {
+    "@liveblocks/core": "3.4.1"
+  }
 }
