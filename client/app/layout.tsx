@@ -39,7 +39,7 @@ export default function RootLayout({
           fontSans.variable,
         )}
       >
-        {/* <Providers themeProps={{ attribute: "class", defaultTheme: "light" }}> */}
+        <Providers themeProps={{ attribute: "class", defaultTheme: "light" }}>
           <div
             id="scroll-container"
             className="h-screen  w-screen
@@ -55,7 +55,7 @@ export default function RootLayout({
             <main>{children}</main>
           </div>
           
-        {/* </Providers> */}
+        </Providers>
       </body>
     </html>
   );
