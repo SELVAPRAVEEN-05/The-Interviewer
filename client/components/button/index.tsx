@@ -1,5 +1,5 @@
 "use client"
-import { Button, cn } from '@heroui/react';
+import { Button, cn } from '@nextui-org/react';
 import type React from 'react';
 import { IoSyncCircleOutline } from 'react-icons/io5';
 /**

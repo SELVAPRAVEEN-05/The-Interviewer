@@ -13,5 +13,5 @@ export async function POST(req: Request) {
   });
   console.log(result)
 
-  return result.toDataStreamResponse();
+  return result.toTextStreamResponse();
 }

@@ -1,4 +1,4 @@
-import { Select, SelectItem } from "@heroui/react";
+import { Select, SelectItem } from "@nextui-org/react";
 
 interface SelectItem {
     key: string;
