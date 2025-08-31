@@ -870,16 +870,14 @@ const ManageCandidatesPage: React.FC = () => {
                   <TableRow key={candidate.id}>
                     <TableCell className="flex items-center gap-3">
                       <div className="flex items-center">
-                        {" "}
                         <img
                           className="h-10 w-10 rounded-full object-cover"
                           src={candidate.profilePhoto}
                           alt={candidate.name}
-                        />{" "}
+                        />
                         <span className="ml-2 font-medium text-gray-900">
-                          {" "}
-                          {candidate.name}{" "}
-                        </span>{" "}
+                          {candidate.name}
+                        </span>
                       </div>
                     </TableCell>
                     <TableCell>{candidate.email}</TableCell>
@@ -890,7 +888,7 @@ const ManageCandidatesPage: React.FC = () => {
                     <TableCell>{candidate.assignedInterviewer}</TableCell>
                     <TableCell>
                       <button
-                        onClick={()=>setSelectedCandidate(candidate)}
+                        onClick={() => setSelectedCandidate(candidate)}
                         className="text-blue-600 hover:text-blue-800 flex items-center gap-1"
                       >
                         <Eye size={16} />
