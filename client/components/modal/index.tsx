@@ -1,5 +1,5 @@
 "use client";
-import { Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, cn } from "@heroui/react"; // Importing necessary components from the @heroui/react library
+import { Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, cn } from "@nextui-org/react"; // Importing necessary components from the @heroui/react library
 
 // Defining the interface for the Modal component props
 interface Modelcontenttype {

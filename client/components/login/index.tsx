@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { BiLogOut } from "react-icons/bi";
 import { ButtonComponent } from "../button";
-import { Button, Image, Input } from "@heroui/react";
+import { Button, Image, Input } from "@nextui-org/react";
 import { FcGoogle } from "react-icons/fc";
 import { signIn } from "next-auth/react";
 
