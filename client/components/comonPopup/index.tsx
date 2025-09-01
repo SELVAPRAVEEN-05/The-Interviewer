@@ -1,6 +1,6 @@
 import React from "react"
 import { ButtonComponent } from "../button";
-import { cn } from "@heroui/react";
+import { cn } from "@nextui-org/react";
 
 interface ComonPopupProp{
     icon?:React.ReactNode;
