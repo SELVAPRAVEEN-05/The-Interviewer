@@ -1,6 +1,6 @@
 
 import axios, { AxiosResponse, InternalAxiosRequestConfig } from "axios";
-import { auth } from "../auth";
+// import { auth } from "../auth";
 console.log(process.env.NEXT_PUBLIC_BASE_URL )
 // Create an Axios instance
 const axiosClient = axios.create({
