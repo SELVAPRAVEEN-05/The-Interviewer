@@ -6,7 +6,8 @@ import { Navbar } from "@/components/navbar";
 import { fontSans } from "@/config/fonts";
 import { siteConfig } from "@/config/site";
 import { Footer } from "@/components/ui";
-
+import '@livekit/components-styles';
+import '@livekit/components-styles/prefabs';
 export const metadata: Metadata = {
   title: {
     default: siteConfig.name,
@@ -39,7 +40,9 @@ export default function RootLayout({
           fontSans.variable,
         )}
       >
-        <Providers themeProps={{ attribute: "class", defaultTheme: "light" }}>
+        <Providers 
+        // themeProps={{ attribute: "class", defaultTheme: "light" }}
+        >
           <div
             id="scroll-container"
             className="h-screen  w-screen
