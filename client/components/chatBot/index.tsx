@@ -3,7 +3,7 @@ import { useChat } from "@ai-sdk/react";
 import { Button, Input } from "@nextui-org/react";
 import ReactMarkdown from "react-markdown";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import { tomorrow } from "react-syntax-highlighter/dist/esm/styles/prism";  // Code style
+import { tomorrow } from "react-syntax-highlighter/dist/esm/styles/prism"; 
 
 export const Chatbot = () => {
   const { messages, input, handleInputChange, handleSubmit } = useChat({
