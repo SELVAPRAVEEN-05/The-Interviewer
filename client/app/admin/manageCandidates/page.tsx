@@ -29,7 +29,7 @@ import {
   X,
   XCircle,
 } from "lucide-react";
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react";
 import StatCard from "../components/statCard";
 import { candidates } from "../utils";
 import { EducationTab } from "./components/education";
@@ -56,6 +56,19 @@ const ManageCandidatesPage = () => {
   };
 
   const [candidateList, setCandidateList] = useState(candidates);
+  const filteredCandidates = candidateList.filter((c) => {
+    const matchesSearch =
+      c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      c.assignedInterviewer.toLowerCase().includes(searchQuery.toLowerCase());
+
+    if (activeTab === "approved")
+      return matchesSearch && c.status === "approved";
+    if (activeTab === "pending") return matchesSearch && c.status === "pending";
+    if (activeTab === "rejected")
+      return matchesSearch && c.status === "canceled";
+
+    return matchesSearch;
+  });
 
   const totalCandidates = candidates.length;
   const approvedCount = candidates.filter(
@@ -67,41 +80,6 @@ const ManageCandidatesPage = () => {
   ).length;
 
   const [selectedCandidate, setSelectedCandidate] = useState<any>(null);
-
-  // Filter candidates based on active tab and search query
-  const filteredCandidates = useMemo(() => {
-    let filtered = candidates;
-
-    // Filter by tab
-    switch (activeTab) {
-      case "approved":
-        filtered = candidates.filter((c) => c.status === "approved");
-        break;
-      case "pending":
-        filtered = candidates.filter((c) => c.status === "pending");
-        break;
-      case "rejected":
-        filtered = candidates.filter((c) => c.status === "canceled");
-        break;
-      case "overview":
-      default:
-        filtered = candidates;
-        break;
-    }
-
-    // Filter by search query
-    if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(
-        (candidate) =>
-          candidate.name.toLowerCase().includes(query) ||
-          candidate.email.toLowerCase().includes(query) ||
-          candidate.assignedInterviewer.toLowerCase().includes(query)
-      );
-    }
-
-    return filtered;
-  }, [candidates, activeTab, searchQuery]);
 
   const updateCandidateStatus = (
     id: number,
@@ -176,9 +154,6 @@ const ManageCandidatesPage = () => {
   };
 
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const handleOpen = () => {
-    onOpen();
-  };
 
   return (
     <div className="bg-gray-50">
@@ -286,42 +261,46 @@ const ManageCandidatesPage = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {filteredCandidates
-                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                .map((candidate) => (
-                  <TableRow key={candidate.id}>
-                    <TableCell className="flex items-center gap-3">
-                      <div className="flex items-center">
-                        <img
-                          className="h-10 w-10 rounded-full object-cover"
-                          src={candidate.profilePhoto}
-                          alt={candidate.name}
-                        />
-                        <span className="ml-2 font-medium text-gray-900">
-                          {candidate.name}
-                        </span>
-                      </div>
-                    </TableCell>
-                    <TableCell>{candidate.email}</TableCell>
-                    <TableCell>{getStatusBadge(candidate.status)}</TableCell>
-                    <TableCell>
-                      {getInterviewStatusBadge(candidate.interviewStatus)}
-                    </TableCell>
-                    <TableCell>{candidate.assignedInterviewer}</TableCell>
-                    <TableCell>
-                      <button
-                        onClick={() => {
-                          setSelectedCandidate(candidate);
-                          onOpen();
-                        }}
-                        className="text-blue-600 hover:text-blue-800 flex items-center gap-1"
-                      >
-                        <Eye size={16} />
-                        View
-                      </button>
-                    </TableCell>
-                  </TableRow>
-                ))}
+              {(rowsPerPage > 0
+                ? filteredCandidates.slice(
+                    page * rowsPerPage,
+                    page * rowsPerPage + rowsPerPage
+                  )
+                : filteredCandidates
+              ).map((candidate) => (
+                <TableRow key={candidate.id}>
+                  <TableCell className="flex items-center gap-3">
+                    <div className="flex items-center">
+                      <img
+                        className="h-10 w-10 rounded-full object-cover"
+                        src={candidate.profilePhoto}
+                        alt={candidate.name}
+                      />
+                      <span className="ml-2 font-medium text-gray-900">
+                        {candidate.name}
+                      </span>
+                    </div>
+                  </TableCell>
+                  <TableCell>{candidate.email}</TableCell>
+                  <TableCell>{getStatusBadge(candidate.status)}</TableCell>
+                  <TableCell>
+                    {getInterviewStatusBadge(candidate.interviewStatus)}
+                  </TableCell>
+                  <TableCell>{candidate.assignedInterviewer}</TableCell>
+                  <TableCell>
+                    <button
+                      onClick={() => {
+                        setSelectedCandidate(candidate);
+                        onOpen();
+                      }}
+                      className="text-blue-600 hover:text-blue-800 flex items-center gap-1"
+                    >
+                      <Eye size={16} />
+                      View
+                    </button>
+                  </TableCell>
+                </TableRow>
+              ))}
             </TableBody>
           </Table>
 
