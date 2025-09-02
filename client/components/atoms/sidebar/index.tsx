@@ -70,11 +70,11 @@ export default function SideBar({
               }}
               onClick={() => handleItemClick(item.id)}
               className={`relative w-full flex items-center gap-3 px-4 md:pr-10 lg:pl-6 lg:pr-16 py-3 rounded-md text-sm font-medium transition-all duration-300
-                ${
-                  activeId === item.id
-                    ? "text-blue-600 bg-white"
-                    : "text-gray-400 hover:text-gray-600"
-                }`}
+        ${
+          activeId === item.id
+            ? "text-blue-600 bg-white"
+            : "text-gray-400 hover:text-gray-600"
+        }`}
             >
               <span>{item.icon}</span>
               <span className="hidden lg:block md:block">{item.label}</span>
