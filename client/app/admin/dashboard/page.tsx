@@ -1,113 +1,31 @@
 "use client";
 
-import React, { useState } from "react";
-import {
-  Users,
-  UserCheck,
-  Calendar,
-  CheckCircle,
-  ArrowRight,
-  CalendarDays,
-} from "lucide-react";
 import { PieChart } from "@mui/x-charts/PieChart";
+import {
+  ArrowRight,
+  Calendar,
+  CalendarDays,
+  CheckCircle,
+  Search,
+  UserCheck,
+  Users,
+} from "lucide-react";
+import React, { useState } from "react";
 
 import {
+  Paper,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableFooter,
+  TableHead,
   TablePagination,
   TableRow,
-  Paper,
-  IconButton,
-  TableHead,
 } from "@mui/material";
-import { useTheme } from "@mui/material/styles";
-import FirstPageIcon from "@mui/icons-material/FirstPage";
-import KeyboardArrowLeft from "@mui/icons-material/KeyboardArrowLeft";
-import KeyboardArrowRight from "@mui/icons-material/KeyboardArrowRight";
-import LastPageIcon from "@mui/icons-material/LastPage";
 import StatCard from "../components/statCard";
+import { upcomingInterviews } from "../utils";
 
-// ---------------- Pagination Actions ----------------
-interface TablePaginationActionsProps {
-  count: number;
-  page: number;
-  rowsPerPage: number;
-  onPageChange: (
-    event: React.MouseEvent<HTMLButtonElement>,
-    newPage: number
-  ) => void;
-}
-
-function TablePaginationActions(props: TablePaginationActionsProps) {
-  const theme = useTheme();
-  const { count, page, rowsPerPage, onPageChange } = props;
-
-  const handleFirstPageButtonClick = (
-    event: React.MouseEvent<HTMLButtonElement>
-  ) => {
-    onPageChange(event, 0);
-  };
-
-  const handleBackButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    onPageChange(event, page - 1);
-  };
-
-  const handleNextButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    onPageChange(event, page + 1);
-  };
-
-  const handleLastPageButtonClick = (
-    event: React.MouseEvent<HTMLButtonElement>
-  ) => {
-    onPageChange(event, Math.max(0, Math.ceil(count / rowsPerPage) - 1));
-  };
-
-  return (
-    <div style={{ flexShrink: 0, marginLeft: "2.5rem" }}>
-      <IconButton
-        onClick={handleFirstPageButtonClick}
-        disabled={page === 0}
-        aria-label="first page"
-      >
-        {theme.direction === "rtl" ? <LastPageIcon /> : <FirstPageIcon />}
-      </IconButton>
-      <IconButton
-        onClick={handleBackButtonClick}
-        disabled={page === 0}
-        aria-label="previous page"
-      >
-        {theme.direction === "rtl" ? (
-          <KeyboardArrowRight />
-        ) : (
-          <KeyboardArrowLeft />
-        )}
-      </IconButton>
-      <IconButton
-        onClick={handleNextButtonClick}
-        disabled={page >= Math.ceil(count / rowsPerPage) - 1}
-        aria-label="next page"
-      >
-        {theme.direction === "rtl" ? (
-          <KeyboardArrowLeft />
-        ) : (
-          <KeyboardArrowRight />
-        )}
-      </IconButton>
-      <IconButton
-        onClick={handleLastPageButtonClick}
-        disabled={page >= Math.ceil(count / rowsPerPage) - 1}
-        aria-label="last page"
-      >
-        {theme.direction === "rtl" ? <FirstPageIcon /> : <LastPageIcon />}
-      </IconButton>
-    </div>
-  );
-}
-
-// ---------------- Admin Dashboard ----------------
 const AdminDashboard = () => {
   const [stats] = useState({
     totalCandidates: 245,
@@ -127,68 +45,21 @@ const AdminDashboard = () => {
     { name: "Cancelled", value: 18, color: "#ef4444" },
   ]);
 
-  const [upcomingInterviews] = useState([
-    {
-      id: 1,
-      candidateName: "Sarah Johnson",
-      interviewerName: "John Smith",
-      date: "2025-08-25",
-      time: "10:00 AM",
-      status: "Scheduled",
-    },
-    {
-      id: 2,
-      candidateName: "Michael Chen",
-      interviewerName: "Emily Davis",
-      date: "2025-08-25",
-      time: "2:30 PM",
-      status: "Scheduled",
-    },
-    {
-      id: 3,
-      candidateName: "Alex Rodriguez",
-      interviewerName: "David Wilson",
-      date: "2025-08-26",
-      time: "11:00 AM",
-      status: "Pending",
-    },
-    {
-      id: 4,
-      candidateName: "Lisa Thompson",
-      interviewerName: "Jennifer Brown",
-      date: "2025-08-26",
-      time: "3:00 PM",
-      status: "Scheduled",
-    },
-    {
-      id: 5,
-      candidateName: "Robert Garcia",
-      interviewerName: "Mark Johnson",
-      date: "2025-08-27",
-      time: "9:30 AM",
-      status: "Scheduled",
-    },
-    {
-      id: 6,
-      candidateName: "Lisa Thompson",
-      interviewerName: "Jennifer Brown",
-      date: "2025-08-26",
-      time: "3:00 PM",
-      status: "Scheduled",
-    },
-    {
-      id: 7,
-      candidateName: "Robert Garcia",
-      interviewerName: "Mark Johnson",
-      date: "2025-08-27",
-      time: "9:30 AM",
-      status: "Scheduled",
-    },
-  ]);
-
-  // Pagination state
+  // Pagination + Search state
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  // ✅ filter AFTER searchQuery is defined
+  const filteredInterviews = upcomingInterviews.filter(
+    (interview) =>
+      interview.candidateName
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase()) ||
+      interview.interviewerName
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase())
+  );
 
   const handleChangePage = (
     event: React.MouseEvent<HTMLButtonElement> | null,
@@ -204,7 +75,6 @@ const AdminDashboard = () => {
     setPage(0);
   };
 
-  
   // ---------------- Quick Action Button ----------------
   type QuickActionButtonProps = {
     title: string;
@@ -241,8 +111,6 @@ const AdminDashboard = () => {
       </div>
     </button>
   );
-
-  // ---------------- Return ----------------
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -351,83 +219,114 @@ const AdminDashboard = () => {
           </div>
         </div>
 
-          {/* Upcoming Interviews with MUI Table */}
-          <div className="lg:col-span-2 bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-            <div className="flex items-center justify-between mb-6">
+        {/* Upcoming Interviews with MUI Table */}
+        <div className="lg:col-span-2 bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+          <div className="flex items-center justify-between gap-2 mb-6">
+            <div className="flex gap-2">
               <h2 className="text-xl font-bold text-gray-900">
                 Upcoming Interviews
               </h2>
               <CalendarDays className="w-5 h-5 text-gray-400" />
             </div>
-
-            <TableContainer component={Paper}>
-              <Table sx={{ minWidth: 650 }} aria-label="upcoming interviews table">
-                <TableHead>
-                  <TableRow>
-                    <TableCell><b>S.No</b></TableCell>
-                    <TableCell><b>Candidate</b></TableCell>
-                    <TableCell><b>Interviewer</b></TableCell>
-                    <TableCell><b>Date</b></TableCell>
-                    <TableCell><b>Time</b></TableCell>
-                    <TableCell><b>Status</b></TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {(rowsPerPage > 0
-                    ? upcomingInterviews.slice(
-                        page * rowsPerPage,
-                        page * rowsPerPage + rowsPerPage
-                      )
-                    : upcomingInterviews
-                  ).map((interview, index) => (
-                    <TableRow key={interview.id}>
-                      <TableCell>{page * rowsPerPage + index + 1}</TableCell>
-                      <TableCell>{interview.candidateName}</TableCell>
-                      <TableCell>{interview.interviewerName}</TableCell>
-                      <TableCell>
-                        {new Date(interview.date).toLocaleDateString()}
-                      </TableCell>
-                      <TableCell>{interview.time}</TableCell>
-                      <TableCell>
-                        <span
-                          className={`px-3 py-1 rounded-full text-xs font-medium ${
-                            interview.status === "Scheduled"
-                              ? "bg-green-100 text-green-800"
-                              : "bg-yellow-100 text-yellow-800"
-                          }`}
-                        >
-                          {interview.status}
-                        </span>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-                <TableFooter>
-                  <TableRow>
-                    <TablePagination
-                      rowsPerPageOptions={[5, 10, 25, { label: "All", value: -1 }]}
-                      colSpan={6}
-                      count={upcomingInterviews.length}
-                      rowsPerPage={rowsPerPage}
-                      page={page}
-                      slotProps={{
-                        select: {
-                          inputProps: {
-                            "aria-label": "rows per page",
-                          },
-                          native: true,
-                        },
-                      }}
-                      onPageChange={handleChangePage}
-                      onRowsPerPageChange={handleChangeRowsPerPage}
-                      ActionsComponent={TablePaginationActions}
-                    />
-                  </TableRow>
-                </TableFooter>
-              </Table>
-            </TableContainer>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <Search className="h-5 w-5 text-gray-400" />
+              </div>
+              <input
+                type="text"
+                placeholder="Search candidates..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10 pr-4 py-3 border w-[20rem] border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              />
+            </div>
           </div>
+
+          <TableContainer component={Paper}>
+            <Table
+              sx={{ minWidth: 650 }}
+              aria-label="upcoming interviews table"
+            >
+              <TableHead>
+                <TableRow>
+                  <TableCell>
+                    <b>S.No</b>
+                  </TableCell>
+                  <TableCell>
+                    <b>Candidate</b>
+                  </TableCell>
+                  <TableCell>
+                    <b>Interviewer</b>
+                  </TableCell>
+                  <TableCell>
+                    <b>Date</b>
+                  </TableCell>
+                  <TableCell>
+                    <b>Time</b>
+                  </TableCell>
+                  <TableCell>
+                    <b>Status</b>
+                  </TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {(rowsPerPage > 0
+                  ? filteredInterviews.slice(
+                      page * rowsPerPage,
+                      page * rowsPerPage + rowsPerPage
+                    )
+                  : filteredInterviews
+                ).map((interview, index) => (
+                  <TableRow key={interview.id}>
+                    <TableCell>{page * rowsPerPage + index + 1}</TableCell>
+                    <TableCell>{interview.candidateName}</TableCell>
+                    <TableCell>{interview.interviewerName}</TableCell>
+                    <TableCell>
+                      {new Date(interview.date).toLocaleDateString()}
+                    </TableCell>
+                    <TableCell>{interview.time}</TableCell>
+                    <TableCell>
+                      <span
+                        className={`px-3 py-1 rounded-full text-xs font-medium ${
+                          interview.status === "Scheduled"
+                            ? "bg-green-100 text-green-800"
+                            : "bg-yellow-100 text-yellow-800"
+                        }`}
+                      >
+                        {interview.status}
+                      </span>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+              <TableFooter>
+                <TableRow>
+                  <TablePagination
+                    rowsPerPageOptions={[
+                      5,
+                      10,
+                      25,
+                      { label: "All", value: -1 },
+                    ]}
+                    colSpan={6}
+                    count={filteredInterviews.length}
+                    rowsPerPage={rowsPerPage}
+                    page={page}
+                    onPageChange={handleChangePage}
+                    onRowsPerPageChange={handleChangeRowsPerPage}
+                    slotProps={{
+                      select: {
+                        inputProps: { "aria-label": "rows per page" },
+                        native: true,
+                      },
+                    }}
+                  />
+                </TableRow>
+              </TableFooter>
+            </Table>
+          </TableContainer>
         </div>
+      </div>
     </div>
   );
 };

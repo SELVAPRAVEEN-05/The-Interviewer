@@ -1,6 +1,5 @@
 "use client";
 
-import Logo from "@/components/assets/logo.jpg";
 import { siteConfig } from "@/config/site";
 import {
   Navbar as HeroUINavbar,
@@ -10,7 +9,6 @@ import {
   NavbarMenuItem,
   NavbarMenuToggle
 } from "@heroui/navbar";
-import Image from "next/image";
 import NextLink from "next/link";
 import { ThemeSwitch } from "./theme-switch";
 
@@ -21,11 +19,11 @@ export const Navbar = () => {
       <div className="w-full lg:px-12 xl:px-28 flex justify-between">
         <div className="gap-3">
           <NextLink className="flex justify-start items-center gap-1" href="/">
-            <Image
+            {/* <Image
               src={Logo}
               alt="Logo"
               width={40}
-              height={40} />
+              height={40} /> */}
             <p className="font-bold text-inherit">Logo</p>
           </NextLink>
         </div>
