@@ -41,7 +41,7 @@ export default function RootLayout({
         )}
       >
         <Providers 
-        // themeProps={{ attribute: "class", defaultTheme: "light" }}
+        themeProps={{ attribute: "class", defaultTheme: "light" }}
         >
           <div
             id="scroll-container"
