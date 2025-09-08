@@ -14,8 +14,6 @@ import clsx from "clsx";
 import Image from "next/image";
 import NextLink from "next/link";
 import { useEffect, useRef, useState } from "react";
-import photo from "./assets/logo.png";
-import { Button } from "@nextui-org/react";
 
 export const Navbar = () => {
   const [activeSection, setActiveSection] = useState(
@@ -84,17 +82,16 @@ export const Navbar = () => {
       className="flex bg-opacity-30 shadow-lg"
       position="sticky"
     >
-      <div className="w-full lg:px-12 xl:px-28 flex justify-between items-center">
-        {/* Logo */}
+      <div className="w-full lg:px-12 xl:px-28 flex justify-between">
         <div className="gap-3">
           <NextLink className="flex justify-start items-center gap-1" href="/">
-            <Image src={photo} alt="Logo" width={150} />
+            <Image src="/images/logo.png" alt="Logo" width={40} height={40} />
+            <p className="font-bold text-inherit">PortFolio</p>
           </NextLink>
         </div>
 
-        {/* Nav links */}
         <div
-          className="hidden lg:flex gap-4 justify-start relative"
+          className="hidden lg:flex gap-4 justify-start  relative"
           ref={navRef}
         >
           {/* Animated underline */}
@@ -125,24 +122,8 @@ export const Navbar = () => {
             </NavbarItem>
           ))}
         </div>
-
-        {/* 👉 Login & Get Started Buttons */}
-        <div className="hidden lg:flex items-center gap-3">
-          <Button
-          variant="bordered"
-            className="px-5 py-2 rounded-lg border border-primary text-primary font-medium hover:bg-primary/10 transition"
-          >
-            Login
-          </Button>
-          <Button
-            className="px-5 py-2 rounded-lg bg-primary text-white font-medium hover:opacity-90 transition"
-          >
-            Get Started
-          </Button>
-        </div>
       </div>
 
-      {/* Mobile Menu */}
       <NavbarContent className="lg:hidden" justify="end">
         <NavbarMenuToggle />
       </NavbarContent>
@@ -164,20 +145,6 @@ export const Navbar = () => {
               </button>
             </NavbarMenuItem>
           ))}
-
-          {/* Mobile Login & Get Started */}
-          <div className="flex flex-col gap-3 mt-4">
-            <Button
-              className="px-5 py-2 rounded-lg border border-primary text-primary font-medium hover:bg-primary/10 transition"
-            >
-              Login
-            </Button>
-            <Button
-              className="px-5 py-2 rounded-lg bg-gradient-to-r from-purple-600 to-pink-600 text-white font-medium hover:opacity-90 transition"
-            >
-              Get Started
-            </Button>
-          </div>
         </div>
       </NavbarMenu>
     </HeroUINavbar>
