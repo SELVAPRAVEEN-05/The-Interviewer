@@ -10,14 +10,17 @@ import {
   NavbarMenuToggle,
 } from "@heroui/navbar";
 import { link as linkStyles } from "@heroui/theme";
+import { Button } from "@nextui-org/react";
 import clsx from "clsx";
 import Image from "next/image";
 import NextLink from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import photo from "./assets/logo.png";
-import { Button } from "@nextui-org/react";
 
 export const Navbar = () => {
+  const router = useRouter();
+
   const [activeSection, setActiveSection] = useState(
     siteConfig.navItems[0]?.targetId || ""
   );
@@ -129,12 +132,14 @@ export const Navbar = () => {
         {/* 👉 Login & Get Started Buttons */}
         <div className="hidden lg:flex items-center gap-3">
           <Button
-          variant="bordered"
+            variant="bordered"
+            onPress={() => router.push("/login")}
             className="px-5 py-2 rounded-lg border border-primary text-primary font-medium hover:bg-primary/10 transition"
           >
             Login
           </Button>
           <Button
+            onPress={() => router.push("/register")}
             className="px-5 py-2 rounded-lg bg-primary text-white font-medium hover:opacity-90 transition"
           >
             Get Started
@@ -168,11 +173,14 @@ export const Navbar = () => {
           {/* Mobile Login & Get Started */}
           <div className="flex flex-col gap-3 mt-4">
             <Button
+              variant="bordered"
+              onPress={() => router.push("/login")}
               className="px-5 py-2 rounded-lg border border-primary text-primary font-medium hover:bg-primary/10 transition"
             >
               Login
             </Button>
             <Button
+              onPress={() => router.push("/register")}
               className="px-5 py-2 rounded-lg bg-gradient-to-r from-purple-600 to-pink-600 text-white font-medium hover:opacity-90 transition"
             >
               Get Started

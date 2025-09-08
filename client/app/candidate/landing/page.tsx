@@ -17,14 +17,10 @@ import {
   Users,
   Zap,
 } from "lucide-react";
-import React, { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
-const Landing: React.FC = () => {
-  const [isVisible, setIsVisible] = useState(false);
-
-  useEffect(() => {
-    setIsVisible(true);
-  }, []);
+export const Landing = () => {
+  const router = useRouter();
 
   const testimonials = [
     {
@@ -126,16 +122,10 @@ const Landing: React.FC = () => {
 
       {/* Hero Section */}
       <section id="hero" className="relative">
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg%20width%3D%2260%22%20height%3D%2260%22%20viewBox%3D%220%200%2060%2060%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cg%20fill%3D%22%23333%22%20fill-opacity%3D%220.05%22%3E%3Ccircle%20cx%3D%2230%22%20cy%3D%2230%22%20r%3D%223%22/%3E%3C/g%3E%3C/svg%3E')]"></div>
+        {/* <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg%20width%3D%2260%22%20height%3D%2260%22%20viewBox%3D%220%200%2060%2060%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cg%20fill%3D%22%23333%22%20fill-opacity%3D%220.05%22%3E%3Ccircle%20cx%3D%2230%22%20cy%3D%2230%22%20r%3D%223%22/%3E%3C/g%3E%3C/svg%3E')]"></div> */}
 
         <div className="relative min-h-screen px-4 sm:px-8 md:px-16 lg:px-24 pt-20 pb-32 bg-gradient-to-r from-blue-50 via-white to-blue-100">
-          <div
-            className={`text-center transform transition-all duration-1000 ${
-              isVisible
-                ? "translate-y-0 opacity-100"
-                : "translate-y-10 opacity-0"
-            }`}
-          >
+          <div className="text-center transform transition-all duration-1000">
             {/* Badge */}
             <div className="inline-flex items-center px-4 py-2 rounded-full bg-gradient-to-r from-purple-100 to-pink-100 border border-purple-200 mb-8">
               <Zap className="w-4 h-4 mr-2 text-purple-600" />
@@ -162,7 +152,10 @@ const Landing: React.FC = () => {
 
             {/* CTA */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16">
-              <button className="group relative px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl text-white font-semibold text-base sm:text-lg transition-all duration-300 hover:shadow-lg hover:shadow-pink-300/50 hover:scale-105 flex items-center">
+              <button
+                onClick={() => router.push("/register")}
+                className="group relative px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl text-white font-semibold text-base sm:text-lg transition-all duration-300 hover:shadow-lg hover:shadow-pink-300/50 hover:scale-105 flex items-center"
+              >
                 <Play className="w-5 h-5 mr-2" />
                 Start Your Journey
                 <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
@@ -205,7 +198,10 @@ const Landing: React.FC = () => {
       </section>
 
       {/* How It Works */}
-      <section id="how-it-works" className="py-20 px-4 sm:px-8 md:px-16 lg:px-24 bg-gray-50">
+      <section
+        id="how-it-works"
+        className="py-20 px-4 sm:px-8 md:px-16 lg:px-24 bg-gray-50"
+      >
         <div className="text-center mb-16">
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-black mb-6">
             How It{" "}
@@ -274,7 +270,10 @@ const Landing: React.FC = () => {
       </section>
 
       {/* Testimonials */}
-      <section id="testimonials" className="py-20 px-4 sm:px-8 md:px-16 lg:px-24 bg-gray-50">
+      <section
+        id="testimonials"
+        className="py-20 px-4 sm:px-8 md:px-16 lg:px-24 bg-gray-50"
+      >
         <div className="text-center mb-16">
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-black mb-6">
             Success{" "}
@@ -287,42 +286,42 @@ const Landing: React.FC = () => {
           </p>
         </div>
 
-          <div className="flex space-x-6 animate-scroll hover:[animation-play-state:paused]">
-            {[...testimonials, ...testimonials].map((testimonial, index) => (
-              <div
-                key={index}
-                className="min-w-[280px] sm:min-w-[350px] max-w-sm bg-white shadow-lg rounded-2xl p-6 flex flex-col"
-              >
-                <div className="flex items-center mb-4">
-                  <Image
-                    src={testimonial.image}
-                    alt={testimonial.name}
-                    width={50}
-                    height={50}
-                    className="rounded-full border"
-                  />
-                  <div className="ml-3">
-                    <div className="font-semibold text-gray-900">
-                      {testimonial.name}
-                    </div>
-                    <div className="text-sm text-gray-500">
-                      {testimonial.role}
-                    </div>
+        <div className="flex space-x-6 animate-scroll hover:[animation-play-state:paused]">
+          {[...testimonials, ...testimonials].map((testimonial, index) => (
+            <div
+              key={index}
+              className="min-w-[280px] sm:min-w-[350px] max-w-sm bg-white shadow-lg rounded-2xl p-6 flex flex-col"
+            >
+              <div className="flex items-center mb-4">
+                <Image
+                  src={testimonial.image}
+                  alt={testimonial.name}
+                  width={50}
+                  height={50}
+                  className="rounded-full border"
+                />
+                <div className="ml-3">
+                  <div className="font-semibold text-gray-900">
+                    {testimonial.name}
+                  </div>
+                  <div className="text-sm text-gray-500">
+                    {testimonial.role}
                   </div>
                 </div>
-                <p className="text-gray-700 mb-4 text-sm sm:text-base leading-relaxed">
-                  “{testimonial.text}”
-                </p>
-                <div className="flex mt-auto">
-                  {[...Array(testimonial.rating)].map((_, i) => (
-                    <Star
-                      key={i}
-                      className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-400 fill-current"
-                    />
-                  ))}
-                </div>
               </div>
-            ))}
+              <p className="text-gray-700 mb-4 text-sm sm:text-base leading-relaxed">
+                “{testimonial.text}”
+              </p>
+              <div className="flex mt-auto">
+                {[...Array(testimonial.rating)].map((_, i) => (
+                  <Star
+                    key={i}
+                    className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-400 fill-current"
+                  />
+                ))}
+              </div>
+            </div>
+          ))}
         </div>
       </section>
 
@@ -339,11 +338,15 @@ const Landing: React.FC = () => {
             click away.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <button className="group px-8 sm:px-10 py-4 sm:py-5 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl text-white font-bold text-lg sm:text-xl transition-all duration-300 hover:shadow-lg hover:shadow-pink-300/50 hover:scale-105 flex items-center">
+            <button 
+            onClick={() => router.push("/register")}
+            className="group px-8 sm:px-10 py-4 sm:py-5 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl text-white font-bold text-lg sm:text-xl transition-all duration-300 hover:shadow-lg hover:shadow-pink-300/50 hover:scale-105 flex items-center">
               Register Now
               <ArrowRight className="w-5 sm:w-6 h-5 sm:h-6 ml-3 group-hover:translate-x-1 transition-transform" />
             </button>
-            <button className="px-8 sm:px-10 py-4 sm:py-5 border-2 border-purple-300 rounded-xl text-black font-bold text-lg sm:text-xl hover:bg-purple-50 transition-all duration-300 hover:border-purple-500">
+            <button
+            onClick={() => router.push("/login")}
+             className="px-8 sm:px-10 py-4 sm:py-5 border-2 border-purple-300 rounded-xl text-black font-bold text-lg sm:text-xl hover:bg-purple-50 transition-all duration-300 hover:border-purple-500">
               Sign In
             </button>
           </div>

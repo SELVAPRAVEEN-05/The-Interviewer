@@ -9,7 +9,6 @@ import { useRouter } from "next/navigation";
 import React from "react";
 import { FaEyeSlash, FaRegEye } from "react-icons/fa";
 
-
 export default function Register() {
   const router = useRouter();
   const [isVisible, setIsVisible] = React.useState(false);
@@ -25,7 +24,9 @@ export default function Register() {
       <div className="w-full xl:w-1/2 lg:w-3/5 px-4 md:px-6 absolute lg:h-full lg:flex justify-center items-center lg:py-10 lg:pl-36 bg-transparent">
         <div className="w-full lg:w-4/5 h-full py-10">
           <h1 className="text-5xl font-bold">Sign Up</h1>
-          <p className="pt-2 text-gray-400 text-sm">Create your account to get started</p>
+          <p className="pt-2 text-gray-400 text-sm">
+            Create your account to get started
+          </p>
 
           <div className="pt-7">
             <Input
@@ -35,7 +36,8 @@ export default function Register() {
               value={userName}
               onChange={(e) => setData({ userName: e.target.value })}
               classNames={{
-                inputWrapper: "border border-white group-data-[focus=true]:border-white",
+                inputWrapper:
+                  "border border-white group-data-[focus=true]:border-white",
               }}
             />
           </div>
@@ -49,7 +51,8 @@ export default function Register() {
               value={emailId}
               onChange={(e) => setData({ emailId: e.target.value })}
               classNames={{
-                inputWrapper: "border border-white group-data-[focus=true]:border-white",
+                inputWrapper:
+                  "border border-white group-data-[focus=true]:border-white",
               }}
             />
           </div>
@@ -63,10 +66,15 @@ export default function Register() {
               value={password}
               onChange={(e) => setData({ password: e.target.value })}
               classNames={{
-                inputWrapper: "border border-white group-data-[focus=true]:border-white",
+                inputWrapper:
+                  "border border-white group-data-[focus=true]:border-white",
               }}
               endContent={
-                <button type="button" onClick={toggleVisibility} className="focus:outline-none flex h-full items-center">
+                <button
+                  type="button"
+                  onClick={toggleVisibility}
+                  className="focus:outline-none flex h-full items-center"
+                >
                   {isVisible ? (
                     <FaEyeSlash className="text-xl text-default-400 pointer-events-none" />
                   ) : (
@@ -94,7 +102,11 @@ export default function Register() {
             <div className="flex-grow border-t border-white"></div>
           </div>
 
-          <Button className="w-full p-7 text-white" variant="bordered" size="lg">
+          <Button
+            className="w-full p-7 text-white"
+            variant="bordered"
+            size="lg"
+          >
             <GoogleIcon /> <span className="ml-2">Signin with Google</span>
           </Button>
 

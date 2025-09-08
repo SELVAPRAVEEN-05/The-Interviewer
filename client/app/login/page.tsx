@@ -34,7 +34,8 @@ export default function Login() {
               type="email"
               isRequired
               classNames={{
-                inputWrapper: "border-1 border-white group-data-[focus=true]:border-default-white",
+                inputWrapper:
+                  "border-1 border-white group-data-[focus=true]:border-default-white",
               }}
               variant="bordered"
               value={emailId}
@@ -46,7 +47,8 @@ export default function Login() {
             <Input
               isRequired
               classNames={{
-                inputWrapper: "border-1 border-white group-data-[focus=true]:border-default-white",
+                inputWrapper:
+                  "border-1 border-white group-data-[focus=true]:border-default-white",
               }}
               endContent={
                 <button
