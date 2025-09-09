@@ -2,13 +2,12 @@
 
 import { PieChart } from "@mui/x-charts/PieChart";
 import {
-  ArrowRight,
   Calendar,
   CalendarDays,
   CheckCircle,
   Search,
   UserCheck,
-  Users,
+  Users
 } from "lucide-react";
 import React, { useState } from "react";
 
@@ -25,6 +24,7 @@ import {
 } from "@mui/material";
 import StatCard from "../components/statCard";
 import { upcomingInterviews } from "../utils";
+import { QuickActionButton } from "../components/quickActionButton";
 
 const AdminDashboard = () => {
   const [stats] = useState({
@@ -75,46 +75,10 @@ const AdminDashboard = () => {
     setPage(0);
   };
 
-  // ---------------- Quick Action Button ----------------
-  type QuickActionButtonProps = {
-    title: string;
-    description: string;
-    icon: React.ElementType;
-    onClick: () => void;
-    color: string;
-  };
-
-  const QuickActionButton = ({
-    title,
-    description,
-    icon: Icon,
-    onClick,
-    color,
-  }: QuickActionButtonProps) => (
-    <button
-      onClick={onClick}
-      className="w-full bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-all hover:border-blue-200 text-left group"
-    >
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-4">
-          <div
-            className={`p-3 rounded-lg ${color.replace("text", "bg").replace("-600", "-100")}`}
-          >
-            <Icon className={`w-5 h-5 ${color}`} />
-          </div>
-          <div>
-            <h3 className="font-semibold text-gray-900">{title}</h3>
-            <p className="text-sm text-gray-600">{description}</p>
-          </div>
-        </div>
-        <ArrowRight className="w-5 h-5 text-gray-400 group-hover:text-blue-600 transition-colors" />
-      </div>
-    </button>
-  );
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen">
       {/* Header */}
-      <div className="bg-white shadow-lg px-6 py-4 rounded-lg">
+      <div className="bg-gray-100 border border-gray-300 shadow-lg px-6 py-4 rounded-lg">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
@@ -138,33 +102,33 @@ const AdminDashboard = () => {
             title="Total Candidates"
             value={stats.totalCandidates}
             icon={Users}
-            color="text-blue-600"
+            color="blue"
             subtitle={`${stats.approvedCandidates} approved, ${stats.pendingCandidates} pending`}
           />
           <StatCard
             title="Total Interviewers"
             value={stats.totalInterviewers}
             icon={UserCheck}
-            color="text-green-600"
+            color="green"
             subtitle={`${stats.approvedInterviewers} approved, ${stats.pendingInterviewers} pending`}
           />
           <StatCard
             title="Interviews Scheduled"
             value={stats.interviewsScheduled}
             icon={Calendar}
-            color="text-purple-600"
+            color="purple"
           />
           <StatCard
             title="Completed Interviews"
             value={stats.completedInterviews}
             icon={CheckCircle}
-            color="text-emerald-600 "
+            color="orange"
           />
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
           {/* Interview Analytics */}
-          <div className="lg:col-span-2 bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+          <div className="lg:col-span-2 bg-gray-100 rounded-xl shadow-sm border border-gray-300 p-6">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-bold text-gray-900">
                 Interview Analytics
@@ -189,7 +153,7 @@ const AdminDashboard = () => {
           </div>
 
           {/* Quick Actions */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+          <div className="bg-gray-100 rounded-xl shadow-sm border border-gray-300 p-6">
             <h2 className="text-xl font-bold text-gray-900 mb-6">
               Quick Actions
             </h2>
@@ -198,21 +162,21 @@ const AdminDashboard = () => {
                 title="Approve Candidates"
                 description={`${stats.pendingCandidates} pending approval`}
                 icon={Users}
-                color="text-blue-600"
+                color="blue"
                 onClick={() => (window.location.href = "/manage-candidates")}
               />
               <QuickActionButton
                 title="Approve Interviewers"
                 description={`${stats.pendingInterviewers} pending approval`}
                 icon={UserCheck}
-                color="text-green-600"
+                color="green"
                 onClick={() => (window.location.href = "/manage-interviewers")}
               />
               <QuickActionButton
                 title="Schedule Interview"
                 description="Create new interview session"
                 icon={Calendar}
-                color="text-purple-600"
+                color="orange"
                 onClick={() => (window.location.href = "/scheduling")}
               />
             </div>
@@ -220,13 +184,13 @@ const AdminDashboard = () => {
         </div>
 
         {/* Upcoming Interviews with MUI Table */}
-        <div className="lg:col-span-2 bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+        <div className="lg:col-span-2 bg-gray-100 rounded-xl shadow-sm border border-gray-300 p-6">
           <div className="flex items-center justify-between gap-2 mb-6">
             <div className="flex gap-2">
               <h2 className="text-xl font-bold text-gray-900">
                 Upcoming Interviews
               </h2>
-              <CalendarDays className="w-5 h-5 text-gray-400" />
+              <CalendarDays className="w-5 h-5 text-gray-400 mt-1" />
             </div>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -244,10 +208,11 @@ const AdminDashboard = () => {
 
           <TableContainer component={Paper}>
             <Table
+              className="bg-gray-100 border-none shadow-none"
               sx={{ minWidth: 650 }}
               aria-label="upcoming interviews table"
             >
-              <TableHead>
+              <TableHead className="bg-gray-200 border-b-1 border-gray-300">
                 <TableRow>
                   <TableCell>
                     <b>S.No</b>

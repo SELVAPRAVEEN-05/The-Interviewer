@@ -52,7 +52,7 @@ const interviewers = [
     yearsOfExperience: 8,
     role: "Technical Lead",
     department: "Engineering",
-    profileImage: "/api/placeholder/64/64",
+    profileImage: "https://img.freepik.com/premium-photo/happy-man-ai-generated-portrait-user-profile_1119669-1.jpg?w=2000",
     stats: {
       totalInterviews: 145,
       completedInterviews: 142,
@@ -69,7 +69,7 @@ const interviewers = [
     yearsOfExperience: 6,
     role: "Senior Developer",
     department: "Engineering",
-    profileImage: "/api/placeholder/64/64",
+    profileImage: "https://img.freepik.com/premium-photo/portrait-cheerful-asian-woman_144627-58061.jpg?w=2000",
     stats: {
       totalInterviews: 89,
       completedInterviews: 85,
@@ -86,7 +86,7 @@ const interviewers = [
     yearsOfExperience: 12,
     role: "HR Specialist",
     department: "Human Resources",
-    profileImage: "/api/placeholder/64/64",
+    profileImage: "https://img.freepik.com/free-photo/portrait-happy-mature-man_23-2148206449.jpg?w=2000",
     stats: {
       totalInterviews: 230,
       completedInterviews: 225,
@@ -103,7 +103,7 @@ const interviewers = [
     yearsOfExperience: 10,
     role: "Senior Manager",
     department: "Product",
-    profileImage: "/api/placeholder/64/64",
+    profileImage: "https://img.freepik.com/free-photo/portrait-beautiful-smiling-woman_171337-5058.jpg?w=2000",
     stats: {
       totalInterviews: 167,
       completedInterviews: 160,
@@ -120,7 +120,7 @@ const interviewers = [
     yearsOfExperience: 7,
     role: "Lead Designer",
     department: "Design",
-    profileImage: "/api/placeholder/64/64",
+    profileImage: "https://img.freepik.com/free-photo/smiling-man-posing-studio_23-2148191223.jpg?w=2000",
     stats: {
       totalInterviews: 98,
       completedInterviews: 94,
@@ -137,7 +137,7 @@ const interviewers = [
     yearsOfExperience: 9,
     role: "Data Scientist",
     department: "Analytics",
-    profileImage: "/api/placeholder/64/64",
+    profileImage: "https://img.freepik.com/free-photo/portrait-happy-young-woman_171337-5053.jpg?w=2000",
     stats: {
       totalInterviews: 110,
       completedInterviews: 108,
@@ -154,7 +154,7 @@ const interviewers = [
     yearsOfExperience: 11,
     role: "DevOps Engineer",
     department: "Infrastructure",
-    profileImage: "/api/placeholder/64/64",
+    profileImage: "https://img.freepik.com/free-photo/portrait-handsome-young-man_171337-5055.jpg?w=2000",
     stats: {
       totalInterviews: 130,
       completedInterviews: 127,
@@ -171,7 +171,7 @@ const interviewers = [
     yearsOfExperience: 5,
     role: "Recruiter",
     department: "Talent Acquisition",
-    profileImage: "/api/placeholder/64/64",
+    profileImage: "https://img.freepik.com/free-photo/portrait-confident-businesswoman_23-2148232187.jpg?w=2000",
     stats: {
       totalInterviews: 75,
       completedInterviews: 73,
@@ -188,7 +188,7 @@ const interviewers = [
     yearsOfExperience: 13,
     role: "Project Manager",
     department: "Operations",
-    profileImage: "/api/placeholder/64/64",
+    profileImage: "https://img.freepik.com/free-photo/smiling-mature-businessman_171337-5054.jpg?w=2000",
     stats: {
       totalInterviews: 150,
       completedInterviews: 145,
@@ -205,7 +205,7 @@ const interviewers = [
     yearsOfExperience: 4,
     role: "Junior Developer",
     department: "Engineering",
-    profileImage: "/api/placeholder/64/64",
+    profileImage: "https://img.freepik.com/free-photo/portrait-happy-young-woman_171337-5056.jpg?w=2000",
     stats: {
       totalInterviews: 40,
       completedInterviews: 38,
@@ -222,7 +222,7 @@ const interviewers = [
     yearsOfExperience: 14,
     role: "Principal Architect",
     department: "Engineering",
-    profileImage: "/api/placeholder/64/64",
+    profileImage: "https://img.freepik.com/free-photo/portrait-happy-man-with-beard_171337-5057.jpg?w=2000",
     stats: {
       totalInterviews: 200,
       completedInterviews: 195,
@@ -303,7 +303,7 @@ const ManageInterviewers: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className="min-h-screen bg-red-500 p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">

@@ -90,7 +90,7 @@ export default function Register() {
               className="w-full text-white"
               color="primary"
               size="lg"
-              onPress={() => router.push("/candidate/onBoarding")}
+              onPress={() => router.push("/onBoarding")}
             >
               Sign Up
             </Button>
