@@ -34,14 +34,14 @@ export default function AdminLayout({
 
   return (
     <div className="h-screen w-screen overflow-hidden">
-      <div className="shadow-md h-[10vh] w-full">
+      <div className="h-[10vh] w-full">
         <Header />
       </div>
       <div className="flex h-[90vh] w-full overflow-hidden">
         <div className="h-full">
           <SideBar sidebarItems={sidebarItems} />
         </div>
-        <div className="flex-1 p-6 overflow-y-auto scrollbar-hide overflow-hidden bg-gray-50">
+        <div className="flex-1 p-6 overflow-y-auto scrollbar-hide overflow-hidden">
           {children}
         </div>
       </div>

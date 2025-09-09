@@ -1,7 +1,7 @@
 "use client";
 
 import SideBar from "@/components/atoms/sidebar";
-import { LayoutDashboard, MessageSquare, Star, Users } from "lucide-react";
+import { LayoutDashboard, Users } from "lucide-react";
 import Header from "./components/header";
 
 export default function CandidateLayout({
