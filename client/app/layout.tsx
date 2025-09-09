@@ -1,13 +1,11 @@
+import { fontSans } from "@/config/fonts";
+import { siteConfig } from "@/config/site";
 import "@/styles/globals.css";
+import "@livekit/components-styles";
+import "@livekit/components-styles/prefabs";
 import clsx from "clsx";
 import { Metadata, Viewport } from "next";
 import { Providers } from "./providers";
-import { Navbar } from "@/components/navbar";
-import { fontSans } from "@/config/fonts";
-import { siteConfig } from "@/config/site";
-import { Footer } from "@/components/ui";
-import '@livekit/components-styles';
-import '@livekit/components-styles/prefabs';
 export const metadata: Metadata = {
   title: {
     default: siteConfig.name,
@@ -15,7 +13,7 @@ export const metadata: Metadata = {
   },
   description: siteConfig.description,
   icons: {
-    icon: "https://img.freepik.com/premium-vector/sp-letter-logo-design-with-circle-shape-sp-circle-cube-shape-logo-design-sp-monogram-busine_629210-698.jpg",
+    icon: "https://www.muraldecal.com/en/img/as1223-jpg/folder/products-listado-merchant/stickers-hi-haters.jpg",
   },
 };
 
@@ -31,14 +29,14 @@ export default function RootLayout({
   return (
     <html suppressHydrationWarning lang="en">
       <head />
-      <body
-        className={clsx(
-          "font-sans m-0",
-          fontSans.variable,
-        )}
-      >
-        <Providers themeProps={{ attribute: "class", defaultTheme: "light" ,enableSystem: false,}}>
-
+      <body className={clsx("font-sans m-0", fontSans.variable)}>
+        <Providers
+          themeProps={{
+            attribute: "class",
+            defaultTheme: "light",
+            enableSystem: false,
+          }}
+        >
           <div
             id="scroll-container"
             className="h-screen  w-screen
@@ -53,7 +51,6 @@ export default function RootLayout({
 
             <main>{children}</main>
           </div>
-          
         </Providers>
       </body>
     </html>
