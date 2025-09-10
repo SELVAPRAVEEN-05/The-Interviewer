@@ -60,7 +60,7 @@ export default function SideBar({
   const handleItemClick = (itemId: string) => {
     setActiveId(itemId);
     if (onItemClick) onItemClick(itemId);
-    router.push(`/admin/${itemId}`); // ✅ Always navigate with /admin prefix
+    router.push(`${itemId}`);
   };
 
   return (
@@ -83,11 +83,11 @@ export default function SideBar({
                 itemRefs.current[item.id] = el;
               }}
               onClick={() => handleItemClick(item.id)}
-              className={`relative w-full flex items-center gap-3 px-4 md:pr-10 lg:pl-6 lg:pr-16 py-3 text-sm font-medium transition-all duration-300
+              className={`relative w-full flex items-center hover:bg-gray-200 gap-3 px-4 md:pr-10 lg:pl-6 lg:pr-16 py-3 text-sm font-medium transition-all duration-300
         ${
           activeId === item.id
-            ? "text-blue-700 bg-gray-200"
-            : "text-gray-500 hover:text-gray-900"
+            ? "text-blue-700"
+            : "text-gray-500 hover:text-gray-900 "
         }`}
             >
               <span>{item.icon}</span>
