@@ -1,10 +1,10 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 export interface SidebarItem {
-  id: string;
+  id: string; // e.g. "dashboard", "manageInterviewers"
   label: string;
   icon: React.ReactNode;
 }
@@ -21,11 +21,25 @@ export default function SideBar({
   onItemClick,
 }: SideBarProps) {
   const router = useRouter();
+  const pathname = usePathname(); // e.g. /admin/manageInterviewers
 
   const [activeId, setActiveId] = useState(defaultActiveId);
   const [lineStyle, setLineStyle] = useState({ top: 0, opacity: 0 });
   const itemRefs = useRef<{ [key: string]: HTMLButtonElement | null }>({});
 
+  // ✅ Match activeId with pathname
+  useEffect(() => {
+    const currentItem = sidebarItems.find(
+      (item) =>
+        pathname === `/admin/${item.id}` ||
+        pathname.startsWith(`/admin/${item.id}/`)
+    );
+    if (currentItem) {
+      setActiveId(currentItem.id);
+    }
+  }, [pathname, sidebarItems]);
+
+  // ✅ Update line position when activeId changes
   useEffect(() => {
     const activeElement = itemRefs.current[activeId];
     if (activeElement) {
@@ -46,7 +60,7 @@ export default function SideBar({
   const handleItemClick = (itemId: string) => {
     setActiveId(itemId);
     if (onItemClick) onItemClick(itemId);
-    router.push(itemId);
+    router.push(`/admin/${itemId}`); // ✅ Always navigate with /admin prefix
   };
 
   return (

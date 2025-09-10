@@ -163,21 +163,21 @@ const AdminDashboard = () => {
                 description={`${stats.pendingCandidates} pending approval`}
                 icon={Users}
                 color="blue"
-                onClick={() => (window.location.href = "/manage-candidates")}
+                onClick={() => (window.location.href = "/admin/manageCandidates")}
               />
               <QuickActionButton
                 title="Approve Interviewers"
                 description={`${stats.pendingInterviewers} pending approval`}
                 icon={UserCheck}
                 color="green"
-                onClick={() => (window.location.href = "/manage-interviewers")}
+                onClick={() => (window.location.href = "/admin/manageInterviewers")}
               />
               <QuickActionButton
                 title="Schedule Interview"
                 description="Create new interview session"
                 icon={Calendar}
                 color="orange"
-                onClick={() => (window.location.href = "/scheduling")}
+                onClick={() => (window.location.href = "/admim")}
               />
             </div>
           </div>

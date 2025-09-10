@@ -12,6 +12,7 @@ const colorClasses: Record<string, string> = {
   purple: "text-purple-600 bg-purple-200",
   orange: "text-orange-600 bg-orange-200",
   violet: "text-violet-600 bg-violet-200",
+  red: "text-red-600 bg-red-200",
 };
 
 export default function StatCard({
