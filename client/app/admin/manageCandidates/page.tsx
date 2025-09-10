@@ -156,10 +156,10 @@ const ManageCandidatesPage = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   return (
-    <div className="bg-gray-50">
+    <div className="">
       {/* Stats Cards */}
 
-      <div className="bg-white shadow-lg px-6 py-4 rounded-lg mb-6">
+      <div className="bg-gray-100 border border-gray-300 shadow-lg px-6 py-4 rounded-lg mb-6">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">
@@ -199,9 +199,9 @@ const ManageCandidatesPage = () => {
       </div>
 
       {/* Tabs and Search */}
-      <div className="bg-white rounded-lg shadow-sm mb-6">
+      <div className="bg-gray-100 border border-gray-300 rounded-lg shadow-sm mb-6">
         <div className="flex  items-center justify-between p-4 ">
-          <div className="flex gap-3 border p-2 rounded-lg">
+          <div className="flex gap-3 border border-gray-300 p-2 rounded-lg">
             <button
               onClick={() => setActiveTab("overview")}
               className={getTabButtonClasses("overview")}
@@ -248,9 +248,9 @@ const ManageCandidatesPage = () => {
         </div>
 
         {/* Table */}
-        <TableContainer component={Paper} className="shadow-sm">
-          <Table>
-            <TableHead>
+        <TableContainer component={Paper} sx={{ backgroundColor: "#f3f4f6" , border: "none" , boxShadow:"none" }} className="px-4 bg-gray-100">
+          <Table className="bg-gray-100 border border-gray-300 rounded-t-md">
+            <TableHead className="bg-gray-200">
               <TableRow>
                 <TableCell>Candidate</TableCell>
                 <TableCell>Email</TableCell>
@@ -307,6 +307,7 @@ const ManageCandidatesPage = () => {
           {/* Pagination */}
           <TablePagination
             component="div"
+            className="bg-gray-100"
             count={filteredCandidates.length}
             rowsPerPageOptions={[5, 10, 25, 50, 100]}
             page={page}
