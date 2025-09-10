@@ -176,25 +176,25 @@ const ManageCandidatesPage = () => {
           title="Total Candidates"
           value={totalCandidates}
           icon={Users}
-          color="text-blue-600"
+          color="blue"
         />
         <StatCard
           title="Approved Candidates"
           value={approvedCount}
           icon={CheckCircle}
-          color="text-green-600"
+          color="green"
         />
         <StatCard
           title="Pending Candidates"
           value={pendingCount}
           icon={Clock}
-          color="text-yellow-600"
+          color="orange"
         />
         <StatCard
           title="Rejected Candidates"
           value={canceledCount}
           icon={XCircle}
-          color="text-red-600"
+          color="red"
         />
       </div>
 
