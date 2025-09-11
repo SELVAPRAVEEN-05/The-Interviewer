@@ -84,7 +84,7 @@ export default function Login() {
             </div>
           </div>
 
-          <Button className="text-white w-full" color="primary" size="lg">
+          <Button onClick={() => router.push("/admin/dashboard")} className="text-white w-full" color="primary" size="lg">
             Log In
           </Button>
 
