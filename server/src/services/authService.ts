@@ -1,6 +1,6 @@
 import fastify from "../middleware/jwt";
 import prisma from "../lib/prisma";
-export async function Login(data:any) {
+export async function ValidateUserService(data:any) {
       if (!data) {
             console.log("No data provided");
             return { message: "Email is required", data: null };
@@ -8,12 +8,12 @@ export async function Login(data:any) {
     try{
         console.log(data)
           
-        const user =await prisma.login.findFirst({where: {email:data.email}})
+        const user =await prisma.user.findFirst({where: {email:data.email,password:data.password}})
           console.log(user)
         
-          const accessToken = fastify.jwt.sign({ payload:{id:user?.id,name:user?.name,email:user?.email} });
+          const accessToken = fastify.jwt.sign({ payload:{id:user?.id,name:user?.first_name,email:user?.email} });
           if(user==null){
-            return {message:"Login falied",data:null}
+            return {message:"Login failed",data:null}
           }
           
          return {message:"Login successful",data:{user:user,token:accessToken}}
@@ -24,7 +24,7 @@ export async function Login(data:any) {
    
 }
 
-export async function LoginCre(data:any) {
+export async function CreateUserService(data:any) {
       if (!data) {
             console.log("No data provided");
             return { message: "Email is required", data: null };
@@ -32,12 +32,12 @@ export async function LoginCre(data:any) {
     try{
         console.log(data)
           
-        const user =await prisma.login.findFirst({where: {email:data.email,password:data.password}})
+        const user =await prisma.user.findFirst({where: {email:data.email,password:data.password}})
           console.log(user)
-        
-          const accessToken = fastify.jwt.sign({ payload:{id:user?.id,name:user?.name,email:user?.email} });
+
+          const accessToken = fastify.jwt.sign({ payload:{id:user?.id,name:user?.first_name,email:user?.email} });
           if(user==null){
-            return {message:"Login falied",data:null}
+            return {message:"Login failed",data:null}
           }
           
          return {message:"Login successful",data:{user:user,token:accessToken}}
@@ -47,6 +47,3 @@ export async function LoginCre(data:any) {
     }
    
 }
-
-
-
