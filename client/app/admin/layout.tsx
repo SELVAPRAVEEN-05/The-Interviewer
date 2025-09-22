@@ -25,11 +25,6 @@ export default function AdminLayout({
       label: "Manage Interviewers",
       icon: <MessageSquare size={18} />,
     },
-    {
-      id: "InterviewScheduling",
-      label: "Interview Scheduling",
-      icon: <Star size={18} />,
-    },
   ];
 
   return (

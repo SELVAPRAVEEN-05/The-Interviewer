@@ -61,26 +61,33 @@ model Skill {
 
 model User {
   id                String @id @default(uuid())
-  first_name        String
-  last_name         String
+  username          String @unique
+  first_name        String?
+  last_name         String?
   email             String @unique
   password          String
-  mobile_number     String
-  date_of_birth     DateTime
-  genderId          String
-  countryId         String
-  languageId        String
-  role              String
-  github_url        String
-  linkedin_url      String
-  portfolio_url     String
-  resume_url        String
-  profile_picture_url String
+  personal_email    String?
+  mobile_number     String?
+  date_of_birth     DateTime?
+  genderId          String?
+  countryId         String?
+  languageId        String?
+  role              String @default("candidate")
+  github_url        String?
+  linkedin_url      String?
+  portfolio_url     String?
+  resume_url        String?
+  profile_picture_url String?
+  // Education details
+  tenth_percentage  Decimal? @db.Decimal(5, 2)
+  twelfth_percentage Decimal? @db.Decimal(5, 2)
+  // Professional details
+  professional_email String?
   created_at        DateTime @default(now())
 
-  gender   Gender   @relation(fields: [genderId], references: [id])
-  country  Country  @relation(fields: [countryId], references: [id])
-  language Language @relation(fields: [languageId], references: [id])
+  gender   Gender?   @relation(fields: [genderId], references: [id])
+  country  Country?  @relation(fields: [countryId], references: [id])
+  language Language? @relation(fields: [languageId], references: [id])
 
   educationDetails EducationDetail[]
   userSkills       UserSkill[]

@@ -11,10 +11,21 @@ import {
   TablePagination,
   TableRow,
 } from "@mui/material";
+
+import { TextField } from "@mui/material";
 import {
+  FaBriefcase,
+  FaBuilding,
+  FaEnvelope,
+  FaIndustry,
+  FaPhone,
+  FaUser,
+} from "react-icons/fa";
+
+import {
+  Button,
   Drawer,
   DrawerBody,
-  Button as DrawerButton,
   DrawerContent,
   DrawerFooter,
   DrawerHeader,
@@ -621,6 +632,7 @@ const ManageInterviewers = () => {
         <DrawerContent>
           {(onClose) => (
             <>
+              {/* Header */}
               <DrawerHeader className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white rounded-t-lg">
                 <div className="flex items-center justify-between">
                   <div>
@@ -632,145 +644,101 @@ const ManageInterviewers = () => {
                 </div>
               </DrawerHeader>
 
+              {/* Body */}
               <DrawerBody className="space-y-6 p-6 bg-gray-50">
-                {/* Name Field */}
-                <div className="relative group">
-                  <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors duration-200">
-                    <svg
-                      className="w-5 h-5"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                      />
-                    </svg>
-                  </div>
-                  <input
-                    type="text"
-                    placeholder="Full Name"
-                    className="w-full pl-11 pr-4 py-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white hover:shadow-md shadow-sm text-gray-700 placeholder-gray-400"
+                {/* Full Name */}
+                <div className="flex items-center gap-3">
+                  <FaUser className="text-gray-500 text-lg" />
+                  <TextField
+                    fullWidth
+                    id="name"
+                    label="Full Name"
+                    variant="outlined"
+                    size="medium"
                   />
                 </div>
 
-                {/* Email Field */}
-                <div className="relative group">
-                  <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors duration-200">
-                    <svg
-                      className="w-5 h-5"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M3 8l7.89 7.89a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                      />
-                    </svg>
-                  </div>
-                  <input
+                {/* Email */}
+                <div className="flex items-center gap-3">
+                  <FaEnvelope className="text-gray-500 text-lg" />
+                  <TextField
+                    fullWidth
+                    id="email"
+                    label="Email Address"
                     type="email"
-                    placeholder="Email Address"
-                    className="w-full pl-11 pr-4 py-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white hover:shadow-md shadow-sm text-gray-700 placeholder-gray-400"
+                    variant="outlined"
+                    size="medium"
                   />
                 </div>
 
-                {/* Phone Field */}
-                <div className="relative group">
-                  <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors duration-200">
-                    <svg
-                      className="w-5 h-5"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
-                      />
-                    </svg>
-                  </div>
-                  <input
+                {/* Phone */}
+                <div className="flex items-center gap-3">
+                  <FaPhone className="text-gray-500 text-lg" />
+                  <TextField
+                    fullWidth
+                    id="phone"
+                    label="Phone Number"
                     type="text"
-                    placeholder="Phone Number"
-                    className="w-full pl-11 pr-4 py-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white hover:shadow-md shadow-sm text-gray-700 placeholder-gray-400"
+                    variant="outlined"
+                    size="medium"
+                  />
+                </div>
+                {/* Company Name */}
+                <div className="flex items-center gap-3">
+                  <FaIndustry className="text-gray-500 text-lg" />
+                  <TextField
+                    fullWidth
+                    id="company"
+                    label="Company Name"
+                    variant="outlined"
+                    size="medium"
                   />
                 </div>
 
-                {/* Role Field */}
-                <div className="relative group">
-                  <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors duration-200">
-                    <svg
-                      className="w-5 h-5"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0H8m8 0v2a2 2 0 01-2 2H10a2 2 0 01-2-2V6m8 0H8m0 0v.5A1.5 1.5 0 009.5 8h5A1.5 1.5 0 0016 6.5V6H8z"
-                      />
-                    </svg>
-                  </div>
-                  <input
-                    type="text"
-                    placeholder="Job Role"
-                    className="w-full pl-11 pr-4 py-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white hover:shadow-md shadow-sm text-gray-700 placeholder-gray-400"
+                {/* Job Role */}
+                <div className="flex items-center gap-3">
+                  <FaBriefcase className="text-gray-500 text-lg" />
+                  <TextField
+                    fullWidth
+                    id="role"
+                    label="Job Role"
+                    variant="outlined"
+                    size="medium"
                   />
                 </div>
 
-                {/* Department Field */}
-                <div className="relative group">
-                  <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors duration-200">
-                    <svg
-                      className="w-5 h-5"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
-                      />
-                    </svg>
-                  </div>
-                  <input
-                    type="text"
-                    placeholder="Department"
-                    className="w-full pl-11 pr-4 py-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white hover:shadow-md shadow-sm text-gray-700 placeholder-gray-400"
+                {/* Department */}
+                <div className="flex items-center gap-3">
+                  <FaBuilding className="text-gray-500 text-lg" />
+                  <TextField
+                    fullWidth
+                    id="department"
+                    label="Department"
+                    variant="outlined"
+                    size="medium"
                   />
                 </div>
+
               </DrawerBody>
 
+              {/* Footer */}
               <DrawerFooter className="bg-white border-t border-gray-100 p-6">
                 <div className="flex gap-3">
-                  <DrawerButton
+                  <Button
                     color="danger"
                     variant="light"
                     onPress={onClose}
                     className="flex-1 py-3.5 px-6 border-2 border-gray-300 rounded-xl text-gray-700 font-medium hover:bg-gray-50 hover:border-gray-400 transition-all duration-200 focus:ring-2 focus:ring-gray-300"
                   >
                     Cancel
-                  </DrawerButton>
-                  <DrawerButton
+                  </Button>
+                  <Button
                     color="primary"
                     onPress={onClose}
                     className="flex-1 py-3.5 px-6 bg-gradient-to-r from-blue-600 to-indigo-700 text-white font-medium rounded-xl hover:from-blue-700 hover:to-indigo-800 transition-all duration-200 focus:ring-2 focus:ring-blue-500 shadow-lg hover:shadow-xl transform hover:scale-105"
                   >
                     Save Interviewer
-                  </DrawerButton>
+                  </Button>
                 </div>
               </DrawerFooter>
             </>
