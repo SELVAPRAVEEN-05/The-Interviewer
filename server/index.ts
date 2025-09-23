@@ -1,6 +1,7 @@
 
 import fastify from './src/middleware/jwt';
 import {  LoginUserRoute } from './src/routes/auth';
+import { Registration } from './src/routes/registration';
 import { Skill } from './src/routes/skill';
 
 fastify.get('/',{
@@ -14,7 +15,7 @@ fastify.get('/jwt', async (request:any, reply:any) => {
 })
 fastify.register(LoginUserRoute,{prefix:"/api/auth"})
 fastify.register(Skill,{prefix:"/api/skill"})
-
+fastify.register(Registration,{prefix:"/api/register"})
 const start = async () => {
   try {
     await fastify.listen({ port: 5000 })

@@ -10,14 +10,14 @@ datasource db {
 }
 
 model Gender {
-  id    String @id @default(uuid())
+  id    Int @id @default(autoincrement())
   value String @unique
 
   users User[]
 }
 
 model Country {
-  id       String @id @default(uuid())
+  id       Int @id @default(autoincrement())
   name     String @unique
   iso_code String
 
@@ -26,7 +26,7 @@ model Country {
 }
 
 model Language {
-  id       String @id @default(uuid())
+  id       Int @id @default(autoincrement())
   name     String @unique
   iso_code String
 
@@ -34,25 +34,25 @@ model Language {
 }
 
 model EducationLevel {
-  id         String @id @default(uuid())
+  id         Int @id @default(autoincrement())
   level_name String @unique
 
   educationDetails EducationDetail[]
 }
 
 model Institute {
-  id        String @id @default(uuid())
+  id        Int @id @default(autoincrement())
   name      String @unique
   city      String
   state     String
-  countryId String
+  countryId Int
   country   Country @relation(fields: [countryId], references: [id])
 
   educationDetails EducationDetail[]
 }
 
 model Skill {
-  id       String @id @default(uuid())
+  id       Int @id @default(autoincrement())
   name     String @unique
   category String
 
@@ -66,14 +66,14 @@ model User {
   email             String @unique
   password          String
   mobile_number     String
-  date_of_birth     DateTime
-  genderId          String
-  countryId         String
-  languageId        String
+  date_of_birth     DateTime? 
+  genderId          Int
+  countryId         Int
+  languageId        Int
   role              String
   github_url        String
   linkedin_url      String
-  portfolio_url     String
+  portfolio_url     String? 
   resume_url        String
   profile_picture_url String
   created_at        DateTime @default(now())
@@ -93,25 +93,25 @@ model User {
 model EducationDetail {
   id                String @id @default(uuid())
   userId            String
-  educationLevelId  String
-  instituteId       String
-  specialization    String
-  board_or_university String
-  marks_obtained    Decimal @db.Decimal(5, 2)
-  max_marks         Decimal @db.Decimal(5, 2)
-  year_of_passing   Int
+  educationLevelId  Int
+  instituteId       Int?
+  specialization    String?
+  board_or_university String?
+  marks_obtained    Decimal? @db.Decimal(5, 2)
+  max_marks         Decimal? @db.Decimal(5, 2)
+  year_of_passing   Int?
 
   user            User            @relation(fields: [userId], references: [id])
   educationLevel  EducationLevel  @relation(fields: [educationLevelId], references: [id])
-  institute       Institute       @relation(fields: [instituteId], references: [id])
+  institute       Institute?       @relation(fields: [instituteId], references: [id])
 }
 
 model UserSkill {
   id                 String @id @default(uuid())
   userId             String
-  skillId            String
-  proficiency        String
-  years_of_experience Int
+  skillId            Int
+  proficiency        String?
+  years_of_experience Int?
 
   user  User  @relation(fields: [userId], references: [id])
   skill Skill @relation(fields: [skillId], references: [id])
@@ -156,7 +156,7 @@ model CodeSubmission {
 }
 
 model Brand {
-  id         String   @id @default(uuid())
+  id         Int      @id @default(autoincrement())
   name       String   @unique
   website_url String
   industry   String
@@ -166,7 +166,7 @@ model Brand {
 }
 
 model Position {
-  id         String   @id @default(uuid())
+  id         Int      @id @default(autoincrement())
   title      String   @unique
   level      String
   department String
@@ -177,8 +177,8 @@ model Position {
 
 model BrandPosition {
   id         String   @id @default(uuid())
-  brandId    String
-  positionId String
+  brandId    Int
+  positionId Int
   location   String
   is_active  Boolean  @default(true)
   created_at DateTime @default(now())
