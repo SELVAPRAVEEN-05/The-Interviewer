@@ -1,7 +1,5 @@
 # 💻 Code-Meet – Real-Time Coding Interview Platform
 
-![License](https://img.shields.io/badge/License-MIT-green)
-![Build](https://img.shields.io/badge/Build-Passing-brightgreen)
 ![Next.js](https://img.shields.io/badge/Next.js-13+-black?logo=next.js)
 ![Tailwind CSS](https://img.shields.io/badge/TailwindCSS-3.x-blue?logo=tailwind-css)
 ![Prisma](https://img.shields.io/badge/Prisma-ORM-blue?logo=prisma)
