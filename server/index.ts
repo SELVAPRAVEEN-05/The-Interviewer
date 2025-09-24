@@ -1,6 +1,6 @@
 
 import fastify from './src/middleware/jwt';
-import { AdminDashboardRoute } from './src/routes/admin/dashboard';
+import { AdminDashboardRoute } from './src/routes/admin/admin';
 import {  LoginUserRoute } from './src/routes/auth';
 import { Registration } from './src/routes/registration';
 import { Skill } from './src/routes/skill';

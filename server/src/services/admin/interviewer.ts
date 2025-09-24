@@ -1,46 +1,46 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import prisma from "../../lib/prisma";
 
-export const candidateData = async () => {
+export const InterviewerData = async () => {
     // Define candidate management logic here
 try {
     // Execute all queries in parallel for better performance
     const [
-      totalCandidateUsers,
-      totalApprovedCandidates,
-      totalPendingCandidates,
-      totalRejectedInterviews,
+      totalInterviewerUsers,
+      totalApprovedInterviewerUsers,
+      totalPendingInterviewerUsers,
+      totalRejectedInterviewerUsers,
     ] = await Promise.all([
       prisma.user.count({
         where: {
-          role: 'CANDIDATE',
+          role: 'RECRUITER',
         },
       }),
       prisma.user.count({
         where: {
-          role: 'CANDIDATE',
+          role: 'RECRUITER',
           status: 'APPROVED',
         },
       }),
      prisma.user.count({
         where: {
-          role: 'CANDIDATE',
+          role: 'RECRUITER',
           status: 'PENDING',
         },
       }),
       prisma.user.count({
         where: {
-          role: 'CANDIDATE',
+          role: 'RECRUITER',
           status: 'REJECTED',
         },
       }),
     ]);
 
     const result: any = {
-     totalCandidateUsers,
-      totalApprovedCandidates,
-      totalPendingCandidates,
-      totalRejectedInterviews,
+    totalInterviewerUsers,
+      totalApprovedInterviewerUsers,
+      totalPendingInterviewerUsers,
+      totalRejectedInterviewerUsers,
     };
     return {data:result,isFailed:false};
   } catch (error) {
@@ -51,7 +51,7 @@ try {
 
 }
 
-export const CandidateDataTable=async(status:String,searchQuery:String,offset:number,limit:number)=>{
+export const InterviewerDataTable=async(status:String,searchQuery:String,offset:number,limit:number,role:string,department:string)=>{
     try{
         let whereData:any={
 
@@ -61,6 +61,12 @@ export const CandidateDataTable=async(status:String,searchQuery:String,offset:nu
                 status,
             }
         }
+        // if(role!=''){
+        //     whereData['role']=role
+        // }
+        // if(department!=''){
+        //     whereData['department']=department
+        // }
         if(searchQuery!=''){
             whereData['OR']=[
                 {
@@ -72,23 +78,27 @@ export const CandidateDataTable=async(status:String,searchQuery:String,offset:nu
                 }
             ]
         }
-        whereData['role']='CANDIDATE'
+        whereData['role']='RECRUITER'
         const data=await prisma.user.findMany({
             where:whereData,
             take:limit,
             skip:offset,  
             include:{
+              // userPositions:{
+              //   where:{
+              //     position:{
+              //       // title:"RECRUITER",
+                   
+              //     }
+
+              //   }
+              // },
                 interviewParticipations:{
                     include:{
                         interview:{
                         }
                     }
                 },
-                userSkills:{
-                    include:{
-                        skill:true
-                    }
-                }
             }        
     })
     return {data:data,isFailed:false};

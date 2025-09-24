@@ -74,10 +74,11 @@ model User {
   github_url        String
   linkedin_url      String
   portfolio_url     String? 
+  yoe              Int @default(0)
   resume_url        String
   profile_picture_url String
   created_at        DateTime @default(now())
-  status           String   @default("active")
+  status           String   @default("APPROVED")
   gender   Gender   @relation(fields: [genderId], references: [id])
   country  Country  @relation(fields: [countryId], references: [id])
   language Language @relation(fields: [languageId], references: [id])
@@ -86,6 +87,7 @@ model User {
   userSkills       UserSkill[]
   interviewParticipations InterviewParticipant[]
   codeSubmissions  CodeSubmission[]
+  userPositions    UserPosition[]
   feedbackGiven    Feedback[] @relation("FeedbackGivenBy")
   feedbackReceived Feedback[] @relation("FeedbackGivenTo")
 }
@@ -162,7 +164,7 @@ model Brand {
   industry   String
   created_at DateTime @default(now())
 
-  brandPositions BrandPosition[]
+  userPositions UserPosition[]
 }
 
 model Position {
@@ -172,19 +174,20 @@ model Position {
   department String
   created_at DateTime @default(now())
 
-  brandPositions BrandPosition[]
+  userPositions UserPosition[]
 }
 
-model BrandPosition {
+model UserPosition {
   id         String   @id @default(uuid())
   brandId    Int
+  userId     String
   positionId Int
   location   String
   is_active  Boolean  @default(true)
   created_at DateTime @default(now())
-
-  brand    Brand    @relation(fields: [brandId], references: [id])
-  position Position @relation(fields: [positionId], references: [id])
+  user       User     @relation(fields: [userId], references: [id])
+  brand      Brand    @relation(fields: [brandId], references: [id])
+  position   Position @relation(fields: [positionId], references: [id])
 }
 
 model Feedback {
