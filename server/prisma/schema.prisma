@@ -77,7 +77,7 @@ model User {
   resume_url        String
   profile_picture_url String
   created_at        DateTime @default(now())
-
+  status           String   @default("active")
   gender   Gender   @relation(fields: [genderId], references: [id])
   country  Country  @relation(fields: [countryId], references: [id])
   language Language @relation(fields: [languageId], references: [id])
