@@ -10,9 +10,11 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
+        poppins: ["Poppins", "sans-serif"],
         sans: ["DM Sans", "sans-serif"],
         mono: ["var(--font-mono)"],
-        playfair: ["'Playfair Display'", "serif"],
+        playfair: ["Playfair Display", "serif"],
+        agency: ["Agency FB", "sans-serif"],
       },
     },
   },
