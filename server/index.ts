@@ -4,9 +4,10 @@ import { AdminDashboardRoute } from './src/routes/admin/admin';
 import {  LoginUserRoute } from './src/routes/auth';
 import { Registration } from './src/routes/registration';
 import { Skill } from './src/routes/skill';
+import { profile } from './src/routes/user';
 
 fastify.get('/',{
-            preHandler: [fastify.authenticate],
+            preHandler: [fastify.authenticateAdmin],
         }, async (request:any, reply:any) => {
   return { hello: 'world' }
 })
@@ -18,6 +19,8 @@ fastify.register(LoginUserRoute,{prefix:"/api/auth"})
 fastify.register(Skill,{prefix:"/api/skill"})
 fastify.register(Registration,{prefix:"/api/register"})
 fastify.register(AdminDashboardRoute,{prefix:"/api/admin"})
+fastify.register(profile,{prefix:"/api/user"})
+
 
 const start = async () => {
   try {
