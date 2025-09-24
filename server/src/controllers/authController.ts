@@ -1,12 +1,12 @@
 import { FastifyReply, FastifyRequest } from "fastify";
-import { Login, LoginCre } from "../services/auth";
+import { CreateUserService, ValidateUserService } from "../services/authService";
 
-export async function LoginUser(req: FastifyRequest, reply: FastifyReply) {
-  const { email } = req.body as { email: string };
+export async function ValidateUser(req: FastifyRequest, reply: FastifyReply) {
+  const { email,password } = req.body as any;
 
   try {
     // Call the Login function
-    const result = await Login({ email });
+    const result = await ValidateUserService({ email,password });
 
     // If login was successful
     if (result.data) {
@@ -34,14 +34,14 @@ export async function LoginUser(req: FastifyRequest, reply: FastifyReply) {
     });
   }
 }
-export async function LoginUserCre(req: FastifyRequest, reply: FastifyReply) {
+export async function CreateUser(req: FastifyRequest, reply: FastifyReply) {
   const { email,password } = req.body as { email: string,password: string };
 
   try {
-    // Call the Login function
-    const result = await LoginCre({ email,password });
+    // Call the CreateUser function
+    const result = await CreateUserService({ email,password });
 
-    // If login was successful
+    // If user creation was successful
     if (result.data) {
       
       // Send success response

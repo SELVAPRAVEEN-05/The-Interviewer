@@ -1,21 +1,36 @@
 import { PrismaClient } from "@prisma/client";
-import loginSeed from "./seed/loginSeed";
-import { crimeTypeSeed } from "./seed/crime";
-import { policeStationSeed } from "./seed/station";
-import { cctvSeed } from "./seed/cctv";
+import { genderSeed } from "./seed/genderSeed";
+import { countrySeed } from "./seed/countrySeed";
+import { languageSeed } from "./seed/languageSeed";
+import { educationLevelSeed } from "./seed/educationLevelSeed";
+import { instituteSeed } from "./seed/instituteSeed";
+import { skillSeed } from "./seed/skillSeed";
+import { userSeed } from "./seed/userSeed";
+import { brandSeed } from "./seed/brandSeed";
+import { positionSeed } from "./seed/positionSeed";
 const prisma = new PrismaClient();
 async function main() {
- // Seed CrimeTypes
-  await crimeTypeSeed();
-  
-  // Seed PoliceStations
-  await policeStationSeed();
-  
-  // Seed Login accounts
-  await loginSeed();
-  
-  // Seed CCTV cameras
-  await cctvSeed();
+  // Seed Gender
+  await genderSeed();
+  // Seed Country
+  await countrySeed();
+  // Seed Language
+  await languageSeed();
+  // Seed EducationLevel
+  await educationLevelSeed();
+  // Seed Institute
+  await instituteSeed();
+  // Seed Skill
+  await skillSeed();
+  // Seed User
+  await userSeed();
+
+  // Seed Brand
+  await brandSeed();
+
+  // Seed Position
+  await positionSeed();
+
 
   console.log('Seed completed successfully!');
 }
