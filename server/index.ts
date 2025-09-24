@@ -2,6 +2,7 @@
 import fastify from './src/middleware/jwt';
 import { AdminDashboardRoute } from './src/routes/admin/admin';
 import {  LoginUserRoute } from './src/routes/auth';
+import { interviewer } from './src/routes/interviewer';
 import { Registration } from './src/routes/registration';
 import { Skill } from './src/routes/skill';
 import { profile } from './src/routes/user';
@@ -20,6 +21,8 @@ fastify.register(Skill,{prefix:"/api/skill"})
 fastify.register(Registration,{prefix:"/api/register"})
 fastify.register(AdminDashboardRoute,{prefix:"/api/admin"})
 fastify.register(profile,{prefix:"/api/user"})
+fastify.register(interviewer,{prefix:"/api/interviewer"})
+
 
 
 const start = async () => {

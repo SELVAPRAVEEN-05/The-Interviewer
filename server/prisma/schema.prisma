@@ -85,6 +85,7 @@ model User {
 
   educationDetails EducationDetail[]
   userSkills       UserSkill[]
+  Interview        Interview[]
   interviewParticipations InterviewParticipant[]
   codeSubmissions  CodeSubmission[]
   userPositions    UserPosition[]
@@ -122,14 +123,15 @@ model UserSkill {
 model Interview {
   id           String   @id @default(uuid())
   scheduled_at DateTime
-  status       String
+  status       String   @default("SCHEDULED")
   session_link String
+  interviewerId String
   prize        Decimal? @db.Decimal(10, 2)
   created_at   DateTime @default(now())
-
   participants    InterviewParticipant[]
   codeSubmissions CodeSubmission[]
   feedbacks       Feedback[]
+  user      User      @relation(fields: [interviewerId], references: [id])
 }
 
 model InterviewParticipant {
@@ -137,10 +139,10 @@ model InterviewParticipant {
   interviewId String
   userId     String
   role       String
-  joined_at  DateTime
-  left_at    DateTime
-  note       String
-
+  joined_at  DateTime?
+  left_at    DateTime?
+  note       String?
+  
   interview Interview @relation(fields: [interviewId], references: [id])
   user      User      @relation(fields: [userId], references: [id])
 }
