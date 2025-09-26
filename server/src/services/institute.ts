@@ -1,5 +1,4 @@
 import prisma from "../lib/prisma";
-
-export const instituteGet=async () =>{
-    return prisma.institute.findMany();
+export async function GetInstitute() {
+    return await prisma.institute.findMany();
 }

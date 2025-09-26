@@ -412,7 +412,6 @@ export const upcomingInterviews = [
     },
   ];
 
-
 export const interviewers = [
   {
     id: "1",
@@ -423,6 +422,7 @@ export const interviewers = [
     yearsOfExperience: 8,
     role: "Technical Lead",
     department: "Engineering",
+    status: "Active",
     profileImage:
       "https://img.freepik.com/premium-photo/happy-man-ai-generated-portrait-user-profile_1119669-1.jpg?w=2000",
     stats: {
@@ -441,6 +441,7 @@ export const interviewers = [
     yearsOfExperience: 6,
     role: "Senior Developer",
     department: "Engineering",
+    status: "Active",
     profileImage:
       "https://img.freepik.com/premium-photo/portrait-cheerful-asian-woman_144627-58061.jpg?w=2000",
     stats: {
@@ -459,6 +460,7 @@ export const interviewers = [
     yearsOfExperience: 12,
     role: "HR Specialist",
     department: "Human Resources",
+    status: "Inactive",
     profileImage:
       "https://img.freepik.com/free-photo/portrait-happy-mature-man_23-2148206449.jpg?w=2000",
     stats: {
@@ -477,6 +479,7 @@ export const interviewers = [
     yearsOfExperience: 10,
     role: "Senior Manager",
     department: "Product",
+    status: "Active",
     profileImage:
       "https://img.freepik.com/free-photo/portrait-beautiful-smiling-woman_171337-5058.jpg?w=2000",
     stats: {
@@ -493,8 +496,9 @@ export const interviewers = [
     phone: "+1 (555) 567-8901",
     gender: "Male",
     yearsOfExperience: 7,
-    role: "Lead Designer",
+    role: "Senior Developer",
     department: "Design",
+    status: "Inactive",
     profileImage:
       "https://img.freepik.com/free-photo/smiling-man-posing-studio_23-2148191223.jpg?w=2000",
     stats: {
@@ -511,8 +515,9 @@ export const interviewers = [
     phone: "+1 (555) 678-9012",
     gender: "Female",
     yearsOfExperience: 9,
-    role: "Data Scientist",
-    department: "Analytics",
+    role: "Technical Lead",
+    department: "Engineering",
+    status: "Active",
     profileImage:
       "https://img.freepik.com/free-photo/portrait-happy-young-woman_171337-5053.jpg?w=2000",
     stats: {
@@ -529,8 +534,9 @@ export const interviewers = [
     phone: "+1 (555) 789-0123",
     gender: "Male",
     yearsOfExperience: 11,
-    role: "DevOps Engineer",
-    department: "Infrastructure",
+    role: "Senior Manager",
+    department: "Product",
+    status: "Inactive",
     profileImage:
       "https://img.freepik.com/free-photo/portrait-handsome-young-man_171337-5055.jpg?w=2000",
     stats: {
@@ -547,8 +553,9 @@ export const interviewers = [
     phone: "+1 (555) 890-1234",
     gender: "Female",
     yearsOfExperience: 5,
-    role: "Recruiter",
-    department: "Talent Acquisition",
+    role: "HR Specialist",
+    department: "Human Resources",
+    status: "Active",
     profileImage:
       "https://img.freepik.com/free-photo/portrait-confident-businesswoman_23-2148232187.jpg?w=2000",
     stats: {
@@ -565,8 +572,9 @@ export const interviewers = [
     phone: "+1 (555) 901-2345",
     gender: "Male",
     yearsOfExperience: 13,
-    role: "Project Manager",
-    department: "Operations",
+    role: "Technical Lead",
+    department: "Engineering",
+    status: "Active",
     profileImage:
       "https://img.freepik.com/free-photo/smiling-mature-businessman_171337-5054.jpg?w=2000",
     stats: {
@@ -583,8 +591,9 @@ export const interviewers = [
     phone: "+1 (555) 012-3456",
     gender: "Female",
     yearsOfExperience: 4,
-    role: "Junior Developer",
-    department: "Engineering",
+    role: "Senior Developer",
+    department: "Design",
+    status: "Inactive",
     profileImage:
       "https://img.freepik.com/free-photo/portrait-happy-young-woman_171337-5056.jpg?w=2000",
     stats: {
@@ -601,8 +610,9 @@ export const interviewers = [
     phone: "+1 (555) 111-2222",
     gender: "Male",
     yearsOfExperience: 14,
-    role: "Principal Architect",
-    department: "Engineering",
+    role: "Senior Manager",
+    department: "Product",
+    status: "Active",
     profileImage:
       "https://img.freepik.com/free-photo/portrait-happy-man-with-beard_171337-5057.jpg?w=2000",
     stats: {
