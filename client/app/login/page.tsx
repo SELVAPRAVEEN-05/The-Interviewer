@@ -4,7 +4,7 @@ import Mob from "@/components/assets/or.jpg";
 import { GoogleIcon } from "@/components/icons";
 import { useLoginStore } from "@/components/store/account/login";
 import { Input } from "@heroui/input";
-import { Button, Checkbox } from "@nextui-org/react";
+import {  Button, Checkbox } from "@nextui-org/react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import React from "react";
@@ -15,7 +15,22 @@ export default function Login() {
   const [isVisible, setIsVisible] = React.useState(false);
   const toggleVisibility = () => setIsVisible(!isVisible);
 
-  const { emailId, password, rememberMe, setData } = useLoginStore();
+  const { emailId, password, rememberMe, setData, handleLogin } =
+    useLoginStore();
+
+  const handleSubmit = async () => {
+    const payload = {
+      email: emailId,
+      password: password,
+    };
+   const response =  await handleLogin(payload);
+  
+   if(response?.success === true){
+   }
+    else{ 
+      alert("Login Failed");
+   }
+  };
 
   return (
     <div className="flex items-center justify-end h-screen text-white bg-black">
@@ -84,7 +99,12 @@ export default function Login() {
             </div>
           </div>
 
-          <Button className="text-white w-full" color="primary" size="lg">
+          <Button
+            className="text-white w-full"
+            color="primary"
+            size="lg"
+            onPress={handleSubmit}
+          >
             Log In
           </Button>
 
