@@ -24,6 +24,8 @@ export default function Login() {
    const response =  await handleLogin(payload);
   
    if(response?.success === true){
+    localStorage.setItem("authToken", response.data.token);
+    router.push("/candidate/dashboard");
    }
     else{ 
       alert("Login Failed");

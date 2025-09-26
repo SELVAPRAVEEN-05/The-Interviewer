@@ -16,7 +16,6 @@ const axiosClient = axios.create({
 //  **Response Interceptor**
 axiosClient.interceptors.response.use(
     <T>(response: AxiosResponse<T>): T => {
-        console.log("Response Received:", response);
         return response.data; // Directly return the data instead of full response
     },
     (error) => {

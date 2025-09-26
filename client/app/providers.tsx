@@ -28,11 +28,10 @@ export function Providers({ children, themeProps }: ProvidersProps) {
     <HeroUIProvider navigate={router.push}>
      
       <NextThemesProvider {...themeProps}>
-        
-        <LiveblocksProvider authEndpoint="/api/liveblocks-auth">
-          {children}
-        </LiveblocksProvider>
-        
+        {/* <LiveblocksProvider authEndpoint="/api/liveblocks-auth">
+        </LiveblocksProvider> */}
+
+        {children}
         
         </NextThemesProvider>
     </HeroUIProvider>
