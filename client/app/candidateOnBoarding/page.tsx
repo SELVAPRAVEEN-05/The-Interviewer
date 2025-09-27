@@ -24,10 +24,10 @@ export default function CandidateOnBoarding() {
         <div className="w-full md:pr-2 pt-3">
           {activeStep == 0 ?
             (
-              <Personal activeStep={activeStep} setActiveStep={setActiveStep} />
+              <Education activeStep={activeStep} setActiveStep={setActiveStep} />
             ) : activeStep == 1 ?
-              (
-                <Education activeStep={activeStep} setActiveStep={setActiveStep} />
+            (
+                <Personal activeStep={activeStep} setActiveStep={setActiveStep} />
               ) :
               (
                 <Skills activeStep={activeStep} setActiveStep={setActiveStep} />
