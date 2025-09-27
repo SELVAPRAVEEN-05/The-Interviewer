@@ -15,9 +15,14 @@ export default function Skills({
   activeStep,
   setActiveStep,
 }: VerticalStepperProps) {
-  const { github, linkedin, portfolio, skills, resumeFile, setFormData } =
+  const { github, linkedin, portfolio, skills, handleOnboard, setFormData } =
     useFormStore();
-  const router = useRouter(); // ✅ works in App Router
+  const router = useRouter(); 
+
+  const handleSubmit = async () => {
+    const response = await handleOnboard();
+    console.log(response);
+  }
 
   return (
     <div className="h-full w-full flex flex-col justify-between overflow-y-auto scrollbar-hide">
@@ -92,7 +97,7 @@ export default function Skills({
           size="md"
           radius="sm"
           isDisabled={!(github && linkedin && portfolio && skills)}
-          onPress={() => router.push("/candidate/dashboard")}
+          onPress={handleSubmit}
         >
           Submit
         </Button>
