@@ -17,12 +17,19 @@ export default function Skills({
 }: VerticalStepperProps) {
   const { github, linkedin, portfolio, skills, handleOnboard, setFormData } =
     useFormStore();
-  const router = useRouter(); 
+  const router = useRouter();
 
   const handleSubmit = async () => {
     const response = await handleOnboard();
-    console.log(response);
-  }
+    if (response?.message === "Registration Successful") {
+      router.push("/candidate/dashboard"); // ✅ FIXED{}
+    } else if (response?.message === "Error in Registration") {
+      alert("User Already Exists");
+      router.push("/login");
+    } else {
+      alert("unknown error");
+    }
+  };
 
   return (
     <div className="h-full w-full flex flex-col justify-between overflow-y-auto scrollbar-hide">
