@@ -84,7 +84,7 @@ export const Navbar = () => {
   return (
     <HeroUINavbar
       maxWidth="full"
-      className="flex bg-opacity-30 shadow-lg"
+      className="flex bg-opacity-30 shadow-lg   "
       position="sticky"
     >
       <div className="w-full lg:px-12 xl:px-28 flex justify-between items-center">

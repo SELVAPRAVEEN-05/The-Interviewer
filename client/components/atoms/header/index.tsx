@@ -3,7 +3,6 @@ import { Bell } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { FaRegUser } from "react-icons/fa";
 
 export default function Header() {
   const router = useRouter();
