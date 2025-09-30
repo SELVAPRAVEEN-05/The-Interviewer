@@ -1,5 +1,7 @@
 "use client";
+import { Button } from "@nextui-org/react";
 import { Briefcase, Calendar, User, Video } from "lucide-react";
+import { MdInsertDriveFile, MdOutlineInsertDriveFile } from "react-icons/md";
 
 interface Interview {
   id?: string;
@@ -14,7 +16,6 @@ interface Interview {
   timezone: string;
   meetingLink?: string;
 }
-
 
 export const InterviewCard = ({ interview }: { interview: Interview }) => {
   const handleJoinNow = () => {
@@ -56,6 +57,7 @@ export const InterviewCard = ({ interview }: { interview: Interview }) => {
 
         {/* Interview Type */}
         <div className="flex items-center gap-2">
+            <span><MdOutlineInsertDriveFile className="w-5 h-5 text-gray-500"/></span>
           <span className="text-sm font-medium text-gray-600">
             Interview Type:
           </span>
@@ -67,25 +69,33 @@ export const InterviewCard = ({ interview }: { interview: Interview }) => {
         {/* Date & Time */}
         <div className="flex items-start gap-2 text-gray-700">
           <Calendar className="w-5 h-5 text-gray-500 mt-0.5" />
-          <div className="flex flex-col">
-            <span className="font-medium">Date & Time:</span>
-            <span className="text-sm text-gray-600">
+          <div className="flex items-center">
+            <div className="font-medium mr-1">Date & Time:</div>
+            <div className="text-sm text-gray-600">
               {interview.date}, {interview.startTime} - {interview.endTime} (
               {interview.timezone})
-            </span>
+            </div>
           </div>
         </div>
-
       </div>
 
       {/* Join Button */}
-      <button
-        onClick={handleJoinNow}
-        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2"
-      >
-        <Video className="w-5 h-5" />
-        Join Now
-      </button>
+      <div className="flex justify-end ">
+        <div className="flex items-center gap-3">
+          <Button variant="bordered" color="danger">
+            Cancle
+          </Button>
+          <Button
+            onPress={handleJoinNow}
+            variant="solid"
+            color="primary"
+            startContent={<Video className="w-5 h-5" />}
+          >
+            {" "}
+            Join Call
+          </Button>
+        </div>
+      </div>
     </div>
   );
 };

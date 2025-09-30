@@ -1,8 +1,8 @@
 "use client";
 
 import SideBar from "@/components/atoms/sidebar";
-import  Navbar  from "@/components/atoms/header";
 import { BookAIcon, LayoutDashboard, Users } from "lucide-react";
+import Navbar from "./components/navBar";
 
 export default function CandidateLayout({
   children,
