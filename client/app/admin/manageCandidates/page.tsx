@@ -201,7 +201,7 @@ const ManageCandidatesPage = () => {
       {/* Tabs and Search */}
       <div className="bg-gray-100 border border-gray-300 rounded-lg shadow-sm mb-6">
         <div className="flex  items-center justify-between p-4 ">
-          <div className="flex gap-3 border border-gray-300 p-2 rounded-lg">
+          <div className="flex gap-3 border border-gray-300 bg-gray-50 p-2 rounded-lg">
             <button
               onClick={() => setActiveTab("overview")}
               className={getTabButtonClasses("overview")}
@@ -248,7 +248,11 @@ const ManageCandidatesPage = () => {
         </div>
 
         {/* Table */}
-        <TableContainer component={Paper} sx={{ backgroundColor: "#f3f4f6" , border: "none" , boxShadow:"none" }} className="px-4 bg-gray-100">
+        <TableContainer
+          component={Paper}
+          sx={{ backgroundColor: "#f3f4f6", border: "none", boxShadow: "none" }}
+          className="px-4 bg-gray-100"
+        >
           <Table className="bg-gray-100 border border-gray-300 rounded-t-md">
             <TableHead className="bg-gray-200">
               <TableRow>
@@ -401,9 +405,10 @@ const ManageCandidatesPage = () => {
                 <div className="flex justify-end gap-3 pt-6 border-t border-gray-200 mt-6">
                   {/* Reject button */}
                   <button
-                    onClick={() =>
-                      updateCandidateStatus(selectedCandidate.id, "canceled")
-                    }
+                    onClick={() => {
+                      updateCandidateStatus(selectedCandidate.id, "canceled");
+                      onClose();
+                    }}
                     className={`px-6 py-2 rounded-lg font-medium text-sm transition-colors ${
                       selectedCandidate?.status === "canceled"
                         ? "bg-red-100 text-red-700 border border-red-200"
@@ -418,9 +423,10 @@ const ManageCandidatesPage = () => {
 
                   {/* Approve button */}
                   <button
-                    onClick={() =>
-                      updateCandidateStatus(selectedCandidate.id, "approved")
-                    }
+                    onClick={() => {
+                      updateCandidateStatus(selectedCandidate.id, "approved");
+                      onClose();
+                    }}
                     className={`px-6 py-2 rounded-lg font-medium text-sm transition-colors ${
                       selectedCandidate?.status === "approved"
                         ? "bg-green-100 text-green-700 border border-green-200"

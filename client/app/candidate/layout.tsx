@@ -1,8 +1,8 @@
 "use client";
 
 import SideBar from "@/components/atoms/sidebar";
-import { LayoutDashboard, Users } from "lucide-react";
-import Header from "./components/header";
+import  Navbar  from "@/components/atoms/header";
+import { BookAIcon, LayoutDashboard, Users } from "lucide-react";
 
 export default function CandidateLayout({
   children,
@@ -17,21 +17,26 @@ export default function CandidateLayout({
     },
     {
       id: "interviewListes",
-      label: "Interview Listes",
+      label: "upcomming Interview",
       icon: <Users size={18} />,
     },
+    {
+      id: "interviewHistory",
+      label: "Interview History",
+      icon: <BookAIcon size={18} />,
+    }
   ];
 
   return (
-    <div className="h-screen w-screen overflow-hidden">
-      <div className="shadow-md h-[10vh] w-full">
-        <Header />
+    <div className="h-[100dvh] w-screen overflow-hidden">
+      <div className="h-[10vh] w-full">
+        <Navbar />
       </div>
       <div className="flex h-[90vh] w-full overflow-hidden">
         <div className="h-full">
           <SideBar sidebarItems={sidebarItems} />
         </div>
-        <div className="flex-1 p-6 overflow-y-auto scrollbar-hide overflow-hidden bg-gray-50">
+        <div className="flex-1 p-6 overflow-y-auto scrollbar-hide overflow-hidden">
           {children}
         </div>
       </div>
