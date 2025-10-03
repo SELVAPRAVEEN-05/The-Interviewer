@@ -2,6 +2,7 @@
 import { TrendingUp, Users } from "lucide-react";
 import { InterviewHistoryTable } from "../components/interviewHistorytable";
 
+import { Slider } from "@nextui-org/react";
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 
 export default function RecentInterviews() {
@@ -16,14 +17,14 @@ export default function RecentInterviews() {
     { name: "Upcoming", value: meetingStats.upcoming, color: "#3b82f6" },
     { name: "Missed", value: meetingStats.missed, color: "#ef4444" },
   ];
+
   const skillPerformance = [
-    { skill: "Algorithms", score: 85, maxScore: 100 },
-    { skill: "SQL", score: 78, maxScore: 100 },
-    { skill: "Problem Solving", score: 92, maxScore: 100 },
-    { skill: "Communication", score: 88, maxScore: 100 },
-    { skill: "System Design", score: 75, maxScore: 100 },
+    { skill: "Algorithms", score: 85, maxScore: 100, change: +5 },
+    { skill: "SQL", score: 78, maxScore: 100, change: +3 },
+    { skill: "Problem Solving", score: 92, maxScore: 100, change: +8 },
+    { skill: "Communication", score: 88, maxScore: 100, change: +2 },
   ];
-  
+
   const sampleHistory = [
     {
       id: "1",
@@ -100,23 +101,25 @@ export default function RecentInterviews() {
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         <div className="bg-gray-100 rounded-xl shadow-md border border-gray-300 p-5 grid grid-cols-2 gap-4 ">
-          <div className="h-60">
+          <div className="h-72">
             <div className="flex items-center mb-4">
               <Users className="w-5 h-5 text-indigo-600" />
               <h3 className="ml-3 text-lg font-semibold text-gray-900">
                 Meetings Overview
               </h3>
             </div>
-            <ResponsiveContainer>
-              <PieChart>
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart height={300}>
                 <Pie
                   data={pieData}
-                  cx="30%"
+                  cx="50%"
                   cy="40%"
                   innerRadius={40}
                   outerRadius={70}
                   dataKey="value"
                   paddingAngle={5}
+                  width={200}
+                  height={200}
                 >
                   {pieData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.color} />
@@ -149,6 +152,32 @@ export default function RecentInterviews() {
               Skill Performance
             </h3>
           </div>
+          {skillPerformance.map((item, idx) => (
+            <div key={idx} className="space-y-1">
+              {/* Skill Name */}
+              <div className="flex justify-between items-center">
+                <span className="font-medium text-gray-800">{item.skill}</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-gray-500 font-semibold">
+                    {item.change > 0 ? `+${item.change}%` : `${item.change}%`}
+                  </span>
+                  <span className="font-bold text-gray-900">{item.score}%</span>
+                </div>
+              </div>
+
+              {/* Read-only Progress Bar */}
+              <Slider
+                aria-label={item.skill}
+                value={item.score}
+                maxValue={item.maxScore}
+                hideThumb
+                isDisabled
+                classNames={{
+                  track: "h-2 rounded-full",
+                }}
+              />
+            </div>
+          ))}
         </div>
       </div>
       <InterviewHistoryTable

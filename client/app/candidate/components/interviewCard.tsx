@@ -1,7 +1,7 @@
 "use client";
 import { Button } from "@nextui-org/react";
 import { Briefcase, Calendar, User, Video } from "lucide-react";
-import { MdInsertDriveFile, MdOutlineInsertDriveFile } from "react-icons/md";
+import { MdOutlineInsertDriveFile } from "react-icons/md";
 
 interface Interview {
   id?: string;
@@ -13,7 +13,6 @@ interface Interview {
   date: string;
   startTime: string;
   endTime: string;
-  timezone: string;
   meetingLink?: string;
 }
 
@@ -57,7 +56,9 @@ export const InterviewCard = ({ interview }: { interview: Interview }) => {
 
         {/* Interview Type */}
         <div className="flex items-center gap-2">
-            <span><MdOutlineInsertDriveFile className="w-5 h-5 text-gray-500"/></span>
+          <span>
+            <MdOutlineInsertDriveFile className="w-5 h-5 text-gray-500" />
+          </span>
           <span className="text-sm font-medium text-gray-600">
             Interview Type:
           </span>
@@ -72,8 +73,7 @@ export const InterviewCard = ({ interview }: { interview: Interview }) => {
           <div className="flex items-center">
             <div className="font-medium mr-1">Date & Time:</div>
             <div className="text-sm text-gray-600">
-              {interview.date}, {interview.startTime} - {interview.endTime} (
-              {interview.timezone})
+              {interview.date}, {interview.startTime} - {interview.endTime}
             </div>
           </div>
         </div>
