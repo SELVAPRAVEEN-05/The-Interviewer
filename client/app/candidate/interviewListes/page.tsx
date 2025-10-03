@@ -1,6 +1,8 @@
 "use client";
 
-import { Search } from "lucide-react";
+import StatCard from "@/app/admin/components/statCard";
+import { Button, Tab, Tabs } from "@nextui-org/react";
+import { Award, Calendar, CheckCircle, Target } from "lucide-react";
 import { InterviewCard } from "../components/interviewCard";
 
 const sampleInterviews = [
@@ -15,7 +17,6 @@ const sampleInterviews = [
     date: "29 Sep",
     startTime: "10:00 AM",
     endTime: "11:00 AM",
-    timezone: "IST",
     mode: "Online (Zoom)",
     meetingLink: "https://zoom.us/j/example",
   },
@@ -28,7 +29,6 @@ const sampleInterviews = [
     date: "30 Sep",
     startTime: "2:00 PM",
     endTime: "3:00 PM",
-    timezone: "IST",
     mode: "Online (Google Meet)",
     meetingLink: "https://meet.google.com/example",
   },
@@ -46,23 +46,52 @@ export default function InterviewListes() {
             Prepare for your upcoming interviews with these resources.
           </p>
         </div>
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <StatCard
+          title="Total Interviews"
+          value={12}
+          icon={Calendar}
+          color="blue"
+          subtitle={`Completed: ${8} • Upcoming: ${4}`}
+        />
 
-        <div className="relative">
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <Search className="h-5 w-5 text-gray-400" />
+        <StatCard
+          title="Total Points"
+          value={840}
+          icon={CheckCircle}
+          color="green"
+          subtitle="Cumulative Interview Points"
+        />
+
+        <StatCard
+          title="Average Score"
+          value={81}
+          icon={Target}
+          color="purple"
+          subtitle="Across core skills"
+        />
+
+        <StatCard
+          title="Shortlist Status"
+          value={5}
+          icon={Award}
+          color="orange"
+          subtitle="Based on interviews"
+        />
+      </div>
+      <Tabs variant="bordered" color="primary">
+        <Tab title={<div>Grid View</div>}>
+          <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-3 bg-gray-50 p-6 border-gray-200 shadow-lg rounded-lg">
+            {sampleInterviews.map((interview) => (
+              <InterviewCard key={interview.id} interview={interview} />
+            ))}
           </div>
-          <input
-            type="text"
-            placeholder="Search Interviews..."
-            className="pl-10 pr-4 py-3 border w-[20rem] border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-          />
-        </div>
-      </div>
-      <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-3">
-        {sampleInterviews.map((interview) => (
-          <InterviewCard key={interview.id} interview={interview} />
-        ))}
-      </div>
+        </Tab>
+        <Tab title={<div>Table View</div>}>
+          <Button>Table</Button>
+        </Tab>
+      </Tabs>
     </div>
   );
 }

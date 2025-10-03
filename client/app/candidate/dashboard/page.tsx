@@ -140,7 +140,6 @@ const CandidateDashboard = () => {
   const totalInterviews =
     meetingStats.completed + meetingStats.upcoming + meetingStats.missed;
 
-
   const averageScore = Math.round(
     skillPerformance.reduce((acc, s) => acc + s.score, 0) /
       skillPerformance.length
@@ -365,54 +364,6 @@ const CandidateDashboard = () => {
             Showing performance points over time
           </div>
         </div>
-
-        {/* Pie chart remains same */}
-        {/* ... Meetings Overview ... */}
-        {/* <div className="bg-white rounded-xl shadow-md border border-gray-200 p-5">
-            <div className="flex items-center mb-4">
-              <Users className="w-5 h-5 text-indigo-600" />
-              <h3 className="ml-3 text-lg font-semibold text-gray-900">
-                Meetings Overview
-              </h3>
-            </div>
-            <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={pieData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={38}
-                    outerRadius={78}
-                    dataKey="value"
-                    paddingAngle={4}
-                  >
-                    {pieData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-
-            <div className="mt-4 space-y-2">
-              {pieData.map((entry, idx) => (
-                <div key={idx} className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <span
-                      className="w-3 h-3 rounded-full"
-                      style={{ backgroundColor: entry.color }}
-                    />
-                    <span className="text-sm text-gray-600">{entry.name}</span>
-                  </div>
-                  <div className="font-semibold text-gray-900">
-                    {entry.value}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div> */}
       </div>
     </div>
   );
