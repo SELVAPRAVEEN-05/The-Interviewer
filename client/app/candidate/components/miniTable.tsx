@@ -1,6 +1,6 @@
 "use client";
 import { Modal, ModalContent, useDisclosure } from "@nextui-org/react";
-import { Briefcase, Eye, Star } from "lucide-react";
+import { Briefcase, Eye, History, Star } from "lucide-react";
 import { useState } from "react";
 
 export interface InterviewHistory {
@@ -16,7 +16,7 @@ export interface InterviewHistory {
   rating?: number; // 0–5
 }
 
-export const InterviewHistoryTable = ({
+export const InterviewMiniHistoryTable = ({
   interviews,
   onViewFeedback,
 }: {
@@ -60,6 +60,12 @@ export const InterviewHistoryTable = ({
   return (
     <>
       <div className="overflow-hidden bg-gray-50 p-6 rounded-lg shadow-md">
+        <div className="flex items-center mb-4">
+            <History className="w-5 h-5 text-purple-600" />
+            <h3 className="ml-3 text-lg font-semibold text-gray-900">
+              Interview History
+            </h3>
+          </div>
         {/* Table Header */}
         <div className="grid grid-cols-6 gap-4 shadow-md bg-gray-200 px-4 py-5 font-semibold text-gray-700 border-gray-400 rounded-lg">
           <div>Company</div>
@@ -135,44 +141,6 @@ export const InterviewHistoryTable = ({
             </div>
           </div>
         ))}
-
-        {/* Pagination */}
-        <div className="flex justify-between items-center mt-6">
-          <p className="text-sm text-gray-600">
-            Page {currentPage} of {totalPages}
-          </p>
-          <div className="flex items-center gap-2">
-            <button
-              disabled={currentPage === 1}
-              onClick={() => setCurrentPage((p) => p - 1)}
-              className="px-3 py-1 border rounded-md text-sm text-gray-700 disabled:opacity-50"
-            >
-              Previous
-            </button>
-
-            {Array.from({ length: totalPages }).map((_, idx) => (
-              <button
-                key={idx}
-                onClick={() => setCurrentPage(idx + 1)}
-                className={`px-3 py-1 border rounded-md text-sm ${
-                  currentPage === idx + 1
-                    ? "bg-blue-500 text-white border-blue-500"
-                    : "text-gray-700 hover:bg-gray-100"
-                }`}
-              >
-                {idx + 1}
-              </button>
-            ))}
-
-            <button
-              disabled={currentPage === totalPages}
-              onClick={() => setCurrentPage((p) => p + 1)}
-              className="px-3 py-1 border rounded-md text-sm text-gray-700 disabled:opacity-50"
-            >
-              Next
-            </button>
-          </div>
-        </div>
       </div>
 
       {/* Feedback Modal */}
