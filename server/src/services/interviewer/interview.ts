@@ -1,10 +1,8 @@
 import prisma from "../../lib/prisma"
 
 export const interviewSchedule=async (schedule:Date,url:string,userId:string,participants:string[])=>{
-    
+    console.log(schedule,url,userId,participants)
     try{
-      
-      
        const data= await prisma.interview.create({
         data:{
             scheduled_at:schedule,
@@ -21,9 +19,8 @@ export const interviewSchedule=async (schedule:Date,url:string,userId:string,par
             }
         })
     })
- 
-    return {message:"Interview Schecuded Successfully",isFailed:false,data:data}
+    return {message:"Interview Scheduled Successfully",isFailed:false,data:data}
 }catch(err){
-    return {message:"Failed to schecude interview",isFailed:true}
+    return {message:"Failed to schedule interview",isFailed:true}
 }
 }
