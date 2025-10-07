@@ -95,6 +95,7 @@ export const InterviewerDataTable=async(status:String,searchQuery:String,offset:
               // },
                 interviewParticipations:{
                     include:{
+                        user:true,
                         interview:{
                         }
                     }
