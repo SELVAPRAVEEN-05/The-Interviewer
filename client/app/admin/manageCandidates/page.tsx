@@ -29,12 +29,14 @@ import {
   X,
   XCircle,
 } from "lucide-react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import StatCard from "../components/statCard";
 import { candidates } from "../utils";
 import { EducationTab } from "./components/education";
 import { PersonalTab } from "./components/personal";
 import { SkillsTab } from "./components/skills";
+import { getRequest } from "@/utils/axios/axios";
+import { URL } from "@/utils/axios/endPoint";
 
 type TabType = "overview" | "approved" | "pending" | "rejected";
 
@@ -43,7 +45,9 @@ const ManageCandidatesPage = () => {
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [activeTab, setActiveTab] = useState<TabType>("overview");
   const [searchQuery, setSearchQuery] = useState("");
-
+  const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:5000/";
+  const [tableData, setTableData] = useState<any>([]);
+  const [candidateData, setCandidateData] = useState<any>([]);
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage);
   };
@@ -96,21 +100,21 @@ const ManageCandidatesPage = () => {
     const baseClasses =
       "px-3 py-1 text-xs w-fit font-medium rounded-full flex items-center gap-1";
     switch (status) {
-      case "approved":
+      case "APPROVED":
         return (
           <span className={`${baseClasses} bg-green-100 text-green-800`}>
             <CheckCircle size={12} />
             Approved
           </span>
         );
-      case "pending":
+      case "PENDING":
         return (
           <span className={`${baseClasses} bg-yellow-100 text-yellow-800`}>
             <Clock size={12} />
             Pending
           </span>
         );
-      case "canceled":
+      case "CANCELED":
         return (
           <span className={`${baseClasses} bg-red-100 text-red-800`}>
             <XCircle size={12} />
@@ -155,6 +159,35 @@ const ManageCandidatesPage = () => {
 
   const { isOpen, onOpen, onClose } = useDisclosure();
 
+  const token = localStorage.getItem("authToken");
+  const InitialCall = async () => {
+    try {
+      const response = await getRequest(URL?.MANAGE_CANDIDATES, {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      });
+      setCandidateData(response?.data?.data);
+    } catch (err) {
+      throw err;
+    }
+    try {
+      const response = await getRequest(
+        `${baseURL}api/admin/candidates-table?status=&searchQuery=${searchQuery}&page=${page + 1}&limit=${rowsPerPage}`,
+        {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        }
+      );
+      setTableData(response?.data?.data);
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  useEffect(() => {
+    InitialCall();
+  }, []);
+
   return (
     <div className="">
       {/* Stats Cards */}
@@ -171,33 +204,34 @@ const ManageCandidatesPage = () => {
           </div>
         </div>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-        <StatCard
-          title="Total Candidates"
-          value={totalCandidates}
-          icon={Users}
-          color="blue"
-        />
-        <StatCard
-          title="Approved Candidates"
-          value={approvedCount}
-          icon={CheckCircle}
-          color="green"
-        />
-        <StatCard
-          title="Pending Candidates"
-          value={pendingCount}
-          icon={Clock}
-          color="orange"
-        />
-        <StatCard
-          title="Rejected Candidates"
-          value={canceledCount}
-          icon={XCircle}
-          color="red"
-        />
-      </div>
-
+      {candidateData && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+          <StatCard
+            title="Total Candidates"
+            value={candidateData?.totalCandidateUsers || totalCandidates}
+            icon={Users}
+            color="blue"
+          />
+          <StatCard
+            title="Approved Candidates"
+            value={candidateData?.totalApprovedCandidates || approvedCount}
+            icon={CheckCircle}
+            color="green"
+          />
+          <StatCard
+            title="Pending Candidates"
+            value={candidateData?.totalPendingCandidates ?? pendingCount}
+            icon={Clock}
+            color="orange"
+          />
+          <StatCard
+            title="Rejected Candidates"
+            value={candidateData?.totalRejectedInterviews ?? canceledCount}
+            icon={XCircle}
+            color="red"
+          />
+        </div>
+      )}
       {/* Tabs and Search */}
       <div className="bg-gray-100 border border-gray-300 rounded-lg shadow-sm mb-6">
         <div className="flex  items-center justify-between p-4 ">
@@ -248,7 +282,11 @@ const ManageCandidatesPage = () => {
         </div>
 
         {/* Table */}
-        <TableContainer component={Paper} sx={{ backgroundColor: "#f3f4f6" , border: "none" , boxShadow:"none" }} className="px-4 bg-gray-100">
+        <TableContainer
+          component={Paper}
+          sx={{ backgroundColor: "#f3f4f6", border: "none", boxShadow: "none" }}
+          className="px-4 bg-gray-100"
+        >
           <Table className="bg-gray-100 border border-gray-300 rounded-t-md">
             <TableHead className="bg-gray-200">
               <TableRow>
@@ -261,13 +299,7 @@ const ManageCandidatesPage = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {(rowsPerPage > 0
-                ? filteredCandidates.slice(
-                    page * rowsPerPage,
-                    page * rowsPerPage + rowsPerPage
-                  )
-                : filteredCandidates
-              ).map((candidate) => (
+              {tableData.map((candidate: any) => (
                 <TableRow key={candidate.id}>
                   <TableCell className="flex items-center gap-3">
                     <div className="flex items-center">
@@ -277,14 +309,14 @@ const ManageCandidatesPage = () => {
                         alt={candidate.name}
                       />
                       <span className="ml-2 font-medium text-gray-900">
-                        {candidate.name}
+                        {candidate.first_name + " " + candidate.last_name}
                       </span>
                     </div>
                   </TableCell>
                   <TableCell>{candidate.email}</TableCell>
                   <TableCell>{getStatusBadge(candidate.status)}</TableCell>
                   <TableCell>
-                    {getInterviewStatusBadge(candidate.interviewStatus)}
+                    {getInterviewStatusBadge(candidate.interviewStatus > 0 ? "scheduled" : "not_scheduled")}
                   </TableCell>
                   <TableCell>{candidate.assignedInterviewer}</TableCell>
                   <TableCell>

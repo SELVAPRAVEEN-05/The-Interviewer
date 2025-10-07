@@ -7,10 +7,12 @@ import {
   CheckCircle,
   Search,
   UserCheck,
-  Users
+  Users,
 } from "lucide-react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
+import { getRequest } from "@/utils";
+import { URL } from "@/utils/axios/endPoint";
 import {
   Paper,
   Table,
@@ -22,9 +24,9 @@ import {
   TablePagination,
   TableRow,
 } from "@mui/material";
+import { QuickActionButton } from "../components/quickActionButton";
 import StatCard from "../components/statCard";
 import { upcomingInterviews } from "../utils";
-import { QuickActionButton } from "../components/quickActionButton";
 
 const AdminDashboard = () => {
   const [stats] = useState({
@@ -39,16 +41,56 @@ const AdminDashboard = () => {
     pendingApprovals: 62,
   });
 
+  const [data, setData] = useState<any>(null);
+
   const [interviewData] = useState([
-    { name: "Completed", value: 156, color: "#22c55e" },
-    { name: "Scheduled", value: 42, color: "#3b82f6" },
-    { name: "Cancelled", value: 18, color: "#ef4444" },
+    {
+      name: "Completed",
+      value:
+        data?.totalCompletedInterviews > 0
+          ? data?.totalCompletedInterviews
+          : 156,
+      color: "#22c55e",
+    },
+    {
+      name: "Scheduled",
+      value:
+        data?.totalScheduledInterviews > 0
+          ? data?.totalScheduledInterviews
+          : 42,
+      color: "#3b82f6",
+    },
+    {
+      name: "Cancelled",
+      value:
+        data?.totalCancelledInterviews > 0
+          ? data?.totalCancelledInterviews
+          : 18,
+      color: "#ef4444",
+    },
   ]);
+
+  const DateDisplay = () => {
+    const today = new Date();
+    const options = {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    } as const;
+
+    const formattedDate = today.toLocaleDateString("en-US", options);
+
+    return formattedDate;
+  };
+
+ 
 
   // Pagination + Search state
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
   const [searchQuery, setSearchQuery] = useState("");
+  const [table, tableData] = useState<any>(null);
 
   // ✅ filter AFTER searchQuery is defined
   const filteredInterviews = upcomingInterviews.filter(
@@ -75,6 +117,23 @@ const AdminDashboard = () => {
     setPage(0);
   };
 
+  const token = localStorage.getItem("authToken");
+  const InitialCall = async () => {
+    try {
+      const response = await getRequest(URL?.ADMIN_DASHBOARD, {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      });
+      setData(response?.data);
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  useEffect(() => {
+    InitialCall();
+  }, []);
+
   return (
     <div className="min-h-screen">
       {/* Header */}
@@ -88,210 +147,218 @@ const AdminDashboard = () => {
           </div>
           <div className="text-right">
             <p className="text-sm text-gray-600">Today</p>
-            <p className="font-semibold text-gray-900">
-              Sunday, August 24, 2025
-            </p>
+            <p className="font-semibold text-gray-900">{DateDisplay()}</p>
           </div>
         </div>
       </div>
 
-      <div className="py-6">
-        {/* Key Metrics */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <StatCard
-            title="Total Candidates"
-            value={stats.totalCandidates}
-            icon={Users}
-            color="blue"
-            subtitle={`${stats.approvedCandidates} approved, ${stats.pendingCandidates} pending`}
-          />
-          <StatCard
-            title="Total Interviewers"
-            value={stats.totalInterviewers}
-            icon={UserCheck}
-            color="green"
-            subtitle={`${stats.approvedInterviewers} approved, ${stats.pendingInterviewers} pending`}
-          />
-          <StatCard
-            title="Interviews Scheduled"
-            value={stats.interviewsScheduled}
-            icon={Calendar}
-            color="purple"
-          />
-          <StatCard
-            title="Completed Interviews"
-            value={stats.completedInterviews}
-            icon={CheckCircle}
-            color="orange"
-          />
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-          {/* Interview Analytics */}
-          <div className="lg:col-span-2 bg-gray-100 rounded-xl shadow-sm border border-gray-300 p-6">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-bold text-gray-900">
-                Interview Analytics
-              </h2>
-            </div>
-            <div className="flex justify-center items-center h-64">
-              <PieChart
-                series={[
-                  {
-                    data: interviewData.map((item, index) => ({
-                      id: index,
-                      value: item.value,
-                      label: item.name,
-                      color: item.color,
-                    })),
-                  },
-                ]}
-                width={400}
-                height={250}
-              />
-            </div>
+      {data && (
+        <div className="py-6">
+          {/* Key Metrics */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <StatCard
+              title="Total Candidates"
+              value={data?.totalCandidateUsers ?? stats.totalCandidates}
+              icon={Users}
+              color="blue"
+              subtitle={`${stats.approvedCandidates} approved, ${stats.pendingCandidates} pending`}
+            />
+            <StatCard
+              title="Total Interviewers"
+              value={data?.totalRecruiterUsers ?? stats.totalInterviewers}
+              icon={UserCheck}
+              color="green"
+              subtitle={`${stats.approvedInterviewers} approved, ${stats.pendingInterviewers} pending`}
+            />
+            <StatCard
+              title="Interviews Scheduled"
+              value={
+                data?.totalScheduledInterviews ?? stats.interviewsScheduled
+              }
+              icon={Calendar}
+              color="purple"
+            />
+            <StatCard
+              title="Completed Interviews"
+              value={
+                data?.totalCompletedInterviews ?? stats.completedInterviews
+              }
+              icon={CheckCircle}
+              color="orange"
+            />
           </div>
 
-          {/* Quick Actions */}
-          <div className="bg-gray-100 rounded-xl shadow-sm border border-gray-300 p-6">
-            <h2 className="text-xl font-bold text-gray-900 mb-6">
-              Quick Actions
-            </h2>
-            <div className="space-y-4">
-              <QuickActionButton
-                title="Approve Candidates"
-                description={`${stats.pendingCandidates} pending approval`}
-                icon={Users}
-                color="blue"
-                onClick={() => (window.location.href = "/admin/manageCandidates")}
-              />
-              <QuickActionButton
-                title="Approve Interviewers"
-                description={`${stats.pendingInterviewers} pending approval`}
-                icon={UserCheck}
-                color="green"
-                onClick={() => (window.location.href = "/admin/manageInterviewers")}
-              />
-              <QuickActionButton
-                title="Schedule Interview"
-                description="Create new interview session"
-                icon={Calendar}
-                color="orange"
-                onClick={() => (window.location.href = "/admim")}
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Upcoming Interviews with MUI Table */}
-        <div className="lg:col-span-2 bg-gray-100 rounded-xl shadow-sm border border-gray-300 p-6">
-          <div className="flex items-center justify-between gap-2 mb-6">
-            <div className="flex gap-2">
-              <h2 className="text-xl font-bold text-gray-900">
-                Upcoming Interviews
-              </h2>
-              <CalendarDays className="w-5 h-5 text-gray-400 mt-1" />
-            </div>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Search className="h-5 w-5 text-gray-400" />
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+            {/* Interview Analytics */}
+            <div className="lg:col-span-2 bg-gray-100 rounded-xl shadow-sm border border-gray-300 p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl font-bold text-gray-900">
+                  Interview Analytics
+                </h2>
               </div>
-              <input
-                type="text"
-                placeholder="Search candidates..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 pr-4 py-3 border w-[20rem] border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-              />
+              <div className="flex justify-center items-center h-64">
+                <PieChart
+                  series={[
+                    {
+                      data: interviewData.map((item, index) => ({
+                        id: index,
+                        value: item.value,
+                        label: item.name,
+                        color: item.color,
+                      })),
+                    },
+                  ]}
+                  width={400}
+                  height={250}
+                />
+              </div>
+            </div>
+
+            {/* Quick Actions */}
+            <div className="bg-gray-100 rounded-xl shadow-sm border border-gray-300 p-6">
+              <h2 className="text-xl font-bold text-gray-900 mb-6">
+                Quick Actions
+              </h2>
+              <div className="space-y-4">
+                <QuickActionButton
+                  title="Approve Candidates"
+                  description={`${stats.pendingCandidates} pending approval`}
+                  icon={Users}
+                  color="blue"
+                  onClick={() =>
+                    (window.location.href = "/admin/manageCandidates")
+                  }
+                />
+                <QuickActionButton
+                  title="Approve Interviewers"
+                  description={`${stats.pendingInterviewers} pending approval`}
+                  icon={UserCheck}
+                  color="green"
+                  onClick={() =>
+                    (window.location.href = "/admin/manageInterviewers")
+                  }
+                />
+                <QuickActionButton
+                  title="Schedule Interview"
+                  description="Create new interview session"
+                  icon={Calendar}
+                  color="orange"
+                  onClick={() => (window.location.href = "/admim")}
+                />
+              </div>
             </div>
           </div>
 
-          <TableContainer component={Paper}>
-            <Table
-              className="bg-gray-100 border-none shadow-none"
-              sx={{ minWidth: 650 }}
-              aria-label="upcoming interviews table"
-            >
-              <TableHead className="bg-gray-200 border-b-1 border-gray-300">
-                <TableRow>
-                  <TableCell>
-                    <b>S.No</b>
-                  </TableCell>
-                  <TableCell>
-                    <b>Candidate</b>
-                  </TableCell>
-                  <TableCell>
-                    <b>Interviewer</b>
-                  </TableCell>
-                  <TableCell>
-                    <b>Date</b>
-                  </TableCell>
-                  <TableCell>
-                    <b>Time</b>
-                  </TableCell>
-                  <TableCell>
-                    <b>Status</b>
-                  </TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {(rowsPerPage > 0
-                  ? filteredInterviews.slice(
-                      page * rowsPerPage,
-                      page * rowsPerPage + rowsPerPage
-                    )
-                  : filteredInterviews
-                ).map((interview, index) => (
-                  <TableRow key={interview.id}>
-                    <TableCell>{page * rowsPerPage + index + 1}</TableCell>
-                    <TableCell>{interview.candidateName}</TableCell>
-                    <TableCell>{interview.interviewerName}</TableCell>
+          {/* Upcoming Interviews with MUI Table */}
+          <div className="lg:col-span-2 bg-gray-100 rounded-xl shadow-sm border border-gray-300 p-6">
+            <div className="flex items-center justify-between gap-2 mb-6">
+              <div className="flex gap-2">
+                <h2 className="text-xl font-bold text-gray-900">
+                  Upcoming Interviews
+                </h2>
+                <CalendarDays className="w-5 h-5 text-gray-400 mt-1" />
+              </div>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Search className="h-5 w-5 text-gray-400" />
+                </div>
+                <input
+                  type="text"
+                  placeholder="Search candidates..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10 pr-4 py-3 border w-[20rem] border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                />
+              </div>
+            </div>
+
+            <TableContainer component={Paper}>
+              <Table
+                className="bg-gray-100 border-none shadow-none"
+                sx={{ minWidth: 650 }}
+                aria-label="upcoming interviews table"
+              >
+                <TableHead className="bg-gray-200 border-b-1 border-gray-300">
+                  <TableRow>
                     <TableCell>
-                      {new Date(interview.date).toLocaleDateString()}
+                      <b>S.No</b>
                     </TableCell>
-                    <TableCell>{interview.time}</TableCell>
                     <TableCell>
-                      <span
-                        className={`px-3 py-1 rounded-full text-xs font-medium ${
-                          interview.status === "Scheduled"
-                            ? "bg-green-100 text-green-800"
-                            : "bg-yellow-100 text-yellow-800"
-                        }`}
-                      >
-                        {interview.status}
-                      </span>
+                      <b>Candidate</b>
+                    </TableCell>
+                    <TableCell>
+                      <b>Interviewer</b>
+                    </TableCell>
+                    <TableCell>
+                      <b>Date</b>
+                    </TableCell>
+                    <TableCell>
+                      <b>Time</b>
+                    </TableCell>
+                    <TableCell>
+                      <b>Status</b>
                     </TableCell>
                   </TableRow>
-                ))}
-              </TableBody>
-              <TableFooter>
-                <TableRow>
-                  <TablePagination
-                    rowsPerPageOptions={[
-                      5,
-                      10,
-                      25,
-                      { label: "All", value: -1 },
-                    ]}
-                    colSpan={6}
-                    count={filteredInterviews.length}
-                    rowsPerPage={rowsPerPage}
-                    page={page}
-                    onPageChange={handleChangePage}
-                    onRowsPerPageChange={handleChangeRowsPerPage}
-                    slotProps={{
-                      select: {
-                        inputProps: { "aria-label": "rows per page" },
-                        native: true,
-                      },
-                    }}
-                  />
-                </TableRow>
-              </TableFooter>
-            </Table>
-          </TableContainer>
+                </TableHead>
+                <TableBody>
+                  {(rowsPerPage > 0
+                    ? filteredInterviews.slice(
+                        page * rowsPerPage,
+                        page * rowsPerPage + rowsPerPage
+                      )
+                    : filteredInterviews
+                  ).map((interview, index) => (
+                    <TableRow key={interview.id}>
+                      <TableCell>{page * rowsPerPage + index + 1}</TableCell>
+                      <TableCell>{interview.candidateName}</TableCell>
+                      <TableCell>{interview.interviewerName}</TableCell>
+                      <TableCell>
+                        {new Date(interview.date).toLocaleDateString()}
+                      </TableCell>
+                      <TableCell>{interview.time}</TableCell>
+                      <TableCell>
+                        <span
+                          className={`px-3 py-1 rounded-full text-xs font-medium ${
+                            interview.status === "Scheduled"
+                              ? "bg-green-100 text-green-800"
+                              : "bg-yellow-100 text-yellow-800"
+                          }`}
+                        >
+                          {interview.status}
+                        </span>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+                <TableFooter>
+                  <TableRow>
+                    <TablePagination
+                      rowsPerPageOptions={[
+                        5,
+                        10,
+                        25,
+                        { label: "All", value: -1 },
+                      ]}
+                      colSpan={6}
+                      count={filteredInterviews.length}
+                      rowsPerPage={rowsPerPage}
+                      page={page}
+                      onPageChange={handleChangePage}
+                      onRowsPerPageChange={handleChangeRowsPerPage}
+                      slotProps={{
+                        select: {
+                          inputProps: { "aria-label": "rows per page" },
+                          native: true,
+                        },
+                      }}
+                    />
+                  </TableRow>
+                </TableFooter>
+              </Table>
+            </TableContainer>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };
