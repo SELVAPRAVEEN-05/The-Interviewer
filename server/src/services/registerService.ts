@@ -51,19 +51,36 @@ export const CandidateRegistrationService=async (data:any)=>{
     return {message:"Error in Registration",Failed:true,data:null}
 }
 }
-// export const InterviewerRegistrationService=async (data:any)=>{
+export const InterviewerRegistrationService=async (data:any)=>{
+    console.log(data)
+    try{
+    const createdUser=await prisma.user.create({data:{
+        first_name:data.first_name,
+        last_name:data.last_name,
+        email:data.email,
+        password:data.password,
+        mobile_number:data.phone,
+        role:"INTERVIEWER",
+        date_of_birth:data.dob,
+        genderId:data.genderId,
+        countryId:data.countryId,
+        languageId:data.languageId,
+        github_url:data.github_url,
+        linkedin_url:data.linkedin_url,
+        portfolio_url:data.portfolio_url,
+        resume_url:data.resume_url,
+        profile_picture_url:data.profile_picture_url,
+    }})
+    const userRole=await prisma.userPosition.create({data:{
+        userId:createdUser.id,
+        positionId:data.positionId,
+        brandId:data.brandId,
+        location:""
     
-//     try{
-//     const createdUser=await prisma.user.create({data:{
-//         first_name:data.first_name,
-//         last_name:data.last_name,
-//         email:data.email,
-//         gender:data.genderId,
-//         password:data.password,
-
-//     }})
-//     } catch(err){
-//     console.log(err)
-//     return {message:"Error in Registration",Failed:true,data:null}
-//     }
-// }
+    }})
+   return {message:"Registration Successful",Failed:false,data:createdUser}
+    } catch(err){
+    console.log(err)
+    return {message:"Error in Registration",Failed:true,data:null}
+    }
+}

@@ -78,7 +78,7 @@ export const InterviewerDataTable=async(status:String,searchQuery:String,offset:
                 }
             ]
         }
-        whereData['role']='RECRUITER'
+        whereData['role']='INTERVIEWER'
         const data=await prisma.user.findMany({
             where:whereData,
             take:limit,
