@@ -1,8 +1,9 @@
 "use client";
 
 import SideBar from "@/components/atoms/sidebar";
+import  Navbar  from "@/components/atoms/header";
 import { LayoutDashboard, MessageSquare, Star, Users } from "lucide-react";
-import Header from "./components/header";
+import { MdOutlineUpcoming } from "react-icons/md";
 
 export default function AdminLayout({
   children,
@@ -25,17 +26,12 @@ export default function AdminLayout({
       label: "Manage Interviewers",
       icon: <MessageSquare size={18} />,
     },
-    {
-      id: "InterviewScheduling",
-      label: "Interview Scheduling",
-      icon: <Star size={18} />,
-    },
   ];
 
   return (
     <div className="h-screen w-screen overflow-hidden">
       <div className="h-[10vh] w-full">
-        <Header />
+        <Navbar />
       </div>
       <div className="flex h-[90vh] w-full overflow-hidden">
         <div className="h-full">

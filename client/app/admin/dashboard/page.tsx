@@ -24,7 +24,7 @@ import {
 } from "@mui/material";
 import StatCard from "../components/statCard";
 import { upcomingInterviews } from "../utils";
-import { QuickActionButton } from "../components/quickActionButton";
+import { QuickActionButton } from "@/components/quickCard/quickActionButton";
 
 const AdminDashboard = () => {
   const [stats] = useState({
@@ -40,9 +40,10 @@ const AdminDashboard = () => {
   });
 
   const [interviewData] = useState([
-    { name: "Completed", value: 156, color: "#22c55e" },
-    { name: "Scheduled", value: 42, color: "#3b82f6" },
-    { name: "Cancelled", value: 18, color: "#ef4444" },
+    { name: "Completed", value: 150, color: "#22c55e" },
+    { name: "Scheduled", value: 40, color: "#3b82f6" },
+    { name: "Cancelled", value: 20, color: "#ef4444" },
+    { name: "pending", value: 30, color: "#f6aa37" },
   ]);
 
   // Pagination + Search state
