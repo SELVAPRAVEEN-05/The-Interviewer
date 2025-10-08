@@ -3,6 +3,7 @@
 import SideBar from "@/components/atoms/sidebar";
 import { BookAIcon, LayoutDashboard, Users } from "lucide-react";
 import Navbar from "./components/navBar";
+import { LuBuilding2 } from "react-icons/lu";
 
 export default function CandidateLayout({
   children,
@@ -16,14 +17,14 @@ export default function CandidateLayout({
       icon: <LayoutDashboard size={18} />,
     },
     {
-      id: "interviewListes",
+      id: "upcommingInterviewes",
       label: "upcomming Interview",
       icon: <Users size={18} />,
     },
     {
-      id: "shortlistcandidates",
-      label: "ShortList Candidate",
-      icon: <BookAIcon size={18} />,
+      id: "createInterview",
+      label: "Create Interview",
+      icon: <LuBuilding2 size={18} />,
     }
   ];
 
