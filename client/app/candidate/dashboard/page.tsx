@@ -1,13 +1,10 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   CartesianGrid,
-  Cell,
   Line,
   LineChart,
-  Pie,
-  PieChart,
   PolarAngleAxis,
   PolarGrid,
   PolarRadiusAxis,
@@ -19,48 +16,35 @@ import {
   YAxis,
 } from "recharts";
 
+import StatCard from "@/app/admin/components/statCard";
 import {
   Award,
   BarChart3,
   Calendar,
   CheckCircle,
+  ChevronRight,
   Clock,
-  Code,
   Target,
   TrendingUp,
-  User,
-  Users,
   Video,
 } from "lucide-react";
+import { InterviewMiniHistoryTable } from "../components/miniTable";
 
-/**
- * CandidateDashboard
- *
- * Layout:
- * 1) Top row: 4 status cards
- * 2) Middle: Upcoming Interview (full width)
- * 3) Bottom row: 3 charts side-by-side (Radar, Line, Pie)
- *
- * Replace mock data with your API data as needed.
- */
-
-const CandidateDashboard: React.FC = () => {
+const CandidateDashboard = () => {
   const [timeToInterview, setTimeToInterview] = useState<string>("");
 
-  // ----------------------------
-  // Mock data (replace with API calls)
-  // ----------------------------
   const upcomingInterview = {
     id: "1",
-    date: "2025-09-12",
-    time: "14:30",
-    interviewer: {
-      name: "Sarah Johnson",
-      role: "Senior Technical Lead",
-    },
-    type: "Technical",
-    status: "upcoming",
-    meetingLink: "https://meet.example.com/abcd",
+    companyLogo:
+      "https://img.freepik.com/free-vector/bird-colorful-gradient-design-vector_343694-2506.jpg?semt=ais_hybrid&w=740&q=80",
+    companyName: "TechCorp Solutions",
+    interviewerName: "Rajesh Kumar",
+    interviewerRole: "Senior Technical Lead",
+    interviewType: "Technical",
+    date: "2025-09-29",
+    startTime: "10:00 AM",
+    endTime: "11:00 AM",
+    meetingLink: "https://zoom.us/j/example",
   };
 
   const skillPerformance = [
@@ -72,10 +56,12 @@ const CandidateDashboard: React.FC = () => {
   ];
 
   const performanceTrend = [
-    { round: "Round 1", score: 65, date: "2025-08-15" },
-    { round: "Round 2", score: 72, date: "2025-08-22" },
-    { round: "Round 3", score: 78, date: "2025-08-29" },
-    { round: "Round 4", score: 85, date: "2025-09-05" },
+    { date: "2025-08-10", points: 50 },
+    { date: "2025-08-15", points: 65 },
+    { date: "2025-08-20", points: 72 },
+    { date: "2025-08-27", points: 80 },
+    { date: "2025-09-05", points: 85 },
+    { date: "2025-09-09", points: 90 },
   ];
 
   const meetingStats = {
@@ -84,40 +70,63 @@ const CandidateDashboard: React.FC = () => {
     missed: 1,
   };
 
-  const pieData = [
-    { name: "Completed", value: meetingStats.completed, color: "#10b981" },
-    { name: "Upcoming", value: meetingStats.upcoming, color: "#3b82f6" },
-    { name: "Missed", value: meetingStats.missed, color: "#ef4444" },
+  const sampleHistory = [
+    {
+      id: "1",
+      companyName: "TechCorp Solutions",
+      interviewerName: "Rajesh Kumar",
+      date: "25 Sep 2025",
+      status: "shortlisted",
+      score: 85,
+      positiveReview: "You explained algorithms very clearly.",
+      negativeReview: "Improve time management during coding tasks.",
+      rating: 4,
+    },
+    {
+      id: "2",
+      companyName: "InnovateLabs",
+      interviewerName: "Priya Sharma",
+      date: "22 Sep 2025",
+      status: "pending",
+      score: undefined,
+      positiveReview: "Strong fundamentals in system design.",
+      negativeReview: "Need to practice more live coding problems.",
+      rating: 3,
+    },
   ];
 
-  // ----------------------------
-  // Countdown timer effect
-  // ----------------------------
   useEffect(() => {
     const calculateTimeToInterview = () => {
-      // Use explicit timezone correctness if required; here we parse local ISO-ish string.
-      const interviewDateTime = new Date(
-        `${upcomingInterview.date}T${upcomingInterview.time}`
-      );
+      // Parse date and start time
+      const [hours, minutes] =
+        upcomingInterview.startTime.match(/(\d+):(\d+)/)?.slice(1) || [];
+      const isPM = upcomingInterview.startTime.includes("PM");
+      let hour = parseInt(hours);
+      if (isPM && hour !== 12) hour += 12;
+      if (!isPM && hour === 12) hour = 0;
+
+      const interviewDateTime = new Date(upcomingInterview.date);
+      interviewDateTime.setHours(hour, parseInt(minutes), 0, 0);
+
       const now = new Date();
       const diff = interviewDateTime.getTime() - now.getTime();
 
       if (diff > 0) {
         const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-        const hours = Math.floor(
+        const hrs = Math.floor(
           (diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
         );
-        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
 
         if (days > 0) {
-          setTimeToInterview(`${days}d ${hours}h ${minutes}m`);
-        } else if (hours > 0) {
-          setTimeToInterview(`${hours}h ${minutes}m`);
+          setTimeToInterview(`${days}d ${hrs}h`);
+        } else if (hrs > 0) {
+          setTimeToInterview(`${hrs}h ${mins}m`);
         } else {
-          setTimeToInterview(`${minutes}m`);
+          setTimeToInterview(`${mins}m`);
         }
       } else {
-        setTimeToInterview("Interview time passed");
+        setTimeToInterview("In Progress");
       }
     };
 
@@ -125,306 +134,345 @@ const CandidateDashboard: React.FC = () => {
     const interval = setInterval(calculateTimeToInterview, 60000);
 
     return () => clearInterval(interval);
-  }, [upcomingInterview.date, upcomingInterview.time]);
+  }, [upcomingInterview.date, upcomingInterview.startTime]);
 
-  // ----------------------------
-  // helpers
-  // ----------------------------
   const getInterviewTypeIcon = (type: string) => {
-    switch (type) {
-      case "HR":
-        return <User className="w-6 h-6 text-blue-500" />;
-      case "Technical":
-        return <Code className="w-6 h-6 text-green-500" />;
-      case "Coding":
-        return <BarChart3 className="w-6 h-6 text-purple-500" />;
-      default:
-        return <Calendar className="w-6 h-6 text-gray-500" />;
-    }
+    const icons: Record<string, string> = {
+      Technical: "💻",
+      Behavioral: "💬",
+      System: "🏗️",
+      Cultural: "🤝",
+      HR: "👥",
+      Coding: "⌨️",
+    };
+    return <span className="text-2xl">{icons[type] || "📋"}</span>;
   };
 
   const getInterviewTypeBadgeColor = (type: string) => {
-    switch (type) {
-      case "HR":
-        return "bg-blue-100 text-blue-800";
-      case "Technical":
-        return "bg-green-100 text-green-800";
-      case "Coding":
-        return "bg-purple-100 text-purple-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
+    const colors: Record<string, string> = {
+      Technical: "bg-blue-100 text-blue-700",
+      Behavioral: "bg-purple-100 text-purple-700",
+      System: "bg-green-100 text-green-700",
+      Cultural: "bg-orange-100 text-orange-700",
+      HR: "bg-cyan-100 text-cyan-700",
+      Coding: "bg-pink-100 text-pink-700",
+    };
+    return colors[type] || "bg-gray-100 text-gray-700";
   };
 
   const isInterviewNear = () => {
-    const interviewDateTime = new Date(
-      `${upcomingInterview.date}T${upcomingInterview.time}`
-    );
+    const [hours, minutes] =
+      upcomingInterview.startTime.match(/(\d+):(\d+)/)?.slice(1) || [];
+    const isPM = upcomingInterview.startTime.includes("PM");
+    let hour = parseInt(hours);
+    if (isPM && hour !== 12) hour += 12;
+    if (!isPM && hour === 12) hour = 0;
+
+    const interviewDateTime = new Date(upcomingInterview.date);
+    interviewDateTime.setHours(hour, parseInt(minutes), 0, 0);
+
     const now = new Date();
     const diff = interviewDateTime.getTime() - now.getTime();
-    return diff > 0 && diff <= 2 * 60 * 60 * 1000; // Within 2 hours
+    return diff > 0 && diff <= 30 * 60 * 1000; // Within 30 minutes
+  };
+
+  const formattedDate = new Date(upcomingInterview.date).toLocaleDateString(
+    "en-US",
+    {
+      weekday: "long",
+      month: "short",
+      day: "numeric",
+    }
+  );
+
+  const getInitials = (name: string) => {
+    return name
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2);
   };
 
   const totalInterviews =
     meetingStats.completed + meetingStats.upcoming + meetingStats.missed;
 
-  type ShortlistStatus = any;
-  const shortlistStatus: ShortlistStatus = "pending";
-
-  // compute average score
   const averageScore = Math.round(
-    skillPerformance.reduce((acc, s) => acc + s.score, 0) / skillPerformance.length
+    skillPerformance.reduce((acc, s) => acc + s.score, 0) /
+      skillPerformance.length
   );
 
-  // ----------------------------
-  // Render
-  // ----------------------------
+  const handleViewFeedback = (id: string) => {
+    console.log("Parent notified: view feedback for interview", id);
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-7xl mx-auto">
-        {/* Title */}
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold text-gray-900">Candidate Dashboard</h1>
-          <p className="text-gray-600">Overview of your interviews & coding performance</p>
-        </div>
-
-        {/* -------------------------
-            1) TOP ROW - STATUS CARDS
-           ------------------------- */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {/* Total Interviews */}
-          <div className="bg-white rounded-xl shadow-md border border-gray-200 p-5">
-            <div className="flex items-center">
-              <div className="bg-blue-50 p-3 rounded-lg">
-                <Calendar className="w-6 h-6 text-blue-600" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm text-gray-500">Total Interviews</p>
-                <p className="text-2xl font-semibold text-gray-900">{totalInterviews}</p>
-              </div>
-            </div>
-            <div className="mt-4 text-sm text-gray-500">Completed: {meetingStats.completed} • Upcoming: {meetingStats.upcoming}</div>
+    <div className="min-h-screen">
+      <div className="bg-gray-100 border border-gray-300 shadow-lg px-6 py-4 rounded-lg mb-8">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
+            <p className="text-gray-600">
+              Welcome back, Darkdevil! Here's what's happening today.
+            </p>
           </div>
-
-          {/* Tests Completed */}
-          <div className="bg-white rounded-xl shadow-md border border-gray-200 p-5">
-            <div className="flex items-center">
-              <div className="bg-green-50 p-3 rounded-lg">
-                <CheckCircle className="w-6 h-6 text-green-600" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm text-gray-500">Tests Completed</p>
-                <p className="text-2xl font-semibold text-gray-900">{performanceTrend.length}</p>
-              </div>
-            </div>
-            <div className="mt-4 text-sm text-gray-500">Latest test: {performanceTrend[performanceTrend.length - 1].round}</div>
-          </div>
-
-          {/* Average Score */}
-          <div className="bg-white rounded-xl shadow-md border border-gray-200 p-5">
-            <div className="flex items-center">
-              <div className="bg-purple-50 p-3 rounded-lg">
-                <Target className="w-6 h-6 text-purple-600" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm text-gray-500">Average Score</p>
-                <p className="text-2xl font-semibold text-gray-900">{averageScore}%</p>
-              </div>
-            </div>
-            <div className="mt-4 text-sm text-gray-500">Across core skills</div>
-          </div>
-
-          {/* Shortlist Status */}
-          <div className="bg-white rounded-xl shadow-md border border-gray-200 p-5">
-            <div className="flex items-center">
-              <div className="bg-yellow-50 p-3 rounded-lg">
-                <Award className="w-6 h-6 text-yellow-600" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm text-gray-500">Shortlist Status</p>
-                <div className="mt-1">
-                  <span
-                    className={`inline-flex px-3 py-1 rounded-full text-sm font-medium ${
-                      shortlistStatus === "shortlisted"
-                        ? "bg-green-100 text-green-800"
-                        : shortlistStatus === "rejected"
-                        ? "bg-red-100 text-red-800"
-                        : "bg-yellow-100 text-yellow-800"
-                    }`}
-                  >
-                    {shortlistStatus.charAt(0).toUpperCase() + shortlistStatus.slice(1)}
-                  </span>
-                </div>
-              </div>
-            </div>
-            <div className="mt-4 text-sm text-gray-500">Decision pending from recruiter</div>
+          <div className="text-right">
+            <p className="text-sm text-gray-600">Today</p>
+            <p className="font-semibold text-gray-900">
+              Sunday, August 24, 2025
+            </p>
           </div>
         </div>
-
-        {/* -------------------------
-            2) MIDDLE - UPCOMING INTERVIEW (FULL WIDTH)
-           ------------------------- */}
-        <div className="bg-gradient-to-r from-indigo-50 to-sky-50 rounded-xl shadow-lg border border-indigo-200 mb-8 overflow-hidden">
-          <div className="p-6">
-            <div className="flex items-center justify-between gap-4 flex-wrap">
-              <div className="flex items-center space-x-4">
-                <div className="bg-white p-3 rounded-full shadow-sm">
-                  {getInterviewTypeIcon(upcomingInterview.type)}
-                </div>
-
-                <div>
-                  <h2 className="text-2xl font-bold text-gray-900 mb-1">Next Interview</h2>
-                  <div className="flex items-center gap-3 text-gray-700">
-                    <Clock className="w-4 h-4 text-gray-500" />
-                    <div>
-                      <div className="font-medium">
-                        {new Date(`${upcomingInterview.date}T${upcomingInterview.time}`).toLocaleDateString("en-US", {
-                          weekday: "long",
-                          year: "numeric",
-                          month: "long",
-                          day: "numeric",
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
-                      </div>
-                      <div className="text-sm text-gray-600">
-                        {upcomingInterview.interviewer.name} • {upcomingInterview.interviewer.role}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex items-center space-x-6">
-                <div className="text-right">
-                  <p className="text-sm text-gray-600">Time Remaining</p>
-                  <p className={`text-2xl font-bold ${isInterviewNear() ? "text-red-600" : "text-indigo-700"}`}>
-                    {timeToInterview}
-                  </p>
-                </div>
-
-                <div className="flex flex-col items-end space-y-3">
-                  <span className={`px-3 py-1 rounded-full text-sm font-medium ${getInterviewTypeBadgeColor(upcomingInterview.type)}`}>
-                    {upcomingInterview.type} Interview
-                  </span>
-
-                  <div className="flex items-center gap-3">
-                    <a
-                      href={upcomingInterview.meetingLink}
-                      target="_blank"
-                      rel="noreferrer"
-                      className={`inline-flex items-center gap-2 px-5 py-2 rounded-lg text-white font-semibold shadow transition-transform transform ${
-                        isInterviewNear()
-                          ? "bg-red-600 hover:bg-red-700 animate-pulse"
-                          : "bg-indigo-600 hover:bg-indigo-700"
-                      }`}
-                    >
-                      <Video className="w-4 h-4" />
-                      <span>Join Interview</span>
-                    </a>
-
-                    <button
-                      className="px-4 py-2 border rounded-lg text-sm bg-white hover:shadow-sm"
-                      onClick={() => {
-                        // placeholder: open details modal or navigate to meeting page
-                        alert("Open interview details (implement navigation)");
-                      }}
-                    >
-                      Details
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* -------------------------
-            3) BOTTOM ROW - 3 CHARTS IN A SINGLE ROW
-           ------------------------- */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Radar - Skill Performance */}
-          <div className="bg-white rounded-xl shadow-md border border-gray-200 p-5">
-            <div className="flex items-center mb-4">
-              <TrendingUp className="w-5 h-5 text-green-600" />
-              <h3 className="ml-3 text-lg font-semibold text-gray-900">Skill Performance</h3>
-            </div>
-            <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <RadarChart cx="50%" cy="50%" outerRadius="80%" data={skillPerformance}>
-                  <PolarGrid />
-                  <PolarAngleAxis dataKey="skill" tick={{ fontSize: 12 }} />
-                  <PolarRadiusAxis angle={30} domain={[0, 100]} />
-                  <Radar
-                    name="Score"
-                    dataKey="score"
-                    stroke="#2563eb"
-                    fill="#2563eb"
-                    fillOpacity={0.2}
-                    strokeWidth={2}
-                  />
-                  <Tooltip formatter={(value: number) => `${value}%`} />
-                </RadarChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-
-          {/* Line - Performance Trend */}
-          <div className="bg-white rounded-xl shadow-md border border-gray-200 p-5">
-            <div className="flex items-center mb-4">
-              <BarChart3 className="w-5 h-5 text-purple-600" />
-              <h3 className="ml-3 text-lg font-semibold text-gray-900">Performance Trend</h3>
-            </div>
-            <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={performanceTrend}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="round" tick={{ fontSize: 12 }} />
-                  <YAxis domain={[0, 100]} tick={{ fontSize: 12 }} />
-                  <Tooltip formatter={(value: number) => `${value}%`} />
-                  <Line type="monotone" dataKey="score" stroke="#10b981" strokeWidth={3} dot={{ r: 4 }} />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-            <div className="mt-3 text-sm text-gray-500">Trend over the last {performanceTrend.length} rounds</div>
-          </div>
-
-          {/* Pie - Meetings Overview */}
-          <div className="bg-white rounded-xl shadow-md border border-gray-200 p-5">
-            <div className="flex items-center mb-4">
-              <Users className="w-5 h-5 text-indigo-600" />
-              <h3 className="ml-3 text-lg font-semibold text-gray-900">Meetings Overview</h3>
-            </div>
-            <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie data={pieData} cx="50%" cy="50%" innerRadius={38} outerRadius={78} dataKey="value" paddingAngle={4}>
-                    {pieData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-
-            {/* legend */}
-            <div className="mt-4 space-y-2">
-              {pieData.map((entry, idx) => (
-                <div key={idx} className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <span className="w-3 h-3 rounded-full" style={{ backgroundColor: entry.color }} />
-                    <span className="text-sm text-gray-600">{entry.name}</span>
-                  </div>
-                  <div className="font-semibold text-gray-900">{entry.value}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* end container */}
       </div>
+
+      {/* Top Stats Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <StatCard
+          title="Total Interviews"
+          value={totalInterviews}
+          icon={Calendar}
+          color="blue"
+          subtitle={`Completed: ${meetingStats.completed} • Upcoming: ${meetingStats.upcoming}`}
+        />
+
+        <StatCard
+          title="Total Points"
+          value={performanceTrend.reduce((acc, cur) => acc + cur.points, 0)}
+          icon={CheckCircle}
+          color="green"
+          subtitle="Cumulative Interview Points"
+        />
+
+        <StatCard
+          title="Average Score"
+          value={averageScore}
+          icon={Target}
+          color="purple"
+          subtitle="Across core skills"
+        />
+
+        <StatCard
+          title="Shortlist Status"
+          value={5}
+          icon={Award}
+          color="orange"
+          subtitle="Based on interviews"
+        />
+      </div>
+
+      {/* Upcoming Interview Card - Matching Dashboard Style */}
+      <div className="bg-gray-100 rounded-2xl shadow-md border border-gray-300 mb-8 overflow-hidden">
+        {/* Header */}
+        <div className="px-6 py-4 flex items-center justify-between border-b border-gray-300">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center overflow-hidden border border-gray-200">
+              <img
+                src={upcomingInterview.companyLogo}
+                alt={upcomingInterview.companyName}
+                className="w-full h-full object-cover"
+              />
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">Upcoming Interview</p>
+              <h2 className="text-lg font-bold text-gray-900">
+                {upcomingInterview.companyName}
+              </h2>
+            </div>
+          </div>
+
+          <span
+            className={`px-4 py-1.5 rounded-full text-sm font-semibold ${getInterviewTypeBadgeColor(upcomingInterview.interviewType)}`}
+          >
+            {upcomingInterview.interviewType}
+          </span>
+        </div>
+
+        {/* Content */}
+        <div className="px-6 py-5">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+            {/* Date */}
+            <div className="flex items-start gap-3">
+              <div className="w-10 h-10 bg-blue-200 rounded-lg flex items-center justify-center flex-shrink-0">
+                <Calendar className="w-5 h-5 text-indigo-600" />
+              </div>
+              <div>
+                <p className="text-xs text-gray-500 uppercase tracking-wide font-medium mb-1">
+                  DATE
+                </p>
+                <p className="text-sm font-semibold text-gray-900">
+                  {formattedDate}
+                </p>
+              </div>
+            </div>
+
+            {/* Time */}
+            <div className="flex items-start gap-3">
+              <div className="w-10 h-10 bg-purple-200 rounded-lg flex items-center justify-center flex-shrink-0">
+                <Clock className="w-5 h-5 text-purple-600" />
+              </div>
+              <div>
+                <p className="text-xs text-gray-500 uppercase tracking-wide font-medium mb-1">
+                  TIME
+                </p>
+                <p className="text-sm font-semibold text-gray-900">
+                  {upcomingInterview.startTime}
+                </p>
+              </div>
+            </div>
+
+            {/* Interviewer */}
+            <div className="flex items-start gap-3">
+              <div className="w-10 h-10 bg-orange-600 rounded-lg flex items-center justify-center flex-shrink-0 text-white font-bold text-sm">
+                {getInitials(upcomingInterview.interviewerName)}
+              </div>
+              <div>
+                <p className="text-xs text-gray-500 uppercase tracking-wide font-medium mb-1">
+                  INTERVIEWER
+                </p>
+                <p className="text-sm font-semibold text-gray-900">
+                  {upcomingInterview.interviewerName}
+                </p>
+                <p className="text-xs text-gray-500">
+                  {upcomingInterview.interviewerRole}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Time Remaining + Actions */}
+          <div className="flex items-center justify-between gap-4 pt-4 border-t border-gray-100">
+            <div>
+              <p className="text-xs text-gray-500 uppercase tracking-wide font-medium mb-1">
+                TIME REMAINING
+              </p>
+              <p
+                className={`text-xl font-bold ${isInterviewNear() ? "text-red-600" : "text-indigo-600"}`}
+              >
+                {timeToInterview}
+              </p>
+              {isInterviewNear() && (
+                <span className="text-xs text-red-600 font-medium animate-pulse">
+                  Starting Soon!
+                </span>
+              )}
+            </div>
+
+            <div className="flex items-center gap-3">
+              <a
+                href={upcomingInterview.meetingLink}
+                target="_blank"
+                rel="noreferrer"
+                className={`inline-flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-white shadow-md transition-all ${
+                  isInterviewNear()
+                    ? "bg-red-600 hover:bg-red-700 animate-pulse"
+                    : "bg-blue-500 hover:bg-blue-600"
+                }`}
+              >
+                <Video className="w-5 h-5" />
+                <span>Join Interview</span>
+              </a>
+
+              <button
+                className="px-5 py-3 rounded-xl font-semibold text-gray-700 bg-white hover:bg-gray-50 border border-gray-300 transition-all flex items-center gap-2"
+                onClick={() => {
+                  alert("Open interview details (implement navigation)");
+                }}
+              >
+                <span>Details</span>
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Performance Charts */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10">
+        {/* Radar Chart */}
+        <div className="bg-gray-100 rounded-xl shadow-md border border-gray-300 p-5">
+          <div className="flex items-center mb-4">
+            <TrendingUp className="w-5 h-5 text-green-600" />
+            <h3 className="ml-3 text-lg font-semibold text-gray-900">
+              Skill Performance
+            </h3>
+          </div>
+          <div className="h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <RadarChart
+                cx="50%"
+                cy="50%"
+                outerRadius="80%"
+                data={skillPerformance}
+              >
+                <PolarGrid />
+                <PolarAngleAxis dataKey="skill" tick={{ fontSize: 12 }} />
+                <PolarRadiusAxis angle={30} domain={[0, 100]} />
+                <Radar
+                  name="Score"
+                  dataKey="score"
+                  stroke="#2563eb"
+                  fill="#2563eb"
+                  fillOpacity={0.2}
+                  strokeWidth={2}
+                />
+                <Tooltip formatter={(value: number) => `${value}%`} />
+              </RadarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Line Chart */}
+        <div className="bg-gray-100 rounded-xl shadow-md border border-gray-300 p-5">
+          <div className="flex items-center mb-4">
+            <BarChart3 className="w-5 h-5 text-purple-600" />
+            <h3 className="ml-3 text-lg font-semibold text-gray-900">
+              Performance Trend
+            </h3>
+          </div>
+          <div className="h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={performanceTrend}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis
+                  dataKey="date"
+                  tickFormatter={(date) =>
+                    new Date(date).toLocaleDateString("en-US", {
+                      month: "short",
+                      day: "numeric",
+                    })
+                  }
+                  tick={{ fontSize: 12 }}
+                />
+                <YAxis domain={[0, 100]} tick={{ fontSize: 12 }} />
+                <Tooltip
+                  labelFormatter={(date) =>
+                    new Date(date).toLocaleDateString("en-US", {
+                      month: "long",
+                      day: "numeric",
+                      year: "numeric",
+                    })
+                  }
+                  formatter={(value: number) => [`${value} pts`, "Points"]}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="points"
+                  stroke="#10b981"
+                  strokeWidth={3}
+                  dot={{ r: 4 }}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+          <div className="mt-3 text-sm text-gray-500">
+            Showing performance points over time
+          </div>
+        </div>
+      </div>
+      <InterviewMiniHistoryTable
+        interviews={sampleHistory}
+        onViewFeedback={handleViewFeedback}
+      />
     </div>
   );
 };

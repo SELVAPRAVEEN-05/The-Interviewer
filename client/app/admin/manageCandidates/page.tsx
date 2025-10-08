@@ -162,10 +162,11 @@ const ManageCandidatesPage = () => {
   const token = localStorage.getItem("authToken");
   const InitialCall = async () => {
     try {
-      const response = await getRequest(URL?.MANAGE_CANDIDATES, {
+      const response:any = await getRequest(URL?.MANAGE_CANDIDATES, {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       });
+    
       setCandidateData(response?.data?.data);
     } catch (err) {
       throw err;
@@ -178,7 +179,8 @@ const ManageCandidatesPage = () => {
           Authorization: `Bearer ${token}`,
         }
       );
-      setTableData(response?.data?.data);
+      console.log(response)
+      setTableData(response?.data);
     } catch (error) {
       throw error;
     }
@@ -235,7 +237,7 @@ const ManageCandidatesPage = () => {
       {/* Tabs and Search */}
       <div className="bg-gray-100 border border-gray-300 rounded-lg shadow-sm mb-6">
         <div className="flex  items-center justify-between p-4 ">
-          <div className="flex gap-3 border border-gray-300 p-2 rounded-lg">
+          <div className="flex gap-3 border border-gray-300 bg-gray-50 p-2 rounded-lg">
             <button
               onClick={() => setActiveTab("overview")}
               className={getTabButtonClasses("overview")}
@@ -433,9 +435,10 @@ const ManageCandidatesPage = () => {
                 <div className="flex justify-end gap-3 pt-6 border-t border-gray-200 mt-6">
                   {/* Reject button */}
                   <button
-                    onClick={() =>
-                      updateCandidateStatus(selectedCandidate.id, "canceled")
-                    }
+                    onClick={() => {
+                      updateCandidateStatus(selectedCandidate.id, "canceled");
+                      onClose();
+                    }}
                     className={`px-6 py-2 rounded-lg font-medium text-sm transition-colors ${
                       selectedCandidate?.status === "canceled"
                         ? "bg-red-100 text-red-700 border border-red-200"
@@ -450,9 +453,10 @@ const ManageCandidatesPage = () => {
 
                   {/* Approve button */}
                   <button
-                    onClick={() =>
-                      updateCandidateStatus(selectedCandidate.id, "approved")
-                    }
+                    onClick={() => {
+                      updateCandidateStatus(selectedCandidate.id, "approved");
+                      onClose();
+                    }}
                     className={`px-6 py-2 rounded-lg font-medium text-sm transition-colors ${
                       selectedCandidate?.status === "approved"
                         ? "bg-green-100 text-green-700 border border-green-200"

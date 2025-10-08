@@ -24,9 +24,9 @@ import {
   TablePagination,
   TableRow,
 } from "@mui/material";
-import { QuickActionButton } from "../components/quickActionButton";
 import StatCard from "../components/statCard";
 import { upcomingInterviews } from "../utils";
+import { QuickActionButton } from "@/components/quickCard/quickActionButton";
 
 const AdminDashboard = () => {
   const [stats] = useState({
@@ -83,8 +83,6 @@ const AdminDashboard = () => {
 
     return formattedDate;
   };
-
- 
 
   // Pagination + Search state
   const [page, setPage] = React.useState(0);

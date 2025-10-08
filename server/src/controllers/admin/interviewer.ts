@@ -59,7 +59,7 @@ export const InterviewerDataTableController = async (
             return res.status(400).send({ message: "Error in fetching candidate data", Failed: true, data: null });
         }
         
-        return res.status(200).send({ message: "Candidate data fetched successfully", Failed: false, data: data });
+        return res.status(200).send({ message: "Candidate data fetched successfully", Failed: false, data: data.data });
     } catch (error) {
         console.error('Error fetching candidate data:', error);
         return res.status(500).send({ message: "Internal Server Error", Failed: true, data: null });

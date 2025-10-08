@@ -73,7 +73,7 @@ export const CandidateDataTable=async(status:String,searchQuery:String,offset:nu
             ]
         }
         whereData['role']='CANDIDATE'
-        const data=await prisma.user.findMany({
+        const data:any=await prisma.user.findMany({
             where:whereData,
             take:limit,
             skip:offset,  
@@ -91,6 +91,7 @@ export const CandidateDataTable=async(status:String,searchQuery:String,offset:nu
                 }
             }        
     })
+    console.log(data)
     return {data:data,isFailed:false};
     }
     catch(error){

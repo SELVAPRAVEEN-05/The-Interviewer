@@ -419,7 +419,7 @@ const AdminProfilePage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen p-6">
+    <div className="min-h-full">
       {/* Header */}
       <div className="bg-gray-100 border border-gray-300 shadow px-6 py-4 rounded-lg mb-6 flex items-center justify-between">
         <div>
