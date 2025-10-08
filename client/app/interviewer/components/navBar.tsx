@@ -38,7 +38,7 @@ export default function Navbar() {
               )}
             </div>
             <div
-              onClick={() => router.push("/candidate/profile")}
+              onClick={() => router.push("/interviewer/profile")}
               className="w-9 h-9 bg-blue-500 rounded-full flex items-center justify-center text-white cursor-pointer"
             >
               DD
