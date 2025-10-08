@@ -84,6 +84,7 @@ const AdminDashboard = () => {
     return formattedDate;
   };
 
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:5000/";
   // Pagination + Search state
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
@@ -126,7 +127,22 @@ const AdminDashboard = () => {
     } catch (error) {
       throw error;
     }
+
+    try {
+      const res = await getRequest(
+        `${baseUrl}api/admin/upcoming-interviews?page=${page + 1}&limit=${rowsPerPage}`,
+        {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        }
+      );
+      tableData(res);
+    } catch (error) {
+      throw error;
+    }
   };
+
+  console.log(table);
 
   useEffect(() => {
     InitialCall();
@@ -298,36 +314,51 @@ const AdminDashboard = () => {
                     </TableCell>
                   </TableRow>
                 </TableHead>
-                <TableBody>
-                  {(rowsPerPage > 0
-                    ? filteredInterviews.slice(
-                        page * rowsPerPage,
-                        page * rowsPerPage + rowsPerPage
-                      )
-                    : filteredInterviews
-                  ).map((interview, index) => (
-                    <TableRow key={interview.id}>
-                      <TableCell>{page * rowsPerPage + index + 1}</TableCell>
-                      <TableCell>{interview.candidateName}</TableCell>
-                      <TableCell>{interview.interviewerName}</TableCell>
-                      <TableCell>
-                        {new Date(interview.date).toLocaleDateString()}
-                      </TableCell>
-                      <TableCell>{interview.time}</TableCell>
-                      <TableCell>
-                        <span
-                          className={`px-3 py-1 rounded-full text-xs font-medium ${
-                            interview.status === "Scheduled"
-                              ? "bg-green-100 text-green-800"
-                              : "bg-yellow-100 text-yellow-800"
-                          }`}
-                        >
-                          {interview.status}
-                        </span>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
+                {table && table?.data?.length > 0 && (
+                  <TableBody>
+                    {table.data.map((interview: any, index: any) => (
+                      <TableRow key={interview.id}>
+                        <TableCell>{page * rowsPerPage + index + 1}</TableCell>
+                        <TableCell>
+                          {(
+                            interview.participants[0].user.first_name +
+                            " " +
+                            interview.participants[0].user.last_name
+                          ).toUpperCase()}
+                        </TableCell>
+                        <TableCell>
+                          {(
+                            interview?.user?.first_name +
+                            " " +
+                            interview?.user?.last_name
+                          ).toUpperCase()}
+                        </TableCell>
+                        <TableCell>
+                          {interview?.scheduled_at?.split("T")[0]}
+                        </TableCell>
+                        <TableCell>
+                          {
+                            interview?.scheduled_at
+                              ?.split("T")[1]
+                              ?.split(".")[0]
+                          }
+                        </TableCell>
+
+                        <TableCell>
+                          <span
+                            className={`px-3 py-1 rounded-full text-xs font-medium ${
+                              interview.status === "SCHEDULED"
+                                ? "bg-green-100 text-green-800"
+                                : "bg-yellow-100 text-yellow-800"
+                            }`}
+                          >
+                            {interview.status}
+                          </span>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                )}
                 <TableFooter>
                   <TableRow>
                     <TablePagination
@@ -338,7 +369,7 @@ const AdminDashboard = () => {
                         { label: "All", value: -1 },
                       ]}
                       colSpan={6}
-                      count={filteredInterviews.length}
+                      count={table?.pagination?.totalItems}
                       rowsPerPage={rowsPerPage}
                       page={page}
                       onPageChange={handleChangePage}

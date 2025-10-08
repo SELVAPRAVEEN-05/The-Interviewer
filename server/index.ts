@@ -2,7 +2,10 @@
 import fastify from './src/middleware/jwt';
 import { AdminDashboardRoute } from './src/routes/admin/admin';
 import {  LoginUserRoute } from './src/routes/auth';
+import { CandidateDashboardRoute } from './src/routes/candidate/dashboard';
 import { interviewer } from './src/routes/interviewer';
+import InterviewerDashboardRoute from './src/routes/interviewer/dashboard';
+import InterviewerInterviewRoute from './src/routes/interviewer/interview';
 import { Registration } from './src/routes/registration';
 import { Skill } from './src/routes/skill';
 import { profile } from './src/routes/user';
@@ -21,36 +24,10 @@ fastify.register(Skill,{prefix:"/api/skill"})
 fastify.register(Registration,{prefix:"/api/register"})
 fastify.register(AdminDashboardRoute,{prefix:"/api/admin"})
 fastify.register(profile,{prefix:"/api/user"})
-fastify.register(interviewer,{prefix:"/api/interviewer"})
-// io.on('connection', (socket:any) => {
-//     console.log('New client connected');
-
-//     // Handle room joining
-//     socket.on('join', (roomId:any) => {
-//         socket.join(roomId);
-//         io.to(roomId).emit('user-connected', socket.id);
-//     });
-
-//     // Handle ICE candidates
-//     socket.on('ice-candidate', (candidate:any) => {
-//         socket.to(roomId).emit('ice-candidate', candidate);
-//     });
-
-//     // Handle offer and answer SDP
-//     socket.on('offer', (offer:any, roomId:any) => {
-//         io.to(roomId).emit('offer', offer);
-//     });
-
-//     socket.on('answer', (answer:any, roomId:any) => {
-//         io.to(roomId).emit('answer', answer);
-//     });
-
-//     socket.on('disconnect', () => {
-//         console.log('Client disconnected');
-//     });
-// });
-
-
+fastify.register(interviewer,{prefix:"/api/interview"})
+fastify.register(CandidateDashboardRoute,{prefix:"/api/candidate"})
+fastify.register(InterviewerDashboardRoute,{prefix:"/api/interviewer"})
+fastify.register(InterviewerInterviewRoute,{prefix:"/api/interview"})
 const start = async () => {
   try {
     await fastify.listen({ port: 5000 })

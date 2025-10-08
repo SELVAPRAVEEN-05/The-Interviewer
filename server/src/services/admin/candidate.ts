@@ -80,6 +80,7 @@ export const CandidateDataTable=async(status:String,searchQuery:String,offset:nu
             include:{
                 interviewParticipations:{
                     include:{
+                        user:true,
                         interview:{
                         }
                     }

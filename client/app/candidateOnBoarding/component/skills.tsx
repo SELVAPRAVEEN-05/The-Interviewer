@@ -4,7 +4,7 @@ import { Uploadphoto } from "@/components/ui/imageUploder";
 import { Button, Input } from "@nextui-org/react";
 import React from "react";
 import { useFormStore } from "@/components/store/onBoarding/index";
-import { useRouter } from "next/navigation"; // ✅ FIXED
+import { useRouter } from "next/navigation";
 
 type VerticalStepperProps = {
   activeStep: number;

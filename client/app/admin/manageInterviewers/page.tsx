@@ -10,6 +10,7 @@ import {
   TableHead,
   TablePagination,
   TableRow,
+  CircularProgress,
 } from "@mui/material";
 
 import { TextField } from "@mui/material";
@@ -49,9 +50,10 @@ import {
   Users,
   X,
 } from "lucide-react";
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import StatCard from "../components/statCard";
 import { interviewers as rawInterviewers } from "../utils";
+import { getRequest } from "@/utils/axios/axios";
 
 // Ensure interviewer.status is typed correctly
 const interviewers: Interviewer[] = rawInterviewers.map((iv) => ({
@@ -90,6 +92,8 @@ const ManageInterviewers = () => {
 
   // search & filters
   const [searchTerm, setSearchTerm] = useState<string>("");
+  const [searchInput, setSearchInput] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
   const [statusFilter, setStatusFilter] = useState<string>("All Status");
   const [roleFilter, setRoleFilter] = useState<string>("All Roles");
   const [departmentFilter, setDepartmentFilter] =
@@ -138,7 +142,37 @@ const ManageInterviewers = () => {
 
   // Open modal with an interviewer
   const openModal = (interviewer: Interviewer) => {
-    setSelectedInterviewer(interviewer);
+    // Normalize server object shape (first_name/last_name, mobile_number, userPositions, stats etc.)
+    const normalized: Interviewer = {
+      id: (interviewer as any).id || (interviewer as any)._id || "",
+      name:
+        ((interviewer as any).first_name || (interviewer as any).name || "") +
+        " " +
+        ((interviewer as any).last_name || ""),
+      email: (interviewer as any).email || "",
+      phone:
+        (interviewer as any).mobile_number || (interviewer as any).phone || "",
+      gender: (interviewer as any).gender || "",
+      yearsOfExperience: (interviewer as any).yearsOfExperience || 0,
+      role:
+        (interviewer as any).userPositions?.position?.title ||
+        (interviewer as any).role ||
+        "",
+      department:
+        (interviewer as any).userPositions?.position?.department ||
+        (interviewer as any).department ||
+        "",
+      profileImage: (interviewer as any).profilePhoto || undefined,
+      status: (interviewer as any).status || undefined,
+      stats: (interviewer as any).stats || {
+        totalInterviews: (interviewer as any).Interview?.length || 0,
+        completedInterviews: 0,
+        pendingInterviews: 0,
+        totalHires: 0,
+      },
+    };
+
+    setSelectedInterviewer(normalized);
     onOpen(); // heroui disclosure open
   };
 
@@ -186,6 +220,58 @@ const ManageInterviewers = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filteredInterviewers.length, rowsPerPage]);
+
+  const token = localStorage.getItem("authToken");
+
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:5000/";
+  const [table, setTableData] = useState<any[]>([]);
+  const [totalRecords, setTotalRecords] = useState<number | null>(null);
+  const InitalCall = async () => {
+    setLoading(true);
+    try {
+      const response: any = await getRequest(
+        `${baseUrl}api/admin/interviewers-table?status=${encodeURIComponent(
+          statusFilter === "All Status" ? "" : statusFilter
+        )}&searchQuery=${encodeURIComponent(searchTerm)}&page=${page + 1}&limit=${rowsPerPage}`,
+        {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        }
+      );
+      setTableData(response?.data ?? []);
+      const total =
+        response?.total ||
+        response?.totalCount ||
+        response?.meta?.total ||
+        null;
+      setTotalRecords(typeof total === "number" ? total : null);
+    } catch (error) {
+      console.error("Failed to fetch interviewers table:", error);
+      setTableData([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Debounce search input to avoid firing API on every keystroke
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setSearchTerm(searchInput);
+    }, 500);
+
+    return () => clearTimeout(handler);
+  }, [searchInput]);
+
+  useEffect(() => {
+    InitalCall();
+  }, [
+    page,
+    rowsPerPage,
+    searchTerm,
+    statusFilter,
+    roleFilter,
+    departmentFilter,
+  ]);
 
   return (
     <div className="min-h-screen">
@@ -251,8 +337,8 @@ const ManageInterviewers = () => {
             <input
               type="text"
               placeholder="Search interviewers..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
               className="pl-10 pr-4 py-3 mr-12 border w-[38rem] border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
             />
           </div>
@@ -312,73 +398,99 @@ const ManageInterviewers = () => {
             </TableRow>
           </TableHead>
 
-          <TableBody>
-            {(rowsPerPage > 0
-              ? filteredInterviewers.slice(
-                  page * rowsPerPage,
-                  page * rowsPerPage + rowsPerPage
-                )
-              : filteredInterviewers
-            ).map((interviewer) => (
-              <TableRow key={interviewer.id} hover>
-                <TableCell>
-                  <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-full bg-gradient-to-r from-blue-400 to-purple-500 flex items-center justify-center text-white">
-                      {interviewer.name
-                        .split(" ")
-                        .map((n) => n[0])
-                        .slice(0, 2)
-                        .join("")}
-                    </div>
-                    <div>
-                      <div className="font-medium text-gray-900">
-                        {interviewer.name}
-                      </div>
-                      <div className="text-sm text-gray-500">
-                        {interviewer.phone}
-                      </div>
+          {loading ? (
+            <TableBody>
+              <TableRow>
+                <TableCell colSpan={6} className="text-center py-8">
+                  <div className="flex flex-col items-center gap-3">
+                    <CircularProgress />
+                    <div className="text-sm text-gray-600">
+                      Loading interviewers…
                     </div>
                   </div>
                 </TableCell>
-                <TableCell>{interviewer.email}</TableCell>
-                <TableCell>
-                  <span
-                    className={`px-2 py-1 text-xs font-semibold rounded-full ${
-                      interviewer.status === "Active"
-                        ? "bg-green-200 text-green-800"
-                        : "bg-red-200 text-red-800"
-                    }`}
-                  >
-                    {interviewer.status || "Active"}
-                  </span>
-                </TableCell>
-                <TableCell>
-                  <span
-                    className={`px-2 py-1 rounded ${getRoleBadgeColor(interviewer.role)}`}
-                  >
-                    {interviewer.role}
-                  </span>
-                </TableCell>
-                <TableCell>{interviewer.department}</TableCell>
-                <TableCell align="right">
-                  <button
-                    onClick={() => openModal(interviewer)}
-                    className="text-blue-600 hover:text-blue-800 flex items-center gap-2"
-                  >
-                    <Eye size={16} />
-                    View
-                  </button>
+              </TableRow>
+            </TableBody>
+          ) : table != null && table?.length > 0 ? (
+            <TableBody>
+              {table.map((interviewer: any) => (
+                <TableRow key={interviewer.id || interviewer._id} hover>
+                  <TableCell>
+                    <div className="flex items-center gap-3">
+                      <div className="h-10 w-10 rounded-full bg-gradient-to-r from-blue-400 to-purple-500 flex items-center justify-center text-white">
+                        {(interviewer.first_name + " " + interviewer.last_name)
+                          .toUpperCase()
+                          .split(" ")
+                          .map((n) => n[0])
+                          .slice(0, 2)
+                          .join("")}
+                      </div>
+                      <div>
+                        <div className="font-medium text-gray-900">
+                          {(
+                            interviewer.first_name +
+                            " " +
+                            interviewer.last_name
+                          ).toUpperCase()}
+                        </div>
+                        <div className="text-sm text-gray-500">
+                          {interviewer.mobile_number}
+                        </div>
+                      </div>
+                    </div>
+                  </TableCell>
+                  <TableCell>{interviewer.email}</TableCell>
+                  <TableCell>
+                    <span
+                      className={`px-2 py-1 text-xs font-semibold rounded-full ${
+                        interviewer.status === "APPROVED"
+                          ? "bg-green-200 text-green-800"
+                          : "bg-red-200 text-red-800"
+                      }`}
+                    >
+                      {interviewer.status || "Active"}
+                    </span>
+                  </TableCell>
+                  <TableCell>
+                    <span
+                      className={`px-2 py-1 rounded ${getRoleBadgeColor(interviewer.userPositions?.position?.title)}`}
+                    >
+                      {interviewer.userPositions[0]?.position?.title ||
+                        "Lead Designer"}
+                    </span>
+                  </TableCell>
+                  <TableCell>
+                    {interviewer.userPositions[0]?.position?.department ||
+                      "Unknown"}
+                  </TableCell>
+                  <TableCell align="right">
+                    <button
+                      onClick={() => openModal(interviewer)}
+                      className="text-blue-600 hover:text-blue-800 flex items-center gap-2"
+                    >
+                      <Eye size={16} />
+                      View
+                    </button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          ) : (
+            <TableBody>
+              <TableRow>
+                <TableCell colSpan={6} className="text-center py-8">
+                  <div className="text-gray-600">No interviewers found.</div>
                 </TableCell>
               </TableRow>
-            ))}
-          </TableBody>
+            </TableBody>
+          )}
         </Table>
 
         {/* Pagination */}
         <TablePagination
           component="div"
           className="bg-gray-100"
-          count={filteredInterviewers.length}
+          count={totalRecords ?? table?.length ?? 0}
           rowsPerPageOptions={[5, 10, 25, 50, 100]}
           page={page}
           onPageChange={handleChangePage}
@@ -718,7 +830,6 @@ const ManageInterviewers = () => {
                     size="medium"
                   />
                 </div>
-
               </DrawerBody>
 
               {/* Footer */}

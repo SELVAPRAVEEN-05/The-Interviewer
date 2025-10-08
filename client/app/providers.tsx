@@ -23,17 +23,18 @@ declare module "@react-types/shared" {
 
 export function Providers({ children, themeProps }: ProvidersProps) {
   const router = useRouter();
-
+  const storedName = localStorage.getItem("name");
   return (
     <HeroUIProvider navigate={router.push}>
-     
-      <NextThemesProvider {...themeProps}>
-        {/* <LiveblocksProvider authEndpoint="/api/liveblocks-auth">
-        </LiveblocksProvider> */}
 
-        {children}
-        
-        </NextThemesProvider>
+      <NextThemesProvider {...themeProps}>
+
+        <LiveblocksProvider authEndpoint={`/api/liveblocks-auth?name=${storedName || ''}`}>
+          {children}
+        </LiveblocksProvider>
+
+
+      </NextThemesProvider>
     </HeroUIProvider>
   );
 }

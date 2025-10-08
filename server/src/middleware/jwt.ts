@@ -52,6 +52,7 @@ fastify.decorate(
       
       // Set the user in the request
       request.user = decoded;
+      console.log("Decoded JWT:", decoded);
       // if(request.user?.role!=='ADMIN'){
       //   return reply.code(403).send({ 
       //     error: 'Forbidden', 

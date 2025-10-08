@@ -49,6 +49,7 @@ export const upcomingInterviewsService = async (params: PaginationParams = {}) =
           scheduled_at: 'asc'
         },
         include: {
+          user:true,
           participants: {
             include: {
               user: {
