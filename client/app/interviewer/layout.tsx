@@ -1,9 +1,10 @@
 "use client";
 
 import SideBar from "@/components/atoms/sidebar";
-import { BookAIcon, LayoutDashboard, Users } from "lucide-react";
-import Navbar from "./components/navBar";
+import { LayoutDashboard, Users } from "lucide-react";
 import { LuBuilding2 } from "react-icons/lu";
+import { MdOutlineWorkHistory } from "react-icons/md";
+import Navbar from "./components/navBar";
 
 export default function CandidateLayout({
   children,
@@ -25,7 +26,12 @@ export default function CandidateLayout({
       id: "createInterview",
       label: "Create Interview",
       icon: <LuBuilding2 size={18} />,
-    }
+    },
+    {
+      id: "interviewHistory",
+      label: "Interview History",
+      icon: <MdOutlineWorkHistory size={18} />,
+    },
   ];
 
   return (
