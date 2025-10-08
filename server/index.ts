@@ -4,6 +4,7 @@ import { AdminDashboardRoute } from './src/routes/admin/admin';
 import {  LoginUserRoute } from './src/routes/auth';
 import { CandidateDashboardRoute } from './src/routes/candidate/dashboard';
 import { interviewer } from './src/routes/interviewer';
+import InterviewerDashboardRoute from './src/routes/interviewer/dashboard';
 import { Registration } from './src/routes/registration';
 import { Skill } from './src/routes/skill';
 import { profile } from './src/routes/user';
@@ -22,8 +23,9 @@ fastify.register(Skill,{prefix:"/api/skill"})
 fastify.register(Registration,{prefix:"/api/register"})
 fastify.register(AdminDashboardRoute,{prefix:"/api/admin"})
 fastify.register(profile,{prefix:"/api/user"})
-fastify.register(interviewer,{prefix:"/api/interviewer"})
+fastify.register(interviewer,{prefix:"/api/interview"})
 fastify.register(CandidateDashboardRoute,{prefix:"/api/candidate"})
+fastify.register(InterviewerDashboardRoute,{prefix:"/api/interviewer"})
 
 const start = async () => {
   try {

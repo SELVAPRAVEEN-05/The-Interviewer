@@ -1,7 +1,9 @@
 "use client";
 
 import SideBar from "@/components/atoms/sidebar";
-import { BookAIcon, LayoutDashboard, Users } from "lucide-react";
+import { LayoutDashboard, Users } from "lucide-react";
+import { LuBuilding2 } from "react-icons/lu";
+import { MdOutlineWorkHistory } from "react-icons/md";
 import Navbar from "./components/navBar";
 
 export default function CandidateLayout({
@@ -16,15 +18,20 @@ export default function CandidateLayout({
       icon: <LayoutDashboard size={18} />,
     },
     {
-      id: "interviewListes",
+      id: "upcommingInterviewes",
       label: "upcomming Interview",
       icon: <Users size={18} />,
     },
     {
-      id: "shortlistcandidates",
-      label: "ShortList Candidate",
-      icon: <BookAIcon size={18} />,
-    }
+      id: "createInterview",
+      label: "Create Interview",
+      icon: <LuBuilding2 size={18} />,
+    },
+    {
+      id: "interviewHistory",
+      label: "Interview History",
+      icon: <MdOutlineWorkHistory size={18} />,
+    },
   ];
 
   return (

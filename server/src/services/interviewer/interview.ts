@@ -39,7 +39,11 @@ export const interviewFeedBack=async (interviewId:string,given_to_user_id:string
            
         }
     })
-   
+    await prisma.interview.update({
+        where:{id:interviewId},
+        data:{status:"COMPLETED"}
+    })
+
     return {message:"Interview Feedback Submitted Successfully",isFailed:false,data:data}
 }catch(err){
     console.log(err)

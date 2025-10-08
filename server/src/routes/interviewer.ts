@@ -4,6 +4,4 @@ import { interviewFeedbackController, interviewScheduleController } from "../con
 export const interviewer = (fastify: FastifyInstance) => {
     fastify.post('/', { preHandler: fastify.authenticateAdmin }, interviewScheduleController)
     fastify.post('/feedback', { preHandler: fastify.authenticateAdmin }, interviewFeedbackController)
-
-    
 }
