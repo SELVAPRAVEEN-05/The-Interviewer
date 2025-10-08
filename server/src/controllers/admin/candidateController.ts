@@ -1,5 +1,6 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import { candidateData, CandidateDataTable as CandidateDataTableService } from "../../services/admin/candidate";
+import { candidateStatusUpdate } from "../../services/candidate/candidate";
 
 export const CandidateData = async (req: FastifyRequest, res: FastifyReply) => {
     try {
@@ -13,6 +14,20 @@ export const CandidateData = async (req: FastifyRequest, res: FastifyReply) => {
         return res.status(500).send({ message: "Internal Server Error", Failed: true, data: null });
     }
 };
+export const CandidateStatusUpdate = async (req: FastifyRequest, res: FastifyReply) => {
+    try {
+        const { userId, status } = req.body as { userId: string; status: string };
+        const result = await candidateStatusUpdate(userId, status);
+        if (result.isFailed) {
+            return res.status(400).send({ message: "Error updating candidate status", Failed: true, data: null });
+        }
+        return res.status(200).send({ message: "Candidate status updated successfully", Failed: false, data: result });
+    } catch (error) {
+        console.error('Error updating candidate status:', error);
+        return res.status(500).send({ message: "Internal Server Error", Failed: true, data: null });
+    }
+};
+
 // Interface for query parameters
 interface CandidateTableQuery {
     status?: string;
