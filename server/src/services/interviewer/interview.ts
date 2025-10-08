@@ -35,8 +35,7 @@ export const interviewFeedBack=async (interviewId:string,given_to_user_id:string
             given_by_user_id:given_by_user_id,
             rating:rating,
             comments:comments,
-            score:score
-           
+            score:score  
         }
     })
     await prisma.interview.update({
@@ -49,4 +48,51 @@ export const interviewFeedBack=async (interviewId:string,given_to_user_id:string
     console.log(err)
     return {message:"Failed to submit interview feedback",isFailed:true}
 }
+}
+
+export const interviewUpdate=async (interviewId:string,userId:string,updateData:any)=>{
+    console.log(interviewId,userId,updateData)
+    try{
+        // Verify the interviewer owns this interview
+        const interview = await prisma.interview.findFirst({
+            where:{
+                id:interviewId,
+                interviewerId:userId
+            }
+        })
+        
+        if(!interview){
+            return {message:"Interview not found or you don't have permission to update it",isFailed:true}
+        }
+
+        // Prepare update data object
+        const dataToUpdate:any = {}
+        
+        if(updateData.scheduled_at){
+            dataToUpdate.scheduled_at = new Date(updateData.scheduled_at)
+        }
+        if(updateData.status){
+            dataToUpdate.status = updateData.status
+        }
+        if(updateData.session_link){
+            dataToUpdate.session_link = updateData.session_link
+        }
+        if(updateData.prize !== undefined){
+            dataToUpdate.prize = updateData.prize
+        }
+
+        const data = await prisma.interview.update({
+            where:{id:interviewId},
+            data:dataToUpdate,
+            include:{
+                participants:true,
+                user:true
+            }
+        })
+
+        return {message:"Interview Updated Successfully",isFailed:false,data:data}
+    }catch(err){
+        console.log(err)
+        return {message:"Failed to update interview",isFailed:true}
+    }
 }

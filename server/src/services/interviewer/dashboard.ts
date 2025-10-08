@@ -57,3 +57,18 @@ interviewData:{
     };
 
 }
+export const interviewerUpcomingInterviews=async(userId:any)=>{
+    const upcomingInterviews=await prisma.interview.findMany({
+        where:{
+            interviewerId:userId,
+            scheduled_at:{
+                gte:new Date()
+            }
+        },
+        include:{
+            participants:true,
+            user:true
+        }
+    })
+    return {isFailed:false,data:upcomingInterviews}
+}
