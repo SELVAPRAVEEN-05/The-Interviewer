@@ -21,6 +21,28 @@ export const interviewSchedule=async (schedule:Date,url:string,userId:string,par
     })
     return {message:"Interview Scheduled Successfully",isFailed:false,data:data}
 }catch(err){
+    console.log(err)
     return {message:"Failed to schedule interview",isFailed:true}
+}
+}
+export const interviewFeedBack=async (interviewId:string,given_to_user_id:string,given_by_user_id:string,rating:number,comments:string,score:number)=>{
+    console.log(interviewId,given_to_user_id,given_by_user_id,rating,comments,score)
+    try{
+       const data= await prisma.feedback.create({
+        data:{
+            interviewId:interviewId,
+            given_to_user_id:given_to_user_id,
+            given_by_user_id:given_by_user_id,
+            rating:rating,
+            comments:comments,
+            score:score
+           
+        }
+    })
+   
+    return {message:"Interview Feedback Submitted Successfully",isFailed:false,data:data}
+}catch(err){
+    console.log(err)
+    return {message:"Failed to submit interview feedback",isFailed:true}
 }
 }

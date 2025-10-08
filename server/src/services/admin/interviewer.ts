@@ -93,13 +93,14 @@ export const InterviewerDataTable=async(status:String,searchQuery:String,offset:
 
               //   }
               // },
-                interviewParticipations:{
-                    include:{
-                        user:true,
-                        interview:{
-                        }
-                    }
-                },
+              userPositions:{
+                include:{
+                  position:true,
+                  brand:true
+
+                }
+              },
+               Interview:true
             }        
     })
     return {data:data,isFailed:false};

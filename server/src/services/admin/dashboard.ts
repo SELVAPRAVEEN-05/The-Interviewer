@@ -1,8 +1,4 @@
 import prisma from "../../lib/prisma";
-
-
-
-
 // Cache duration: 5 minutes (300,000 ms)
 const CACHE_DURATION = 5 * 60 * 1000;
 let dashboardCache: any | null = null;
@@ -22,8 +18,9 @@ export const AdminDashboardService = async (): Promise<any> => {
       totalScheduledInterviews,
       totalCompletedInterviews,
       totalCancelledInterviews,
+      totalPendingInterviews,
       totalActiveCandidates,
-        totalActiveRecruiters,
+      totalActiveRecruiters,
     ] = await Promise.all([
       prisma.user.count({
         where: {
@@ -32,7 +29,7 @@ export const AdminDashboardService = async (): Promise<any> => {
       }),
       prisma.user.count({
         where: {
-          role: 'RECRUITER',
+          role: 'INTERVIEWER',
         },
       }),
       prisma.interview.count({
@@ -50,18 +47,26 @@ export const AdminDashboardService = async (): Promise<any> => {
           status: 'CANCELLED',
         },
       }),
+      prisma.interview.count({
+        where: {
+          status: 'PENDING',
+        },
+      }),
        prisma.user.count({
         where: {
-          status: 'ACTIVE',
+          status: 'APPROVED',
           role:'CANDIDATE'
         },
       }),
       prisma.user.count({
         where: {
-          status: 'ACTIVE',
+          status: 'REJECTED',
           role:'RECRUITER'
         },
       }),
+      
+       
+       
     ]);
 
     const result: any = {
@@ -70,8 +75,9 @@ export const AdminDashboardService = async (): Promise<any> => {
       totalScheduledInterviews,
       totalCompletedInterviews,
       totalCancelledInterviews,
-        totalActiveCandidates,
-        totalActiveRecruiters,
+      totalPendingInterviews,
+      totalActiveCandidates,
+      totalActiveRecruiters,
     };
 
     // Update cache

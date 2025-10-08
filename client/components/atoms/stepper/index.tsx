@@ -11,12 +11,13 @@ import {
 import { styled } from "@mui/material/styles";
 import React from "react";
 
-// Step labels
-const steps = ["Personal", "Education", "Skills"];
+// Default step labels
+const defaultSteps = ["Personal", "Education", "Skills"];
 
 type VerticalStepperProps = {
   activeStep: number;
   setActiveStep: React.Dispatch<React.SetStateAction<number>>;
+  steps?: string[]; // optional override
 };
 
 // Custom black connector line, aligned to outer ring
@@ -36,7 +37,8 @@ function StepIconComponent(props: StepIconProps) {
   const { active, completed, icon } = props;
 
   let color = "#BDBDBD"; // default gray
-  if (completed) color = "#4CAF50"; // green
+  if (completed)
+    color = "#4CAF50"; // green
   else if (active) color = "#1E88E5"; // blue
 
   return (
@@ -87,6 +89,7 @@ function StepIconComponent(props: StepIconProps) {
 export default function VerticalStepper({
   activeStep,
   setActiveStep,
+  steps = defaultSteps,
 }: VerticalStepperProps) {
   return (
     <Box
