@@ -22,8 +22,9 @@ import {
   Target,
   Video,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { InterviewCard } from "../components/interviewCard";
+import { getRequest } from "@/utils";
 
 // Main Component
 export default function InterviewDashboard() {
@@ -31,35 +32,96 @@ export default function InterviewDashboard() {
   const [selectedTypes, setSelectedTypes] = useState(["Technical", "HR Round"]);
   const [selectedView, setSelectedView] = useState("grid");
 
-  const sampleInterviews = [
-    {
-      id: "1",
-      companyLogo:
-        "https://img.freepik.com/free-vector/bird-colorful-gradient-design-vector_343694-2506.jpg",
-      companyName: "TechCorp Solutions",
-      interviewerName: "Rajesh Kumar",
-      interviewerRole: "Senior Technical Lead",
-      interviewType: "Technical",
-      date: "29 Sep",
-      startTime: "10:00 AM",
-      endTime: "11:00 AM",
-      meetingLink: "https://zoom.us/j/example",
-    },
-    {
-      id: "2",
-      companyName: "InnovateLabs",
-      interviewerName: "Priya Sharma",
-      interviewerRole: "HR Manager",
-      interviewType: "HR Round",
-      date: "30 Sep",
-      startTime: "2:00 PM",
-      endTime: "3:00 PM",
-      meetingLink: "https://meet.google.com/example",
-    },
-  ];
+  // state to hold interviews fetched from API
+  const [apiInterviews, setApiInterviews] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [apiPagination, setApiPagination] = useState<any | null>(null);
 
-  // Filter interviews based on search and selected types
-  const filteredInterviews = sampleInterviews.filter((interview) => {
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:5000/";
+  const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null;
+
+  // helper to map server interview object to InterviewCard shape
+  const mapServerInterview = (it: any) => {
+    // server Interview model: id, scheduled_at, session_link, user (interviewer), participants[]
+    const companyName = it?.user?.first_name
+      ? `${it.user.first_name} ${it.user.last_name ?? ''}`.trim()
+      : it?.user?.email ?? 'Unknown Company';
+
+    // find participant entry for the current user (if needed) or use first participant as candidate
+    const interviewer = it?.user; // server stores interviewer in user
+
+    const scheduled = it?.scheduled_at ? new Date(it.scheduled_at) : null;
+    const date = scheduled
+      ? scheduled.toLocaleDateString(undefined, { day: '2-digit', month: 'short' })
+      : '';
+    const startTime = scheduled
+      ? scheduled.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })
+      : '';
+
+    return {
+      id: it.id,
+      companyLogo: it?.companyLogo ?? '',
+      companyName: companyName,
+      interviewerName: interviewer ? `${interviewer.first_name ?? ''} ${interviewer.last_name ?? ''}`.trim() : 'Interviewer',
+      interviewerRole: interviewer?.role ?? interviewer?.position ?? 'Recruiter',
+      interviewType: it?.type ?? 'Technical',
+      date,
+      startTime,
+      endTime: '',
+      meetingLink: it?.session_link ?? it?.meetingLink ?? '',
+      raw: it,
+    };
+  };
+
+  const fetchInterviews = async (page = 1, limit = 20) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res: any = await getRequest(
+        `${baseUrl}api/candidate/upcoming-interviews?page=${page}&limit=${limit}`,
+        {
+          'Content-Type': 'application/json',
+          Authorization: token ? `Bearer ${token}` : undefined,
+        }
+      );
+
+      // server candidate UpcomingInterviewsController (candidate) currently returns { message, Failed, data }
+      // but admin endpoint returns { data, pagination } — handle both shapes
+      let interviewsData: any[] = [];
+      let pagination: any = null;
+
+      if (res?.data && Array.isArray(res.data)) {
+        interviewsData = res.data;
+      } else if (res?.data && res?.pagination) {
+        interviewsData = res.data;
+        pagination = res.pagination;
+      } else if (res?.interviews) {
+        interviewsData = res.interviews;
+      } else if (res?.data?.interviews) {
+        interviewsData = res.data.interviews;
+      } else if (Array.isArray(res)) {
+        // axios helper unwraps response.data so some callers return the inner data directly
+        interviewsData = res;
+      }
+
+      setApiPagination(pagination);
+      setApiInterviews(interviewsData.map(mapServerInterview));
+    } catch (err: any) {
+      console.error('Error fetching upcoming interviews', err);
+      setError(err?.message ?? 'Failed to load interviews');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    // initial load
+    fetchInterviews(1, 50);
+  }, []);
+
+  // combine apiInterviews with client filters
+  const filteredInterviews = apiInterviews.filter((interview) => {
     const matchesSearch =
       interview.companyName.toLowerCase().includes(searchQuery.toLowerCase()) ||
       interview.interviewerName
@@ -179,7 +241,11 @@ export default function InterviewDashboard() {
       {/* Content Area */}
       {selectedView === "grid" ? (
         <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-3 bg-gray-50 p-6 border-gray-200 shadow-lg rounded-lg">
-          {filteredInterviews.length > 0 ? (
+          {loading ? (
+            <div className="col-span-3 text-center py-12 text-gray-500">Loading...</div>
+          ) : error ? (
+            <div className="col-span-3 text-center py-12 text-red-500">{error}</div>
+          ) : filteredInterviews.length > 0 ? (
             filteredInterviews.map((interview) => (
               <InterviewCard key={interview.id} interview={interview} />
             ))

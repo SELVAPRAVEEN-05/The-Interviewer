@@ -1,9 +1,11 @@
 "use client";
 import { TrendingUp, Users } from "lucide-react";
 import { InterviewHistoryTable } from "../components/interviewHistorytable";
+import { useEffect, useState } from "react";
 
 import { Slider } from "@nextui-org/react";
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
+import { getRequest } from "@/utils";
 
 export default function RecentInterviews() {
   const meetingStats = {
@@ -25,7 +27,7 @@ export default function RecentInterviews() {
     { skill: "Communication", score: 88, maxScore: 100, change: +2 },
   ];
 
-  const sampleHistory = [
+  const [sampleHistory, setSampleHistory] = useState<any[]>([
     {
       id: "1",
       companyName: "TechCorp Solutions",
@@ -37,51 +39,72 @@ export default function RecentInterviews() {
       negativeReview: "Improve time management during coding tasks.",
       rating: 4,
     },
-    {
-      id: "2",
-      companyName: "InnovateLabs",
-      interviewerName: "Priya Sharma",
-      date: "22 Sep 2025",
-      status: "pending",
-      score: undefined,
-      positiveReview: "Strong fundamentals in system design.",
-      negativeReview: "Need to practice more live coding problems.",
-      rating: 3,
-    },
-    {
-      id: "3",
-      companyName: "DataSystems Inc",
-      interviewerName: "Amit Patel",
-      date: "18 Sep 2025",
-      status: "rejected",
-      score: 45,
-      positiveReview: "Good communication skills.",
-      negativeReview: "Answers lacked depth and detail.",
-      rating: 2,
-    },
-    {
-      id: "4",
-      companyName: "CloudNet Global",
-      interviewerName: "Neha Verma",
-      date: "15 Sep 2025",
-      status: "shortlisted",
-      score: 90,
-      positiveReview: "Excellent problem-solving and clarity of thought.",
-      negativeReview: "Work on optimizing SQL queries further.",
-      rating: 5,
-    },
-    {
-      id: "5",
-      companyName: "AIWorks Pvt Ltd",
-      interviewerName: "Sandeep Rao",
-      date: "10 Sep 2025",
-      status: "rejected",
-      score: 50,
-      positiveReview: "Basic concepts were clear.",
-      negativeReview: "Struggled with advanced AI/ML questions.",
-      rating: 2,
-    },
-  ];
+  ]);
+
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:5000/";
+
+  // Map server interview object to InterviewHistoryTable shape
+  const mapInterviewHistory = (it: any) => {
+    const interviewer = it?.user;
+    const feedback = (it?.feedbacks && it.feedbacks.length > 0 && it.feedbacks[0]) || null;
+    const status = it?.status ?? (feedback ? 'shortlisted' : 'pending');
+    const scheduled = it?.scheduled_at ? new Date(it.scheduled_at) : null;
+
+    return {
+      id: it.id,
+      companyLogo: it?.companyLogo ?? '',
+      companyName: it?.user?.first_name
+        ? `${it.user.first_name} ${it.user.last_name ?? ''}`.trim()
+        : it?.user?.email ?? 'Company',
+      interviewerName: interviewer ? `${interviewer.first_name ?? ''} ${interviewer.last_name ?? ''}`.trim() : 'Interviewer',
+      date: scheduled
+        ? scheduled.toLocaleDateString(undefined, { day: '2-digit', month: 'short', year: 'numeric' })
+        : it?.created_at ?? '',
+      status: status,
+      score: feedback?.score,
+      positiveReview: feedback?.comments ?? feedback?.positiveReview ?? '',
+      negativeReview: '',
+      rating: feedback?.rating,
+    };
+  };
+
+  useEffect(() => {
+    const fetchHistory = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null;
+        const res: any = await getRequest(`${baseUrl}api/candidate/interviews-history`, {
+          'Content-Type': 'application/json',
+          Authorization: token ? `Bearer ${token}` : undefined,
+        });
+
+        // candidate controller returns { message, Failed, data }
+        let interviewsData: any[] = [];
+        if (res?.data && res.data.interviews) {
+          interviewsData = res.data.interviews;
+        } else if (res?.interviews) {
+          interviewsData = res.interviews;
+        } else if (Array.isArray(res)) {
+          interviewsData = res;
+        }
+
+        if (interviewsData.length > 0) {
+          setSampleHistory(interviewsData.map(mapInterviewHistory));
+        }
+      } catch (err: any) {
+        console.error('Failed to fetch interview history', err);
+        setError(err?.message ?? 'Failed to load interview history');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchHistory();
+  }, []);
 
   const handleViewFeedback = (id: string) => {
     console.log("Parent notified: view feedback for interview", id);
@@ -180,10 +203,16 @@ export default function RecentInterviews() {
           ))}
         </div>
       </div>
-      <InterviewHistoryTable
-        interviews={sampleHistory}
-        onViewFeedback={handleViewFeedback}
-      />
+      {loading ? (
+        <div className="p-6 text-center text-gray-600">Loading interview history...</div>
+      ) : error ? (
+        <div className="p-6 text-center text-red-500">{error}</div>
+      ) : (
+        <InterviewHistoryTable
+          interviews={sampleHistory}
+          onViewFeedback={handleViewFeedback}
+        />
+      )}
     </div>
   );
 }

@@ -29,23 +29,23 @@ import {
   Video,
 } from "lucide-react";
 import { InterviewMiniHistoryTable } from "../components/miniTable";
+import { getRequest } from "@/utils";
 
 const CandidateDashboard = () => {
   const [timeToInterview, setTimeToInterview] = useState<string>("");
 
-  const upcomingInterview = {
-    id: "1",
-    companyLogo:
-      "https://img.freepik.com/free-vector/bird-colorful-gradient-design-vector_343694-2506.jpg?semt=ais_hybrid&w=740&q=80",
-    companyName: "TechCorp Solutions",
-    interviewerName: "Rajesh Kumar",
-    interviewerRole: "Senior Technical Lead",
-    interviewType: "Technical",
-    date: "2025-09-29",
-    startTime: "10:00 AM",
-    endTime: "11:00 AM",
-    meetingLink: "https://zoom.us/j/example",
-  };
+  const [upcomingInterview, setUpcomingInterview] = useState<any | null>(null);
+  const [history, setHistory] = useState<any[]>([]);
+  const [dashboardData, setDashboardData] = useState<any | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  // stable seed for placeholder random image (stays same while component mounted)
+  const [placeholderSeed] = useState(() => Math.floor(Math.random() * 1000000));
+
+  // Simple skeleton box used for loading placeholders
+  const Skeleton = ({ className = "" }: { className?: string }) => (
+    <div className={`bg-gray-200 rounded ${className} animate-pulse`} />
+  );
 
   const skillPerformance = [
     { skill: "Algorithms", score: 85, maxScore: 100 },
@@ -70,43 +70,163 @@ const CandidateDashboard = () => {
     missed: 1,
   };
 
-  const sampleHistory = [
-    {
-      id: "1",
-      companyName: "TechCorp Solutions",
-      interviewerName: "Rajesh Kumar",
-      date: "25 Sep 2025",
-      status: "shortlisted",
-      score: 85,
-      positiveReview: "You explained algorithms very clearly.",
-      negativeReview: "Improve time management during coding tasks.",
-      rating: 4,
-    },
-    {
-      id: "2",
-      companyName: "InnovateLabs",
-      interviewerName: "Priya Sharma",
-      date: "22 Sep 2025",
-      status: "pending",
-      score: undefined,
-      positiveReview: "Strong fundamentals in system design.",
-      negativeReview: "Need to practice more live coding problems.",
-      rating: 3,
-    },
-  ];
+  // history will be populated from API
+  // initial placeholder to keep types consistent
+  const sampleHistory = history.length > 0 ? history : [];
 
+  // Fetch upcoming interviews (take first) and interview history
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      setError(null);
+      const baseUrl =
+        process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:5000/";
+      const token =
+        typeof window !== "undefined"
+          ? localStorage.getItem("authToken")
+          : null;
+
+      try {
+        const [upRes, historyRes, dashRes] = await Promise.all([
+          getRequest(`${baseUrl}api/candidate/upcoming-interviews`, {
+            "Content-Type": "application/json",
+            Authorization: token ? `Bearer ${token}` : undefined,
+          }),
+          getRequest(`${baseUrl}api/candidate/interviews-history`, {
+            "Content-Type": "application/json",
+            Authorization: token ? `Bearer ${token}` : undefined,
+          }),
+          getRequest(`${baseUrl}api/candidate/dashboard`, {
+            "Content-Type": "application/json",
+            Authorization: token ? `Bearer ${token}` : undefined,
+          }),
+        ]);
+
+        // normalize upcoming response
+        const up: any = upRes as any;
+        let upcomingArr: any[] = [];
+        if (up?.data && up.data.interviews) upcomingArr = up.data.interviews;
+        else if (up?.interviews) upcomingArr = up.interviews;
+        else if (Array.isArray(up)) upcomingArr = up;
+
+        if (upcomingArr.length > 0) {
+          const it = upcomingArr[0];
+          const scheduled = it?.scheduled_at ? new Date(it.scheduled_at) : null;
+          const startTime = scheduled
+            ? scheduled.toLocaleTimeString(undefined, {
+                hour: "2-digit",
+                minute: "2-digit",
+              })
+            : "";
+          const date = scheduled ? scheduled.toISOString().split("T")[0] : "";
+          const interviewer = it?.user;
+          const companyName = it?.user?.first_name
+            ? `${it.user.first_name} ${it.user.last_name ?? ""}`.trim()
+            : (it?.user?.email ?? "Company");
+
+          setUpcomingInterview({
+            id: it.id,
+            companyLogo: it?.companyLogo ?? "",
+            companyName,
+            interviewerName: interviewer
+              ? `${interviewer.first_name ?? ""} ${interviewer.last_name ?? ""}`.trim()
+              : "Interviewer",
+            interviewerRole: interviewer?.role ?? "",
+            interviewType: it?.type ?? "Technical",
+            date,
+            startTime,
+            endTime: "",
+            meetingLink: it?.session_link ?? it?.meetingLink ?? "",
+            raw: it,
+          });
+        } else {
+          setUpcomingInterview(null);
+        }
+
+        // normalize history response
+        const hres: any = historyRes as any;
+        let historyArr: any[] = [];
+        if (hres?.data && hres.data.interviews)
+          historyArr = hres.data.interviews;
+        else if (hres?.interviews) historyArr = hres.interviews;
+        else if (Array.isArray(hres)) historyArr = hres;
+
+        const mappedHistory = historyArr.map((it: any) => {
+          const feedback =
+            (it?.feedbacks && it.feedbacks.length > 0 && it.feedbacks[0]) ||
+            null;
+          const scheduled = it?.scheduled_at ? new Date(it.scheduled_at) : null;
+          return {
+            id: it.id,
+            companyLogo: it?.companyLogo ?? "",
+            companyName: it?.user?.first_name
+              ? `${it.user.first_name} ${it.user.last_name ?? ""}`.trim()
+              : (it?.user?.email ?? "Company"),
+            interviewerName: it?.user
+              ? `${it.user.first_name ?? ""} ${it.user.last_name ?? ""}`.trim()
+              : "Interviewer",
+            date: scheduled
+              ? scheduled.toLocaleDateString(undefined, {
+                  day: "2-digit",
+                  month: "short",
+                  year: "numeric",
+                })
+              : (it?.created_at ?? ""),
+            status: it?.status ?? (feedback ? "shortlisted" : "pending"),
+            score: feedback?.score,
+            positiveReview: feedback?.comments ?? "",
+            negativeReview: "",
+            rating: feedback?.rating,
+          };
+        });
+
+        setHistory(mappedHistory);
+        // normalize dashboard response
+        const dres: any = dashRes as any;
+        const ddata = dres?.data ?? dres;
+        setDashboardData(ddata ?? null);
+      } catch (err: any) {
+        console.error("Error fetching candidate dashboard data", err);
+        setError(err?.message ?? "Failed to load interviews");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  // Recalculate time remaining for upcoming interview
   useEffect(() => {
     const calculateTimeToInterview = () => {
-      // Parse date and start time
-      const [hours, minutes] =
-        upcomingInterview.startTime.match(/(\d+):(\d+)/)?.slice(1) || [];
-      const isPM = upcomingInterview.startTime.includes("PM");
-      let hour = parseInt(hours);
-      if (isPM && hour !== 12) hour += 12;
-      if (!isPM && hour === 12) hour = 0;
+      if (
+        !upcomingInterview ||
+        !upcomingInterview.date ||
+        !upcomingInterview.startTime
+      ) {
+        setTimeToInterview("No upcoming interviews");
+        return;
+      }
+
+      const timeMatch = upcomingInterview.startTime.match(
+        /(\d{1,2}):(\d{2})\s*(AM|PM)?/i
+      );
+      if (!timeMatch) {
+        setTimeToInterview("TBD");
+        return;
+      }
+
+      let hour = parseInt(timeMatch[1], 10);
+      const minutes = parseInt(timeMatch[2], 10);
+      const ampm = timeMatch[3];
+      if (ampm) {
+        const isPM = ampm.toUpperCase() === "PM";
+        if (isPM && hour !== 12) hour += 12;
+        if (!isPM && hour === 12) hour = 0;
+      }
 
       const interviewDateTime = new Date(upcomingInterview.date);
-      interviewDateTime.setHours(hour, parseInt(minutes), 0, 0);
+      interviewDateTime.setHours(hour, minutes, 0, 0);
 
       const now = new Date();
       const diff = interviewDateTime.getTime() - now.getTime();
@@ -118,13 +238,9 @@ const CandidateDashboard = () => {
         );
         const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
 
-        if (days > 0) {
-          setTimeToInterview(`${days}d ${hrs}h`);
-        } else if (hrs > 0) {
-          setTimeToInterview(`${hrs}h ${mins}m`);
-        } else {
-          setTimeToInterview(`${mins}m`);
-        }
+        if (days > 0) setTimeToInterview(`${days}d ${hrs}h`);
+        else if (hrs > 0) setTimeToInterview(`${hrs}h ${mins}m`);
+        else setTimeToInterview(`${mins}m`);
       } else {
         setTimeToInterview("In Progress");
       }
@@ -132,9 +248,8 @@ const CandidateDashboard = () => {
 
     calculateTimeToInterview();
     const interval = setInterval(calculateTimeToInterview, 60000);
-
     return () => clearInterval(interval);
-  }, [upcomingInterview.date, upcomingInterview.startTime]);
+  }, [upcomingInterview]);
 
   const getInterviewTypeIcon = (type: string) => {
     const icons: Record<string, string> = {
@@ -161,29 +276,42 @@ const CandidateDashboard = () => {
   };
 
   const isInterviewNear = () => {
-    const [hours, minutes] =
-      upcomingInterview.startTime.match(/(\d+):(\d+)/)?.slice(1) || [];
-    const isPM = upcomingInterview.startTime.includes("PM");
-    let hour = parseInt(hours);
-    if (isPM && hour !== 12) hour += 12;
-    if (!isPM && hour === 12) hour = 0;
+    if (
+      !upcomingInterview ||
+      !upcomingInterview.startTime ||
+      !upcomingInterview.date
+    )
+      return false;
+
+    const timeMatch = upcomingInterview.startTime.match(
+      /(\d{1,2}):(\d{2})\s*(AM|PM)?/i
+    );
+    if (!timeMatch) return false;
+
+    let hour = parseInt(timeMatch[1], 10);
+    const minutes = parseInt(timeMatch[2], 10);
+    const ampm = timeMatch[3];
+    if (ampm) {
+      const isPM = ampm.toUpperCase() === "PM";
+      if (isPM && hour !== 12) hour += 12;
+      if (!isPM && hour === 12) hour = 0;
+    }
 
     const interviewDateTime = new Date(upcomingInterview.date);
-    interviewDateTime.setHours(hour, parseInt(minutes), 0, 0);
+    interviewDateTime.setHours(hour, minutes, 0, 0);
 
     const now = new Date();
     const diff = interviewDateTime.getTime() - now.getTime();
     return diff > 0 && diff <= 30 * 60 * 1000; // Within 30 minutes
   };
 
-  const formattedDate = new Date(upcomingInterview.date).toLocaleDateString(
-    "en-US",
-    {
-      weekday: "long",
-      month: "short",
-      day: "numeric",
-    }
-  );
+  const formattedDate = upcomingInterview?.date
+    ? new Date(upcomingInterview.date).toLocaleDateString("en-US", {
+        weekday: "long",
+        month: "short",
+        day: "numeric",
+      })
+    : "No upcoming interviews";
 
   const getInitials = (name: string) => {
     return name
@@ -206,6 +334,20 @@ const CandidateDashboard = () => {
     console.log("Parent notified: view feedback for interview", id);
   };
 
+  const DateDisplay = () => {
+    const today = new Date();
+    const options = {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    } as const;
+
+    const formattedDate = today.toLocaleDateString("en-US", options);
+
+    return formattedDate;
+  };
+
   return (
     <div className="min-h-screen">
       <div className="bg-gray-100 border border-gray-300 shadow-lg px-6 py-4 rounded-lg mb-8">
@@ -218,9 +360,7 @@ const CandidateDashboard = () => {
           </div>
           <div className="text-right">
             <p className="text-sm text-gray-600">Today</p>
-            <p className="font-semibold text-gray-900">
-              Sunday, August 24, 2025
-            </p>
+            <p className="font-semibold text-gray-900">{DateDisplay()}</p>
           </div>
         </div>
       </div>
@@ -229,34 +369,34 @@ const CandidateDashboard = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <StatCard
           title="Total Interviews"
-          value={totalInterviews}
+          value={loading ? <Skeleton className="w-20 h-8" /> : dashboardData?.interviewsCount ?? totalInterviews}
           icon={Calendar}
           color="blue"
-          subtitle={`Completed: ${meetingStats.completed} • Upcoming: ${meetingStats.upcoming}`}
+          subtitle={loading ? '' : `Completed: ${meetingStats.completed} • Upcoming: ${meetingStats.upcoming}`}
         />
 
         <StatCard
           title="Total Points"
-          value={performanceTrend.reduce((acc, cur) => acc + cur.points, 0)}
+          value={loading ? <Skeleton className="w-20 h-8" /> : dashboardData?.feedbackStats?.sumScore ?? performanceTrend.reduce((acc, cur) => acc + cur.points, 0)}
           icon={CheckCircle}
           color="green"
-          subtitle="Cumulative Interview Points"
+          subtitle={loading ? '' : 'Cumulative Interview Points'}
         />
 
         <StatCard
           title="Average Score"
-          value={averageScore}
+          value={loading ? <Skeleton className="w-12 h-8" /> : Math.round(dashboardData?.feedbackStats?.averageScore ?? averageScore)}
           icon={Target}
           color="purple"
-          subtitle="Across core skills"
+          subtitle={loading ? '' : 'Across core skills'}
         />
 
         <StatCard
           title="Shortlist Status"
-          value={5}
+          value={loading ? <Skeleton className="w-8 h-8" /> : dashboardData?.interviewsSortListedCount ?? 0}
           icon={Award}
           color="orange"
-          subtitle="Based on interviews"
+          subtitle={loading ? '' : 'Based on interviews'}
         />
       </div>
 
@@ -266,24 +406,34 @@ const CandidateDashboard = () => {
         <div className="px-6 py-4 flex items-center justify-between border-b border-gray-300">
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center overflow-hidden border border-gray-200">
-              <img
-                src={upcomingInterview.companyLogo}
-                alt={upcomingInterview.companyName}
-                className="w-full h-full object-cover"
-              />
+              {upcomingInterview?.companyLogo ? (
+                <img
+                  src={upcomingInterview.companyLogo}
+                  alt={upcomingInterview.companyName}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <img
+                  src={`https://i.pravatar.cc/200?u=${placeholderSeed}`}
+                  alt={upcomingInterview?.companyName ?? 'Company placeholder'}
+                  className="w-full h-full object-cover"
+                />
+              )}
             </div>
             <div>
               <p className="text-sm text-gray-500">Upcoming Interview</p>
               <h2 className="text-lg font-bold text-gray-900">
-                {upcomingInterview.companyName}
+                {upcomingInterview?.companyName ?? "No upcoming interviews"}
               </h2>
             </div>
           </div>
 
           <span
-            className={`px-4 py-1.5 rounded-full text-sm font-semibold ${getInterviewTypeBadgeColor(upcomingInterview.interviewType)}`}
+            className={`px-4 py-1.5 rounded-full text-sm font-semibold ${getInterviewTypeBadgeColor(
+              upcomingInterview?.interviewType ?? "Technical"
+            )}`}
           >
-            {upcomingInterview.interviewType}
+            {upcomingInterview?.interviewType ?? "—"}
           </span>
         </div>
 
@@ -315,7 +465,7 @@ const CandidateDashboard = () => {
                   TIME
                 </p>
                 <p className="text-sm font-semibold text-gray-900">
-                  {upcomingInterview.startTime}
+                  {upcomingInterview?.startTime ?? "—"}
                 </p>
               </div>
             </div>
@@ -323,17 +473,17 @@ const CandidateDashboard = () => {
             {/* Interviewer */}
             <div className="flex items-start gap-3">
               <div className="w-10 h-10 bg-orange-600 rounded-lg flex items-center justify-center flex-shrink-0 text-white font-bold text-sm">
-                {getInitials(upcomingInterview.interviewerName)}
+                {getInitials(upcomingInterview?.interviewerName ?? "--")}
               </div>
               <div>
                 <p className="text-xs text-gray-500 uppercase tracking-wide font-medium mb-1">
                   INTERVIEWER
                 </p>
                 <p className="text-sm font-semibold text-gray-900">
-                  {upcomingInterview.interviewerName}
+                  {upcomingInterview?.interviewerName ?? "—"}
                 </p>
                 <p className="text-xs text-gray-500">
-                  {upcomingInterview.interviewerRole}
+                  {upcomingInterview?.interviewerRole ?? ""}
                 </p>
               </div>
             </div>
@@ -359,7 +509,7 @@ const CandidateDashboard = () => {
 
             <div className="flex items-center gap-3">
               <a
-                href={upcomingInterview.meetingLink}
+                href={upcomingInterview?.meetingLink ?? "#"}
                 target="_blank"
                 rel="noreferrer"
                 className={`inline-flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-white shadow-md transition-all ${
@@ -469,10 +619,18 @@ const CandidateDashboard = () => {
           </div>
         </div>
       </div>
-      <InterviewMiniHistoryTable
-        interviews={sampleHistory}
-        onViewFeedback={handleViewFeedback}
-      />
+      {loading ? (
+        <div className="p-6 text-center text-gray-600">
+          Loading interview data...
+        </div>
+      ) : error ? (
+        <div className="p-6 text-center text-red-500">{error}</div>
+      ) : (
+        <InterviewMiniHistoryTable
+          interviews={history}
+          onViewFeedback={handleViewFeedback}
+        />
+      )}
     </div>
   );
 };
