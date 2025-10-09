@@ -1,5 +1,3 @@
-
-export {Login} from "./login"
 export {ButtonComponent }from './button'
 export {SelectComponent} from './select'
 export {Modals} from './modal'
