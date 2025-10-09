@@ -72,8 +72,8 @@ export default function Professional({ activeStep, setActiveStep }: Props) {
             size="md"
             variant="bordered"
             defaultItems={[
-              { label: "Company 1", key: "1" },
-              { label: "Company 2", key: "2" },
+              { label: "Google", key: "1" },
+              { label: "Joho", key: "2" },
             ]}
             selectedKey={company}
             onSelectionChange={(val) => setFormData({ company: val as string })}
@@ -90,8 +90,8 @@ export default function Professional({ activeStep, setActiveStep }: Props) {
             size="md"
             variant="bordered"
             defaultItems={[
-              { label: "Position 1", key: "1" },
-              { label: "Position 2", key: "2" },
+              { label: "Human Resourse", key: "1" },
+              { label: "senior developer", key: "2" },
             ]}
             selectedKey={position}
             onSelectionChange={(val) =>

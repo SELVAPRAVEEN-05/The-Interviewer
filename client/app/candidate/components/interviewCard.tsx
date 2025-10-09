@@ -19,7 +19,7 @@ interface Interview {
 export const InterviewCard = ({ interview }: { interview: Interview }) => {
   const handleJoinNow = () => {
     if (interview.meetingLink) {
-      window.open(interview.meetingLink, "_blank");
+      window.open(interview.meetingLink, "_self");
     }
   };
 
