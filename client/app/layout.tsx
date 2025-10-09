@@ -29,7 +29,7 @@ export default function RootLayout({
   return (
     <html suppressHydrationWarning lang="en">
       <head />
-      <body className={clsx("font-sans m-0", fontSans.variable)}>
+      <body className={clsx("font-poppins m-0", fontSans.variable)}>
         <Providers
           themeProps={{
             attribute: "class",
