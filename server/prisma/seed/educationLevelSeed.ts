@@ -2,7 +2,8 @@ import prisma from "../../src/lib/prisma";
 
 export async function educationLevelSeed() {
   const data = [
-    { level_name: "High School" },
+    { level_name: "10th" },
+    { level_name: "12th" },
     { level_name: "Bachelor's" },
     { level_name: "Master's" },
     { level_name: "PhD" },

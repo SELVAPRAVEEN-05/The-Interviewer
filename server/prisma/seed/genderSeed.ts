@@ -3,8 +3,7 @@ import prisma from "../../src/lib/prisma";
 export async function genderSeed() {
   const data = [
     { value: "Male" },
-    { value: "Female" },
-    { value: "Other" },
+    { value: "Female" }
   ];
   for (const record of data) {
     await prisma.gender.upsert({

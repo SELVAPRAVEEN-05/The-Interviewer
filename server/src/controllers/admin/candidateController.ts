@@ -1,0 +1,79 @@
+import { FastifyReply, FastifyRequest } from "fastify";
+import { candidateData, CandidateDataTable as CandidateDataTableService } from "../../services/admin/candidate";
+import { candidateStatusUpdate } from "../../services/candidate/candidate";
+
+export const CandidateData = async (req: FastifyRequest, res: FastifyReply) => {
+    try {
+        const data: any = await candidateData();
+        if (data.isFailed) {
+            return res.status(400).send({ message: "Error in fetching candidate data", Failed: true, data: null });
+        }
+        return res.status(200).send({ message: "Candidate data fetched successfully", Failed: false, data: data });
+    } catch (error) {
+        console.error('Error fetching candidate data:', error);
+        return res.status(500).send({ message: "Internal Server Error", Failed: true, data: null });
+    }
+};
+export const CandidateStatusUpdate = async (req: FastifyRequest, res: FastifyReply) => {
+    try {
+        const { userId, status } = req.body as { userId: string; status: string };
+        const result = await candidateStatusUpdate(userId, status);
+        if (result.isFailed) {
+            return res.status(400).send({ message: "Error updating candidate status", Failed: true, data: null });
+        }
+        return res.status(200).send({ message: "Candidate status updated successfully", Failed: false, data: result });
+    } catch (error) {
+        console.error('Error updating candidate status:', error);
+        return res.status(500).send({ message: "Internal Server Error", Failed: true, data: null });
+    }
+};
+
+// Interface for query parameters
+interface CandidateTableQuery {
+    status?: string;
+    searchQuery?: string;
+    page?: string;
+    limit?: string;
+}
+
+export const CandidateDataTable = async (
+    req: FastifyRequest<{ Querystring: CandidateTableQuery }>, 
+    res: FastifyReply
+) => {
+    try {
+        // Extract and validate query parameters
+        const status = req.query.status || '';
+        const searchQuery = req.query.searchQuery || '';
+        const page = req.query.page ? parseInt(req.query.page, 10) : 0;
+        const limit = req.query.limit ? parseInt(req.query.limit, 10) : 10;
+
+        // Validate numeric parameters
+        if (isNaN(page) || page < 0) {
+            return res.status(400).send({
+                message: "Invalid page parameter. Must be a non-negative integer.",
+                Failed: true,
+                data: null
+            });
+        }
+        const offset= (page-1) * limit; // Calculate offset based on page and limit
+        if (isNaN(limit) || limit < 1 || limit > 100) {
+            return res.status(400).send({
+                message: "Invalid limit parameter. Must be between 1 and 100.",
+                Failed: true,
+                data: null
+            });
+        }
+
+        // Call the service function with proper parameters
+        const data: any = await CandidateDataTableService(status, searchQuery, offset, limit);
+        
+        if (data.isFailed) {
+            return res.status(400).send({ message: "Error in fetching candidate data", Failed: true, data: null });
+        }
+        
+        return res.status(200).send({ message: "Candidate data fetched successfully", Failed: false,data: data.data });
+    } catch (error) {
+        console.error('Error fetching candidate data:', error);
+        return res.status(500).send({ message: "Internal Server Error", Failed: true, data: null });
+    }
+};

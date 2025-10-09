@@ -3,8 +3,8 @@ import prisma from "../../src/lib/prisma";
 export async function instituteSeed() {
   // You may want to update countryId after seeding countries
   const data = [
-    { name: "IIT Madras", city: "Chennai", state: "Tamil Nadu", countryId: "", },
-    { name: "MIT", city: "Cambridge", state: "Massachusetts", countryId: "", },
+    { name: "IIT Madras", city: "Chennai", state: "Tamil Nadu", countryId: 0, },
+    { name: "MIT", city: "Cambridge", state: "Massachusetts", countryId: 0 },
   ];
   // You must update countryId after seeding countries
   const countries = await prisma.country.findMany();

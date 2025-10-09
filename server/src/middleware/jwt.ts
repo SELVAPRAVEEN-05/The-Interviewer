@@ -11,7 +11,7 @@ declare module 'fastify' {
    
   }
   export interface FastifyInstance {
-    authenticate: any
+    authenticateAdmin: any
   }
 }
 
@@ -35,11 +35,11 @@ fastify.register(fastifyJwt, {
   }
 });
 fastify.decorate(
-  'authenticate',
+  'authenticateAdmin',
   async (request: FastifyRequest, reply: FastifyReply) => {
     try {
       const token = request.headers['authorization'];
-      console.log(token)
+    
       if (!token) {
         throw new Error('No token provided');
       }
@@ -48,13 +48,17 @@ fastify.decorate(
         throw new Error('No token provided');
       }
       // Verify the token
-      const decoded = fastify.jwt.verify(access_token);
+      const decoded:any = fastify.jwt.verify(access_token);
       
       // Set the user in the request
       request.user = decoded;
-      
-      // Log successful authentication
-      console.log('User authenticated:', decoded);
+      console.log("Decoded JWT:", decoded);
+      // if(request.user?.role!=='ADMIN'){
+      //   return reply.code(403).send({ 
+      //     error: 'Forbidden', 
+      //     message: 'You do not have permission to access this resource' 
+      //   });
+      // }
       
     } catch (err) {
       console.error('Authentication error:', err);

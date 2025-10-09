@@ -499,7 +499,7 @@ export function CollaborativeEditor() {
 
   return (
     <div className="h-screen flex flex-col bg-gray-900">
-      {provider ? <Cursors yProvider={provider} /> : null}
+      {/* {provider ? <Cursors yProvider={provider} /> : null} */}
 
       {/* Header with controls */}
       <div className="flex items-center justify-between px-4 py-2 bg-gray-800 border-b border-gray-700 shrink-0">

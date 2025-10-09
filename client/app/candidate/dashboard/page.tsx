@@ -44,7 +44,7 @@ const CandidateDashboard = () => {
     date: "2025-09-29",
     startTime: "10:00 AM",
     endTime: "11:00 AM",
-    meetingLink: "https://zoom.us/j/example",
+    meetingLink: "https://the-codemeet.vercel.app/rooms/33",
   };
 
   const skillPerformance = [

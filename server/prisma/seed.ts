@@ -5,7 +5,7 @@ import { languageSeed } from "./seed/languageSeed";
 import { educationLevelSeed } from "./seed/educationLevelSeed";
 import { instituteSeed } from "./seed/instituteSeed";
 import { skillSeed } from "./seed/skillSeed";
-import { userSeed } from "./seed/userSeed";
+import { userSeed } from "./seed/loginSeed";
 import { brandSeed } from "./seed/brandSeed";
 import { positionSeed } from "./seed/positionSeed";
 const prisma = new PrismaClient();
