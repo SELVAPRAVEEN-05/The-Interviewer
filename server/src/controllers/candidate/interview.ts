@@ -1,6 +1,7 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import { interviewFeedBack, interviewSchedule } from "../../services/interviewer/interview";
 import { v4 as uuidv4 } from "uuid";
+import { candidateGet } from "../../services/candidate/candidate";
 export const interviewScheduleController=async (req:any,res:FastifyReply)=>{
     const {schedule,participants}=req.body as {schedule:Date,participants:string[]}
     const userId=req.user.payload.id;
@@ -21,4 +22,11 @@ export const interviewFeedbackController=async (req:any,res:FastifyReply)=>{
         return res.status(500).send({message:result.message,isFailed:true,data:null})
     }
     return res.status(200).send({message:result.message,isFailed:false,data:result.data})
+}
+export const candidateGetController=async (req:any,res:FastifyReply)=>{
+    const result=await candidateGet();
+    if(result.isFailed){
+        return res.status(500).send({message:"failed to get the data",isFailed:true,data:null})
+    }
+    return res.status(200).send({message:"successfully extracted the data",isFailed:false,data:result})
 }

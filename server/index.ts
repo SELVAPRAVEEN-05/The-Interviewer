@@ -1,7 +1,7 @@
 
 import fastify from './src/middleware/jwt';
 import { AdminDashboardRoute } from './src/routes/admin/admin';
-import {  LoginUserRoute } from './src/routes/auth';
+import { LoginUserRoute } from './src/routes/auth';
 import { CandidateDashboardRoute } from './src/routes/candidate/dashboard';
 import { interviewer } from './src/routes/interviewer';
 import InterviewerDashboardRoute from './src/routes/interviewer/dashboard';
@@ -30,7 +30,7 @@ fastify.register(InterviewerDashboardRoute,{prefix:"/api/interviewer"})
 fastify.register(InterviewerInterviewRoute,{prefix:"/api/interview"})
 const start = async () => {
   try {
-    await fastify.listen({ port: 5000 })
+    await fastify.listen({ port: 5001 })
   } catch (err) {
     fastify.log.error(err)
     process.exit(1)
