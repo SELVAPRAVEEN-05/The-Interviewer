@@ -53,6 +53,7 @@ const UpcomingInterviewCard: React.FC<UpcomingInterviewProps> = ({
   date,
   time,
 }) => {
+
   return (
     <div className="bg-white border border-gray-300 rounded-lg p-4 hover:shadow-md transition-all">
       <div className="flex items-start justify-between mb-3">
@@ -131,8 +132,8 @@ const ActivityItem: React.FC<{ activity: Activity }> = ({ activity }) => {
  * Main Dashboard Component
  */
 export default function InterviewerDashboard() {
-    const router = useRouter();
-  
+  const router = useRouter();
+
   // Stats Data
   const stats = {
     totalInterviews: { value: 156, trend: 12, subtitle: "Total conducted" },
@@ -435,7 +436,10 @@ export default function InterviewerDashboard() {
             </div>
             {/* show "View All" only if there are more than 2 */}
             {upcomingInterviews.length > 2 ? (
-              <button onClick={() => router.push("/interviewer/upcommingInterviewes")} className="text-sm text-blue-600 hover:text-blue-700 font-medium">
+              <button
+                onClick={() => router.push("/interviewer/upcommingInterviewes")}
+                className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+              >
                 View All →
               </button>
             ) : null}

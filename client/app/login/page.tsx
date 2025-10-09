@@ -21,15 +21,23 @@ export default function Login() {
       email: emailId,
       password: password,
     };
-   const response =  await handleLogin(payload);
-  
-   if(response?.success === true){
-    localStorage.setItem("authToken", response.data.token);
-    router.push("/candidate/dashboard");
-   }
-    else{ 
+    const response = await handleLogin(payload);
+
+    if (
+      response?.success === true &&
+      response?.data?.user?.role === "CANDIDATE"
+    ) {
+      localStorage.setItem("authToken", response.data.token);
+      router.push("/candidate/dashboard");
+    } else if (
+      response?.success === true &&
+      response?.data?.user?.role === "INTERVIEWER"
+    ) {
+      localStorage.setItem("authToken", response.data.token);
+      router.push("/interviewer/dashboard");
+    } else {
       alert("Login Failed");
-   }
+    }
   };
 
   return (

@@ -8,6 +8,8 @@ import {
   Video,
 } from "lucide-react";
 import { useState } from "react";
+import { postRequest } from "@/utils/axios/axios";
+import { URL } from "@/utils/axios/endPoint";
 
 export default function CreateInterviewPage() {
   const [formData, setFormData] = useState({
@@ -20,6 +22,7 @@ export default function CreateInterviewPage() {
     startTime: "",
     endTime: "",
     meetingLink: "",
+    participants: "",
   });
 
   const handleChange = (e: { target: { name: any; value: any } }) => {
@@ -32,9 +35,50 @@ export default function CreateInterviewPage() {
 
   const handleSubmit = (e: { preventDefault: () => void }) => {
     e.preventDefault();
-    console.log("Interview Created:", formData);
-    alert("Interview scheduled successfully!");
+    // Build ISO schedule datetime from date + startTime
+    const { date, startTime, participants } = formData as any;
+    if (!date || !startTime) {
+      alert("Please provide a date and start time.");
+      return;
+    }
+
+    const schedule = new Date(`${date}T${startTime}`);
+
+    const token =
+      typeof window !== "undefined" ? localStorage.getItem("authToken") : null;
+    // Parse participants input (comma-separated ids)
+    const participantList = participants
+      ? participants
+          .split(",")
+          .map((p: string) => p.trim())
+          .filter(Boolean)
+      : [];
+
+    setLoading(true);
+    postRequest(
+      URL.INTERVIEW || "api/interview",
+      {
+        schedule,
+        participants: "5387ee4b-74d9-45e7-93fa-50f08c3558ec",
+      },
+      {
+        "Content-Type": "application/json",
+        Authorization: token ? `Bearer ${token}` : undefined,
+      }
+    )
+      .then((res) => {
+        console.log("Interview Created:", res);
+        alert("Interview scheduled successfully!");
+        // Optionally reset form or navigate
+      })
+      .catch((err) => {
+        console.error("Failed to schedule interview:", err);
+        alert("Failed to schedule interview. Check console for details.");
+      })
+      .finally(() => setLoading(false));
   };
+
+  const [loading, setLoading] = useState(false);
 
   const interviewTypes = [
     "Technical",
@@ -226,6 +270,19 @@ export default function CreateInterviewPage() {
                     required
                   />
                 </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">
+                    Participants (comma-separated user IDs)
+                  </label>
+                  <input
+                    type="text"
+                    name="participants"
+                    value={formData.participants}
+                    onChange={handleChange}
+                    placeholder="userId1,userId2"
+                    className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+                  />
+                </div>
               </div>
             </div>
 
@@ -234,8 +291,9 @@ export default function CreateInterviewPage() {
               <button
                 type="submit"
                 className="flex-1 bg-blue-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-blue-700 transition shadow-sm"
+                disabled={loading}
               >
-                Schedule Interview
+                {loading ? "Scheduling..." : "Schedule Interview"}
               </button>
               <button
                 type="button"
