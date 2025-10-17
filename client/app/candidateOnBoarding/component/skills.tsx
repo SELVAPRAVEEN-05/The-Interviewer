@@ -1,15 +1,41 @@
 "use client";
 
-import { Uploadphoto } from "@/components/ui/imageUploder";
-import { Button, Input } from "@nextui-org/react";
-import React from "react";
 import { useFormStore } from "@/components/store/onBoarding/index";
+import { Uploadphoto } from "@/components/ui/imageUploder";
+import Autocomplete from "@mui/material/Autocomplete";
+import Box from "@mui/material/Box";
+import TextField from "@mui/material/TextField";
+import { Button, Input } from "@nextui-org/react";
 import { useRouter } from "next/navigation";
+import React from "react";
 
 type VerticalStepperProps = {
   activeStep: number;
   setActiveStep: React.Dispatch<React.SetStateAction<number>>;
 };
+
+const skillOptions = [
+  "JavaScript",
+  "TypeScript",
+  "React",
+  "Next.js",
+  "Tailwind CSS",
+  "Node.js",
+  "Express",
+  "MySQL",
+  "MongoDB",
+  "Python",
+  "C++",
+  "Java",
+  "Git",
+  "Docker",
+  "AWS",
+  "Figma",
+  "Firebase",
+  "REST API",
+  "Redux",
+  "GraphQL",
+];
 
 export default function Skills({
   activeStep,
@@ -38,6 +64,8 @@ export default function Skills({
         <p className="text-sm text-gray-500 pt-1">
           Share your portfolio, resume and showcase your skills.
         </p>
+
+        {/* Resume Upload */}
         <div className="pt-5">
           <Uploadphoto
             title="Upload Your Resume"
@@ -46,6 +74,8 @@ export default function Skills({
             getImgFile={(file) => setFormData({ resumeFile: file })}
           />
         </div>
+
+        {/* Input Fields */}
         <div className="grid grid-cols-1 gap-x-4 gap-y-6 pt-4 w-full">
           <Input
             label="GitHub Profile"
@@ -76,19 +106,35 @@ export default function Skills({
             value={portfolio}
             onChange={(e) => setFormData({ portfolio: e.target.value })}
           />
-          <Input
-            label="Skills"
-            placeholder="Enter your skills (comma separated)"
-            radius="sm"
-            type="text"
-            size="md"
-            variant="bordered"
-            isRequired
-            value={skills}
-            onChange={(e) => setFormData({ skills: e.target.value })}
-          />
+
+          <Box>
+            <Autocomplete
+              multiple
+              freeSolo
+              options={skillOptions}
+              defaultValue={
+                skills ? skills.split(", ").map((s) => s.trim()) : []
+              }
+              onChange={handleSkillChange}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  placeholder="Select or type skills"
+                  variant="outlined"
+                  size="small"
+                  sx={{
+                    "& .MuiOutlinedInput-root": {
+                      borderRadius: "8px",
+                    },paddingY:"18px"
+                  }}
+                />
+              )}
+            />
+          </Box>
         </div>
       </div>
+
+      {/* Footer Buttons */}
       <div className="flex justify-end gap-4 pt-4 xl:pt-6">
         <Button
           color="primary"

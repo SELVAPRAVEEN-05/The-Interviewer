@@ -1,10 +1,12 @@
 "use client";
+import { Autocomplete, TextField } from "@mui/material";
 import {
   Briefcase,
   Building2,
   Calendar,
   Clock,
   User,
+  User2,
   Video,
 } from "lucide-react";
 import { useState } from "react";
@@ -87,6 +89,8 @@ export default function CreateInterviewPage() {
     "Behavioral",
     "System Design",
   ];
+
+  const Names = ["sanjeev", "Naveen", "David"];
 
   return (
     <div className="min-h-screen">
@@ -265,7 +269,7 @@ export default function CreateInterviewPage() {
                     name="meetingLink"
                     value={formData.meetingLink}
                     onChange={handleChange}
-                    placeholder="https://zoom.us/j/example"
+                    placeholder="https://the-codemeet.vercel.app/rooms/33"
                     className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
                     required
                   />

@@ -27,7 +27,7 @@ export default function Register() {
   // ✅ Single function to handle navigation
   const handleNavigation = () => {
     if (role === "interviewer") {
-      router.push("/interviewerOnBoarding");
+      router.push("/InterviewerOnBoarding");
     } else {
       router.push("/candidateOnBoarding");
     }

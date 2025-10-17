@@ -328,7 +328,7 @@ export default function InterviewDashboard() {
                       startContent={<Video className="w-4 h-4" />}
                       onPress={() =>
                         interview.meetingLink &&
-                        window.open(interview.meetingLink, "_blank")
+                        window.open(interview.meetingLink, "_self")
                       }
                     >
                       Join

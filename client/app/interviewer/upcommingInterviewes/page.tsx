@@ -161,7 +161,7 @@ export default function InterviewerDashboard() {
       date: "29 Sep",
       startTime: "10:00 AM",
       endTime: "11:00 AM",
-      meetingLink: "https://zoom.us/j/example1",
+      meetingLink: "https://the-codemeet.vercel.app/rooms/33",
     },
     {
       id: "2",
@@ -172,7 +172,7 @@ export default function InterviewerDashboard() {
       date: "30 Sep",
       startTime: "2:00 PM",
       endTime: "3:00 PM",
-      meetingLink: "https://meet.google.com/example2",
+      meetingLink: "https://the-codemeet.vercel.app/rooms/33",
     },
     {
       id: "3",
@@ -183,7 +183,7 @@ export default function InterviewerDashboard() {
       date: "1 Oct",
       startTime: "11:00 AM",
       endTime: "12:00 PM",
-      meetingLink: "https://zoom.us/j/example3",
+      meetingLink: "https://the-codemeet.vercel.app/rooms/33",
     },
     {
       id: "4",
@@ -194,7 +194,7 @@ export default function InterviewerDashboard() {
       date: "2 Oct",
       startTime: "3:00 PM",
       endTime: "4:00 PM",
-      meetingLink: "https://teams.microsoft.com/example4",
+      meetingLink: "https://the-codemeet.vercel.app/rooms/33",
     },
   ];
 
@@ -228,10 +228,10 @@ export default function InterviewerDashboard() {
   };
 
   const handleJoin = (link: string | URL | undefined) => {
-    if (link) {
-      window.open(link, "_blank");
-    }
-  };
+  if (link) {
+    window.open(link.toString(), "_self");
+  }
+};
 
   const handleCreateNew = () => {
     alert("Create new interview");
