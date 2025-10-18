@@ -126,6 +126,8 @@ model Interview {
   status       String   @default("SCHEDULED")
   session_link String
   interviewerId String
+  type          String   @default("Technical")
+  name       String?    @default("Technical Interview")
   prize        Decimal? @db.Decimal(10, 2)
   created_at   DateTime @default(now())
   participants    InterviewParticipant[]
@@ -200,6 +202,11 @@ model Feedback {
   given_to_user_id String
   rating           Int
   score            Int
+  systemDesign     Int   @default(0)
+  problemSolving   Int    @default(0)
+  communication    Int    @default(0)
+  algorithm        Int    @default(0)
+  sql              Int    @default(0)
   comments         String
   created_at       DateTime @default(now())
 

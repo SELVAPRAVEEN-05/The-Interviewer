@@ -57,18 +57,159 @@ interviewData:{
     };
 
 }
-export const interviewerUpcomingInterviews=async(userId:any)=>{
+export const interviewerUpcomingInterviews=async(userId:any,q:string)=>{
     const upcomingInterviews=await prisma.interview.findMany({
         where:{
             interviewerId:userId,
+
             scheduled_at:{
                 gte:new Date()
+            },
+           OR: [
+  { name: { contains: q, mode: 'insensitive' } },
+  { type: { contains: q, mode: 'insensitive' } },
+  {
+    participants: {
+      some: {
+        user: {
+          first_name: { contains: q, mode: 'insensitive' }
+        }
+      }
+    }
+  },
+  {
+    participants: {
+      some: {
+        user: {
+          last_name: { contains: q, mode: 'insensitive' }
+        }
+      }
+    }
+  }
+]
+
+        },
+        select:{
+            scheduled_at:true,
+            status:true,
+            session_link:true,
+            interviewerId:true,
+            type:true,
+            name:true,
+            
+            user:{
+                
+                select:{
+                    
+                    
+                    userPositions:{
+                        take:1,
+                        select:{
+                            // position:{
+                            //     select:{
+                            //         title:true,
+                            //     }
+                            // },
+                            brand:{
+                                select:{
+                                    name:true,
+                                    website_url:true,
+                                    industry:true
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            participants:{
+                select:{
+                    user:{
+                        select:{
+                            first_name:true,
+                            last_name:true,
+                            email:true,
+                        }
+                    }
+                }
             }
         },
-        include:{
-            participants:true,
-            user:true
+        
+    })
+    return {isFailed:false,data:upcomingInterviews}
+}
+export const interviewerHistoryInterviews=async(userId:any,q:string)=>{
+    const upcomingInterviews=await prisma.interview.findMany({
+        where:{
+            interviewerId:userId,
+
+            
+           OR: [
+  { name: { contains: q, mode: 'insensitive' } },
+  { type: { contains: q, mode: 'insensitive' } },
+  {
+    participants: {
+      some: {
+        user: {
+          first_name: { contains: q, mode: 'insensitive' }
         }
+      }
+    }
+  },
+  {
+    participants: {
+      some: {
+        user: {
+          last_name: { contains: q, mode: 'insensitive' }
+        }
+      }
+    }
+  }
+]
+
+        },
+        select:{
+            scheduled_at:true,
+            status:true,
+            session_link:true,
+            interviewerId:true,
+            type:true,
+            name:true,
+            
+            user:{
+                
+                select:{
+                    userPositions:{
+                        take:1,
+                        select:{
+                            // position:{
+                            //     select:{
+                            //         title:true,
+                            //     }
+                            // },
+                            brand:{
+                                select:{
+                                    name:true,
+                                    website_url:true,
+                                    industry:true
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            participants:{
+                select:{
+                    user:{
+                        select:{
+                            first_name:true,
+                            last_name:true,
+                            email:true,
+                        }
+                    }
+                }
+            }
+        },
+        
     })
     return {isFailed:false,data:upcomingInterviews}
 }
