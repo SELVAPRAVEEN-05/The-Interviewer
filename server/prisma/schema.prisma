@@ -127,6 +127,7 @@ model Interview {
   status       String   @default("SCHEDULED")
   session_link String
   interviewerId String
+  duration     Int      @default(30)
   type          String   @default("Technical")
   name       String?    @default("Technical Interview")
   prize        Decimal? @db.Decimal(10, 2)

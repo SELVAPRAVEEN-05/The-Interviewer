@@ -1,6 +1,6 @@
 import prisma from "../../lib/prisma"
 
-export const interviewSchedule=async (schedule:Date,url:string,userId:string,participants:string[],type:string,name:string)=>{
+export const interviewSchedule=async (schedule:Date,url:string,userId:string,participants:string[],type:string,name:string,duration:number)=>{
     console.log(schedule,url,userId,participants)
     try{
        const data= await prisma.interview.create({
@@ -10,6 +10,7 @@ export const interviewSchedule=async (schedule:Date,url:string,userId:string,par
             interviewerId:userId,
             type:type,
             name:name,
+            duration:duration?duration:30,
             status:"SCHEDULED",
         }
     })
@@ -94,6 +95,36 @@ export const interviewUpdate=async (interviewId:string,userId:string,updateData:
         })
 
         return {message:"Interview Updated Successfully",isFailed:false,data:data}
+    }catch(err){
+        console.log(err)
+        return {message:"Failed to update interview",isFailed:true}
+    }
+}
+export const shortlisted=async (interviewId:string,userId:string)=>{
+    
+    try{
+        // Verify the interviewer owns this interview
+        const interview = await prisma.interview.findFirst({
+            where:{
+                id:interviewId
+            }
+        })
+        
+        if(!interview){
+            return {message:"Interview not found or you don't have permission to update it",isFailed:true}
+        }
+
+      
+
+        const data=await prisma.interviewParticipant.updateMany({
+            where:{
+                interviewId:interviewId
+            },
+            data:{
+                sortlisted:true
+            }
+        })
+        return {message:"Interview Updated Successfully",isFailed:false,data:interview}
     }catch(err){
         console.log(err)
         return {message:"Failed to update interview",isFailed:true}
