@@ -44,6 +44,7 @@ model Institute {
   name      String @unique
   city      String
   state     String
+  email    String @default("")
   countryId Int
   country   Country @relation(fields: [countryId], references: [id])
 

@@ -74,20 +74,88 @@ export const CandidateDataTable=async(status:String,searchQuery:String,offset:nu
         }
         whereData['role']='CANDIDATE'
         const data:any=await prisma.user.findMany({
-            where:whereData,
+            where:{
+              role:'CANDIDATE',
+              ...whereData
+            },
             take:limit,
             skip:offset,  
-            include:{
-                interviewParticipations:{
-                    include:{
-                        user:true,
+            select:{
+              id:true,
+              role:true,
+              mobile_number:true,
+              gender:{
+                select:{
+                    value:true
+                }
+              },
+              date_of_birth:true,
+              first_name:true,
+              last_name:true,
+              email:true,
+              status:true,
+              created_at:true,
+              resume_url:true,
+              github_url:true,
+              linkedin_url:true,
+              portfolio_url:true,
+              educationDetails:{
+              
+
+
+                select:{
+                  specialization:true,
+                  year_of_passing:true,
+                  marks_obtained:true,
+                  max_marks:true,
+                  institute:{
+                   select:{
+                    name:true,
+                    email:true
+                   }
+                  },
+educationLevel:{
+  select:{
+    level_name:true
+  }
+}
+                }
+              },
+              interviewParticipations:{
+                take:1,
+                orderBy:{
+                   interview:{
+                    scheduled_at:'desc'
+                   }
+                    
+                },
+                    select:{
+                      
                         interview:{
+                          
+                          select:{
+                            status:true,
+ user:{
+  select:{ 
+    first_name:true,
+    last_name:true,
+    email:true,
+
+   
+  }
+ }
+                          }
+                         
                         }
                     }
                 },
                 userSkills:{
-                    include:{
-                        skill:true
+                    select:{
+                        skill:{
+                         select:{
+                            name:true
+                         }
+                        }
                     }
                 }
             }        
@@ -99,4 +167,18 @@ export const CandidateDataTable=async(status:String,searchQuery:String,offset:nu
         console.error('Error fetching candidate data table:', error);
         return {isFailed:true,data:null}
     }
+}
+export const CandidateStatusUpdate=async(userId:string,status:string="REJECTED")=>{
+try{
+    const data=await prisma.user.update({
+        where:{id:userId},
+        data:{
+            status:status
+        }
+    })
+    return {data:data,isFailed:false};
+}catch(error){
+    console.error('Error in CandidateData service:', error);
+    return {isFailed:true,data:null}
+}
 }

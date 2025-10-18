@@ -137,7 +137,9 @@ export const interviewerUpcomingInterviews=async(userId:any,q:string)=>{
     })
     return {isFailed:false,data:upcomingInterviews}
 }
-export const interviewerHistoryInterviews=async(userId:any,q:string)=>{
+export const interviewerHistoryInterviews=async(userId:any,q:string, page:number=1, limit:number=10)=>{
+    const take = Math.max(1, Math.min(100, limit));
+    const skip = (Math.max(1, page) - 1) * take;
     const upcomingInterviews=await prisma.interview.findMany({
         where:{
             interviewerId:userId,
@@ -167,6 +169,8 @@ export const interviewerHistoryInterviews=async(userId:any,q:string)=>{
 ]
 
         },
+        skip,
+        take,
         select:{
             scheduled_at:true,
             status:true,
@@ -212,5 +216,25 @@ export const interviewerHistoryInterviews=async(userId:any,q:string)=>{
         },
         
     })
-    return {isFailed:false,data:upcomingInterviews}
+    // also provide pagination meta
+    const total = await prisma.interview.count({
+        where:{
+            interviewerId:userId,
+            OR: [
+                { name: { contains: q, mode: 'insensitive' } },
+                { type: { contains: q, mode: 'insensitive' } },
+                {
+                    participants: {
+                        some: { user: { first_name: { contains: q, mode: 'insensitive' } } }
+                    }
+                },
+                {
+                    participants: {
+                        some: { user: { last_name: { contains: q, mode: 'insensitive' } } }
+                    }
+                }
+            ]
+        }
+    })
+    return {isFailed:false,data:upcomingInterviews,meta:{page,limit:take,total,pages: Math.ceil(total / take)}}
 }
