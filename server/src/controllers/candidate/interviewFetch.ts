@@ -9,11 +9,21 @@ export const candidateInterviewHistoryController=async(req: any, reply: any)=>{
     }
     return {message:"Interview history data fetched successfully",Failed:false,data:data}
 }
+// export const UpcomingInterviewsController=async(req: any, reply: any)=>{
+//     const userId:any = req?.user?.payload?.id;
+//     const data:any=await candidateUpcomingInterviews(userId)
+//     if(data.isFailed){
+//         return {message:"Error in fetching upcoming interviews data",Failed:true,data:null}
+//     }
+//     return {message:"Upcoming interviews data fetched successfully",Failed:false,data:data}
+// }
 export const UpcomingInterviewsController=async(req: any, reply: any)=>{
+
     const userId:any = req?.user?.payload?.id;
-    const data:any=await candidateUpcomingInterviews(userId)
+    const q=req.query.q
+    const data:any=await candidateUpcomingInterviews(userId,q)
     if(data.isFailed){
-        return {message:"Error in fetching upcoming interviews data",Failed:true,data:null}
+        return {message:"Error in fetching dashboard data",Failed:true,data:null}
     }
-    return {message:"Upcoming interviews data fetched successfully",Failed:false,data:data}
+    return {message:"Dashboard data fetched successfully",Failed:false,data:data.data}
 }

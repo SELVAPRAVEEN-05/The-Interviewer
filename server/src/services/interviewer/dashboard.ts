@@ -174,7 +174,7 @@ export const interviewerHistoryInterviews=async(userId:any,q:string)=>{
             interviewerId:true,
             type:true,
             name:true,
-            
+            feedbacks:true,
             user:{
                 
                 select:{
@@ -199,6 +199,7 @@ export const interviewerHistoryInterviews=async(userId:any,q:string)=>{
             },
             participants:{
                 select:{
+                    sortlisted:true,
                     user:{
                         select:{
                             first_name:true,
