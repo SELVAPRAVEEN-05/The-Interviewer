@@ -182,3 +182,31 @@ try{
     return {isFailed:true,data:null}
 }
 }
+export const CandidateInterviewData=async()=>{
+try{
+    const [ totalCompletedCount, totalPendingCount, totalRejectionCount ]=await Promise.all([
+      prisma.interview.count({
+        where:{
+          status:'COMPLETED'
+        }
+      }),
+      prisma.interview.count({
+        where:{
+          status:'PENDING'
+        }
+      }),
+
+      prisma.interview.count({
+        where:{
+          status:'REJECTED'
+        }
+      })
+
+    ])
+    return {data:{totalCompletedCount,totalPendingCount,totalRejectionCount},isFailed:false};
+}catch(error){
+    console.error('Error in CandidateData service:', error);
+    return {isFailed:true,data:null}
+}
+}
+

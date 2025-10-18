@@ -9,7 +9,8 @@ export const interviewSchedule=async (schedule:Date,url:string,userId:string,par
             session_link:url,
             interviewerId:userId,
             type:type,
-            name:name
+            name:name,
+            status:"SCHEDULED",
         }
     })
     participants.map(async(participantId:string)=>{

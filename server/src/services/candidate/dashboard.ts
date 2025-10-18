@@ -14,10 +14,22 @@ export const candidateDashboard=async(userId:any)=>{
     const interviewsSortListedCount = await prisma.interview.count({
         where: {
             participants: {
-                some: { userId: userId /*, sortlisted: true */ }
+                some: { userId: userId 
+                , sortlisted: true  
+                }
             }
         },
     })
+const shortlistedCount=await prisma.interview.count(
+        {
+            where:{participants:{
+                some:{
+                    userId:userId,
+                    sortlisted:true
+                }
+            }}
+        }
+    )
 
     // keep existing interviews with feedback for compatibility
     const interviewsWithFeedback = await prisma.interview.findMany({
@@ -81,9 +93,10 @@ export const candidateDashboard=async(userId:any)=>{
         interviewsCount, // interviews where the user participates
         interviewsSortListedCount,
         // maintain previous raw data for compatibility
-        score: interviewsWithFeedback,
+        // score: interviewsWithFeedback,
         feedbackStats,
-        perInterview,
+        shortlistedCount,
+        // perInterview,
         isFailed: false
     };
 

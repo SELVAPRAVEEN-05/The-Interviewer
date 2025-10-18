@@ -5,8 +5,7 @@ import { candidateGet } from "../../services/candidate/candidate";
 export const interviewScheduleController=async (req:any,res:FastifyReply)=>{
     const {schedule,participants,type,name}=req.body as {schedule:Date,participants:string[],type:string,name:string}
     const userId=req.user.payload.id;
-    console.log(req.user)
-    const url=`/meet/${uuidv4()}`;
+    const url=`/rooms/${uuidv4()}`;
     const result=await interviewSchedule(schedule,url,userId,participants,type,name);
     if(result.isFailed){
         return res.status(500).send({message:result.message,isFailed:true,data:null})
