@@ -233,7 +233,6 @@ model InterviewSkill {
   interview Interview @relation(fields: [interviewId], references: [id])
   skill     Skill     @relation(fields: [skillId], references: [id])
 }
-
 // Store per-feedback ratings for individual skills
 model FeedbackSkill {
   id         String @id @default(uuid())

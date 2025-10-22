@@ -69,8 +69,16 @@ export const interviewSchedule=async (schedule:Date,url:string,userId:string,par
     return {message:"Failed to schedule interview",isFailed:true}
 }
 }
-export const interviewFeedBack=async (interviewId:string,given_to_user_id:string,given_by_user_id:string,rating:number,comments:string,score:number)=>{
-    console.log(interviewId,given_to_user_id,given_by_user_id,rating,comments,score)
+export const interviewFeedBack=async (
+    interviewId:string,
+    given_to_user_id:string,
+    given_by_user_id:string,
+    rating:number,
+    comments:string,
+    score:number,
+    feedbackSkills?: { skillId: number; value: number }[]
+)=>{
+    console.log(interviewId,given_to_user_id,given_by_user_id,rating,comments,score,feedbackSkills)
     try{
        const data= await prisma.feedback.create({
         data:{
@@ -79,7 +87,11 @@ export const interviewFeedBack=async (interviewId:string,given_to_user_id:string
             given_by_user_id:given_by_user_id,
             rating:rating,
             comments:comments,
-            score:score  
+            score:score,
+            // create per-feedback skill ratings when provided
+            feedbackSkills: feedbackSkills && feedbackSkills.length ? {
+                create: feedbackSkills.map(fs => ({ skillId: fs.skillId, value: fs.value }))
+            } : undefined
         }
     })
     await prisma.interview.update({
