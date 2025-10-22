@@ -190,28 +190,81 @@ try{
     return {isFailed:true,data:null}
 }
 }
-export const CandidateInterviewData=async()=>{
+export const CandidateInterviewData=async(candidateId:string)=>{
 try{
+  console.log(candidateId)
     const [ totalCompletedCount, totalPendingCount, totalRejectionCount ]=await Promise.all([
       prisma.interview.count({
         where:{
-          status:'COMPLETED'
+          status:'COMPLETED',
+          participants: {
+            some: {
+              userId: candidateId
+            }
+          }
         }
       }),
       prisma.interview.count({
         where:{
-          status:'PENDING'
+          status:'SCHEDULED',
+           participants: {
+            some: {
+              userId: candidateId
+            }
+          }
         }
       }),
 
       prisma.interview.count({
         where:{
-          status:'REJECTED'
+          status:'REJECTED',
+          participants: {
+            some: {
+              userId: candidateId
+            }
+          },
         }
       })
 
     ])
-    return {data:{totalCompletedCount,totalPendingCount,totalRejectionCount},isFailed:false};
+      // Aggregate feedbackSkill values by skillId
+      const rawScore = await prisma.feedbackSkill.groupBy({
+        by: ['skillId'],
+        where: {
+          feedback: {
+            given_to_user_id: candidateId,
+          },
+        },
+        take: 5,
+        orderBy: {
+          _sum: {
+            value: 'desc',
+          },
+        },
+        _sum: {
+          value: true,
+        },
+      });
+
+      // Fetch skill names for the grouped skillIds and merge them into the result.
+      const skillIds = rawScore.map((r: any) => r.skillId).filter(Boolean);
+      let score: any[] = [];
+      if (skillIds.length > 0) {
+        const skills = await prisma.skill.findMany({
+          where: { id: { in: skillIds } },
+          select: { id: true, name: true },
+        });
+
+        score = rawScore.map((r: any) => {
+          const skill = skills.find((s: any) => s.id === r.skillId);
+          return {
+            skillName: skill ? skill.name : null,
+            // keep aggregated sums and other groupBy fields if needed
+            _sum: r._sum,
+          };
+        });
+      }
+    return {data:{totalCompletedCount,totalPendingCount,totalRejectionCount,score},isFailed:false};
 }catch(error){
     console.error('Error in CandidateData service:', error);
     return {isFailed:true,data:null}

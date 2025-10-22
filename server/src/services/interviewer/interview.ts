@@ -76,7 +76,9 @@ export const interviewFeedBack=async (
     rating:number,
     comments:string,
     score:number,
-    feedbackSkills?: { skillId: number; value: number }[]
+    feedbackSkills?: { skillId: number; value: number }[],
+    positiveComment?:string,
+    negativeComment?:string
 )=>{
     console.log(interviewId,given_to_user_id,given_by_user_id,rating,comments,score,feedbackSkills)
     try{
@@ -86,7 +88,8 @@ export const interviewFeedBack=async (
             given_to_user_id:given_to_user_id,
             given_by_user_id:given_by_user_id,
             rating:rating,
-            comments:comments,
+            positive_aspects:positiveComment,
+            negative_aspects:negativeComment,
             score:score,
             // create per-feedback skill ratings when provided
             feedbackSkills: feedbackSkills && feedbackSkills.length ? {

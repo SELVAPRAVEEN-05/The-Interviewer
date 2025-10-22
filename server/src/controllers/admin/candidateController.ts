@@ -8,14 +8,15 @@ interface CandidateTableQuery {
     page?: string;
     limit?: string;
 }
-export const CandidateInterviewDataController = async (req: FastifyRequest, res: FastifyReply) => {
+export const CandidateInterviewDataController = async (req: any, res: FastifyReply) => {
         try {
-            const data: any = await CandidateInterviewData();
-         
+            const candidateId = req.user?.payload?.id;
+            const data: any = await CandidateInterviewData(candidateId);
+
             if (data.isFailed) {
                 return res.status(400).send({ message: "Error in fetching candidate interview data", Failed: true, data: null });
             }
-                return res.status(400).send({ message: "Error in fetching candidate interview data", Failed: true, data: data.data });
+                return res.status(200).send({ message: "Candidate interview data fetched successfully", Failed: false, data: data.data });
 
         } catch (error) {
             console.error('Error fetching candidate interview data:', error);

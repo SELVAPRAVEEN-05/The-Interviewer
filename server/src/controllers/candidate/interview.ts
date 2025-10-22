@@ -13,10 +13,10 @@ export const interviewScheduleController=async (req:any,res:FastifyReply)=>{
     return res.status(200).send({message:result.message,isFailed:false,data:result.data})
 }
 export const interviewFeedbackController=async (req:any,res:FastifyReply)=>{
-    const {interviewId,feedback,given_to_user_id,rating,comments,score,feedbackSkills}=req.body as {interviewId:string,feedback:string,given_to_user_id:string,rating:number,comments:string,score:number,feedbackSkills?: { skillId:number, value:number }[]}
+    const {interviewId,feedback,given_to_user_id,rating,comments,score,feedbackSkills,positiveComment,negativeComment}=req.body as {interviewId:string,feedback:string,given_to_user_id:string,rating:number,comments:string,score:number,feedbackSkills?: { skillId:number, value:number }[],positiveComment?:string,negativeComment?:string}
     const given_by_user_id=req.user.payload.id;
     console.log(given_by_user_id)
-    const result=await interviewFeedBack(interviewId,given_to_user_id,given_by_user_id,rating,comments,score,feedbackSkills);
+    const result=await interviewFeedBack(interviewId,given_to_user_id,given_by_user_id,rating,comments,score,feedbackSkills,positiveComment,negativeComment);
     if(result.isFailed){
         return res.status(500).send({message:result.message,isFailed:true,data:null})
     }
