@@ -57,6 +57,8 @@ model Skill {
   category String
 
   userSkills UserSkill[]
+  interviewSkills InterviewSkill[]
+  feedbackSkills  FeedbackSkill[]
 }
 
 model User {
@@ -136,6 +138,7 @@ model Interview {
   participants    InterviewParticipant[]
   codeSubmissions CodeSubmission[]
   feedbacks       Feedback[]
+  interviewSkills  InterviewSkill[]
   user      User      @relation(fields: [interviewerId], references: [id])
 }
 
@@ -216,4 +219,28 @@ model Feedback {
   interview Interview @relation(fields: [interviewId], references: [id])
   givenBy   User      @relation("FeedbackGivenBy", fields: [given_by_user_id], references: [id])
   givenTo   User      @relation("FeedbackGivenTo", fields: [given_to_user_id], references: [id])
+  feedbackSkills FeedbackSkill[]
+}
+
+// Join table to store predefined skills for an Interview
+model InterviewSkill {
+  id          String   @id @default(uuid())
+  interviewId String
+  skillId     Int
+  // optional metadata for the skill in that interview
+  value    Int @default(0)
+  maxValue Int @default(100)
+  interview Interview @relation(fields: [interviewId], references: [id])
+  skill     Skill     @relation(fields: [skillId], references: [id])
+}
+
+// Store per-feedback ratings for individual skills
+model FeedbackSkill {
+  id         String @id @default(uuid())
+  feedbackId String
+  skillId    Int
+  value      Int    // rating or score given for this skill in this feedback
+
+  feedback Feedback @relation(fields: [feedbackId], references: [id])
+  skill    Skill    @relation(fields: [skillId], references: [id])
 }

@@ -1,18 +1,18 @@
 import { transporter } from "../../lib/mailer"
 import prisma from "../../lib/prisma"
 
-export const interviewSchedule=async (schedule:Date,url:string,userId:string,participants:string[],type:string,name:string,duration:number)=>{
+export const interviewSchedule=async (schedule:Date,url:string,userId:string,participants:string[],type:string,name:string,duration:number,skillId:number[])=>{
     console.log(schedule,url,userId,participants)
     const candidate=await prisma.user.findFirst({where:{
         id:participants[0]
     }})
-    console.log(candidate)
-
+    
     // Try to fetch interviewer's company/brand (if available)
     const interviewer = await prisma.user.findUnique({
         where: { id: userId },
         include: { userPositions: { include: { brand: true } } }
     })
+
 
     const companyName = interviewer?.userPositions?.[0]?.brand?.name || "Your Company";
     const interviewName = name || "Interview Session";
@@ -55,6 +55,14 @@ export const interviewSchedule=async (schedule:Date,url:string,userId:string,par
             }
         })
     })
+    await prisma.interviewSkill.createMany({
+    data:skillId.map(id=>({
+        interviewId:data?.id || "",
+        skillId:id,
+        value:0,
+        maxValue:100
+    }))
+}) 
     return {message:"Interview Scheduled Successfully",isFailed:false,data:data}
 }catch(err){
     console.log(err)
