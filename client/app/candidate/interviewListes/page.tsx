@@ -43,7 +43,7 @@ export default function InterviewDashboard() {
       date: "29 Sep",
       startTime: "10:00 AM",
       endTime: "11:00 AM",
-      meetingLink: "https://zoom.us/j/example",
+      meetingLink: "https://the-codemeet.vercel.app/rooms/33",
     },
     {
       id: "2",
@@ -54,7 +54,7 @@ export default function InterviewDashboard() {
       date: "30 Sep",
       startTime: "2:00 PM",
       endTime: "3:00 PM",
-      meetingLink: "https://meet.google.com/example",
+      meetingLink: "https://the-codemeet.vercel.app/rooms/33",
     },
   ];
 
@@ -262,7 +262,7 @@ export default function InterviewDashboard() {
                       startContent={<Video className="w-4 h-4" />}
                       onPress={() =>
                         interview.meetingLink &&
-                        window.open(interview.meetingLink, "_blank")
+                        window.open(interview.meetingLink, "_self")
                       }
                     >
                       Join

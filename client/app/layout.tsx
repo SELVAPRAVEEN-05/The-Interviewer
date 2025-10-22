@@ -13,7 +13,7 @@ export const metadata: Metadata = {
   },
   description: siteConfig.description,
   icons: {
-    icon: "https://www.muraldecal.com/en/img/as1223-jpg/folder/products-listado-merchant/stickers-hi-haters.jpg",
+    icon: "https://c8.alamy.com/comp/2Y4W69N/google-duo-and-meet-are-merging-logo-png-2Y4W69N.jpg",
   },
 };
 
@@ -29,7 +29,7 @@ export default function RootLayout({
   return (
     <html suppressHydrationWarning lang="en">
       <head />
-      <body className={clsx("font-sans m-0", fontSans.variable)}>
+      <body className={clsx("font-poppins m-0", fontSans.variable)}>
         <Providers
           themeProps={{
             attribute: "class",
