@@ -49,6 +49,7 @@ export const candidateInterviewHistory=async(userId:any,q:string, page:number=1,
                 select:{
                     userPositions:{
                         take:1,
+
                         select:{
                             // position:{
                             //     select:{
@@ -68,14 +69,15 @@ export const candidateInterviewHistory=async(userId:any,q:string, page:number=1,
             },
             participants:{
                 select:{
-                    sortlisted:true,
+                    
                     user:{
                         select:{
                             first_name:true,
                             last_name:true,
                             email:true,
                         }
-                    }
+                    },
+                    sortlisted:true
                 }
             }
         },

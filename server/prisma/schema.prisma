@@ -208,11 +208,7 @@ model Feedback {
   given_to_user_id String
   rating           Int
   score            Int
-  systemDesign     Int   @default(0)
-  problemSolving   Int    @default(0)
-  communication    Int    @default(0)
-  algorithm        Int    @default(0)
-  sql              Int    @default(0)
+ 
   positive_aspects         String?
   negative_aspects  String?
   created_at       DateTime @default(now())
