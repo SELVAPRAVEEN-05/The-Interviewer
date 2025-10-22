@@ -177,6 +177,7 @@ export const interviewerUpcomingInterviews = async (userId: any, q: string) => {
       ],
     },
     select: {
+      id:true,
       scheduled_at: true,
       status: true,
       session_link: true,
@@ -185,15 +186,19 @@ export const interviewerUpcomingInterviews = async (userId: any, q: string) => {
       name: true,
 
       user: {
+        
         select: {
+          first_name:true,
+          last_name:true,
+          email:true,
           userPositions: {
             take: 1,
             select: {
-              // position:{
-              //     select:{
-              //         title:true,
-              //     }
-              // },
+              position:{
+                  select:{
+                      title:true,
+                  }
+              },
               brand: {
                 select: {
                   name: true,
@@ -258,23 +263,41 @@ export const interviewerHistoryInterviews = async (
     skip,
     take,
     select: {
+      id:true,
       scheduled_at: true,
       status: true,
       session_link: true,
       interviewerId: true,
       type: true,
       name: true,
-      feedbacks: true,
+      
+      feedbacks: {
+        select:{
+          score:true,
+          rating:true,
+          positive_aspects:true,
+          negative_aspects:true,
+          feedbackSkills:{
+            select:{
+              value:true,
+              skill:true
+            }
+          }
+        }
+      },
       user: {
         select: {
+          first_name:true,
+          last_name:true,
+          email:true,
           userPositions: {
             take: 1,
             select: {
-              // position:{
-              //     select:{
-              //         title:true,
-              //     }
-              // },
+              position:{
+                  select:{
+                      title:true,
+                  }
+              },
               brand: {
                 select: {
                   name: true,
