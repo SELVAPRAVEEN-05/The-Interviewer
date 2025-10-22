@@ -1,18 +1,16 @@
 "use client";
 
-import React, {
-  useCallback,
-  useMemo,
-  useState,
-  useEffect,
-  useRef,
-} from "react";
+import { Room2 } from "@/app/Room";
+import { CollaborativeEditor } from "@/components/editor";
+import CandidateThanks from "@/components/ui/feedback/CandidateThanks";
+import InterviewerFeedback from "@/components/ui/feedback/InterviewerFeedback";
 import { decodePassphrase } from "@/lib/client-utils";
 import { DebugMode } from "@/lib/Debug";
 import { KeyboardShortcuts } from "@/lib/KeyboardShortcuts";
 import { RecordingIndicator } from "@/lib/RecordingIndicator";
 import { SettingsMenu } from "@/lib/SettingsMenu";
 import { ConnectionDetails } from "@/lib/types";
+import { useSetupE2EE } from "@/lib/useSetupE2EE";
 import {
   formatChatMessageLinks,
   LocalUserChoices,
@@ -21,19 +19,23 @@ import {
   VideoConference,
 } from "@livekit/components-react";
 import {
+  DeviceUnsupportedError,
   ExternalE2EEKeyProvider,
+  Room,
+  RoomConnectOptions,
+  RoomEvent,
   RoomOptions,
   VideoCodec,
   VideoPresets,
-  Room,
-  DeviceUnsupportedError,
-  RoomConnectOptions,
-  RoomEvent,
 } from "livekit-client";
 import { useRouter } from "next/navigation";
-import { useSetupE2EE } from "@/lib/useSetupE2EE";
-import { Room2 } from "@/app/Room";
-import { CollaborativeEditor } from "@/components/editor";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 
 const CONN_DETAILS_ENDPOINT =
   process.env.NEXT_PUBLIC_CONN_DETAILS_ENDPOINT ?? "/api/connection-details";
@@ -352,9 +354,31 @@ const VideoConferenceComponent = React.memo<{
   );
 
   // Event handlers
-  const handleOnLeave = useCallback(() => {
-    router.push("/");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalType, setModalType] = useState<
+    "interviewer" | "candidate" | null
+  >(null);
+
+  const navigateHome = useCallback(() => {
+    router.back();
   }, [router]);
+
+  // If the user leaves the room, show a post-interview modal before navigating.
+  // Assumption: we detect role by checking connectionDetails.participantName for the word "interviewer".
+  const handleOnLeave = useCallback(() => {
+    const name = (connectionDetails.participantName || "").toLowerCase();
+    const isInterviewer =
+      name.includes("interviewer") ||
+      name.includes("hr") ||
+      name.includes("panel");
+
+    setModalType(isInterviewer ? "interviewer" : "candidate");
+    setIsModalOpen(true);
+    if (!connectionDetails) {
+      navigateHome();
+      return;
+    }
+  }, [connectionDetails, navigateHome]);
 
   const handleError = useCallback((error: Error) => {
     console.error("Room error:", error);
@@ -449,6 +473,32 @@ const VideoConferenceComponent = React.memo<{
           <RecordingIndicator />
         </div>
       </RoomContext.Provider>
+
+      {/* Feedback Modals shown after leave/disconnect */}
+      {modalType === "interviewer" && (
+        <InterviewerFeedback
+          isOpen={isModalOpen}
+          onClose={() => {
+            setIsModalOpen(false);
+            // After closing the modal, navigate home
+            navigateHome();
+          }}
+          onSubmit={(payload) => {
+            // For now, just log. Persistence can be added to POST to backend.
+            console.log("Interviewer feedback submitted:", payload);
+          }}
+        />
+      )}
+
+      {modalType === "candidate" && (
+        <CandidateThanks
+          isOpen={isModalOpen}
+          onClose={() => {
+            setIsModalOpen(false);
+            navigateHome();
+          }}
+        />
+      )}
     </div>
   );
 });

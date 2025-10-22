@@ -1,10 +1,12 @@
 "use client";
+import { Autocomplete, TextField } from "@mui/material";
 import {
   Briefcase,
   Building2,
   Calendar,
   Clock,
   User,
+  User2,
   Video,
 } from "lucide-react";
 import { useState } from "react";
@@ -87,6 +89,8 @@ export default function CreateInterviewPage() {
     "Behavioral",
     "System Design",
   ];
+
+  const Names = ["sanjeev", "Naveen", "David"];
 
   return (
     <div className="min-h-screen">
@@ -265,23 +269,48 @@ export default function CreateInterviewPage() {
                     name="meetingLink"
                     value={formData.meetingLink}
                     onChange={handleChange}
-                    placeholder="https://zoom.us/j/example"
+                    placeholder="https://the-codemeet.vercel.app/rooms/33"
                     className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
                     required
                   />
                 </div>
-                <div>
+
+                <div className="w-full">
                   <label className="block text-sm font-medium text-slate-700 mb-2">
-                    Participants (comma-separated user IDs)
+                    <User2 className="w-4 h-4 inline mr-1" />
+                    Add Candidates
                   </label>
-                  <input
-                    type="text"
-                    name="participants"
-                    value={formData.participants}
-                    onChange={handleChange}
-                    placeholder="userId1,userId2"
-                    className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
-                  />
+
+                  <div className="bg-white rounded-lg shadow-sm border border-gray-200 hover:border-blue-400 transition-all p-2">
+                    <Autocomplete
+                      multiple
+                      freeSolo
+                      options={Names}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          placeholder="Select or type names"
+                          variant="outlined"
+                          size="small"
+                          sx={{
+                            "& .MuiOutlinedInput-root": {
+                              border: "none",
+                              boxShadow: "none",
+                              backgroundColor: "transparent",
+                              fontSize: "0.9rem",
+                              paddingY: "4px",
+                            },
+                            "& .MuiOutlinedInput-notchedOutline": {
+                              border: "none",
+                            },
+                            "& .MuiInputBase-input": {
+                              paddingY: "5px",
+                            },
+                          }}
+                        />
+                      )}
+                    />
+                  </div>
                 </div>
               </div>
             </div>
