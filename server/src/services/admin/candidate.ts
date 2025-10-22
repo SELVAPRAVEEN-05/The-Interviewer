@@ -99,6 +99,7 @@ export const CandidateDataTable=async(status:String,searchQuery:String,offset:nu
               github_url:true,
               linkedin_url:true,
               portfolio_url:true,
+              profile_url:true,
               educationDetails:{
               
 
@@ -123,9 +124,16 @@ educationLevel:{
               },
               interviewParticipations:{
                 take:1,
+                where:{
+                  interview:{
+                    scheduled_at:{
+                      gte:new Date()
+                    }
+                  }
+                },
                 orderBy:{
                    interview:{
-                    scheduled_at:'desc'
+                    scheduled_at:'desc',
                    }
                     
                 },

@@ -90,7 +90,13 @@ export const AdminDashboardService = async (): Promise<any> => {
       totalScheduledInterviews,
       totalCompletedInterviews,
       totalPendingCandidates,
-      totalPendingRecruiters
+      totalPendingRecruiters,
+      interview:{
+        totalCancelledInterviews,
+        totalPendingInterviews,
+        totalScheduledInterviews,
+        totalCompletedInterviews,
+      }
       
     };
 
