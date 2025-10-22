@@ -2,6 +2,9 @@ import Fastify, { FastifyReply, FastifyRequest } from "fastify";
 import fastifyJwt, { JWT } from '@fastify/jwt';
 import fastifyCookie from '@fastify/cookie';
 import cors from '@fastify/cors';
+import multipart from '@fastify/multipart';
+import fastifyStatic from '@fastify/static';
+import path from "path/win32";
 const fastify = Fastify();
 
 // Define the types for request user property
@@ -14,7 +17,11 @@ declare module 'fastify' {
     authenticateAdmin: any
   }
 }
-
+fastify.register(multipart);
+fastify.register(fastifyStatic, {
+  root: path.join(process.cwd(), 'uploads'),
+  prefix: '/uploads/', // all files in /uploads can be viewed under this URL
+});
 // Register the cookie plugin first
 fastify.register(fastifyCookie, {
   secret: process.env.COOKIE_SECRET || 'some-secret-key',
@@ -34,6 +41,7 @@ fastify.register(fastifyJwt, {
     signed: false // Set to true if you want signed cookies
   }
 });
+
 fastify.decorate(
   'authenticateAdmin',
   async (request: FastifyRequest, reply: FastifyReply) => {

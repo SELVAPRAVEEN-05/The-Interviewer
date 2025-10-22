@@ -11,14 +11,15 @@ export const CandidateRegistrationService=async (data:any)=>{
         mobile_number:data.phone,
         role:"CANDIDATE",
         date_of_birth:data.dob,
-        genderId:data.genderId,
-        countryId:data.countryId,
-        languageId:data.languageId,
+        genderId:parseInt(data.genderId),
+        countryId:parseInt(data.countryId),
+        languageId:parseInt(data.languageId),
+        profile_url:data.profile,
         github_url:data.github_url,
         linkedin_url:data.linkedin_url,
         portfolio_url:data.portfolio_url,
-        resume_url:data.resume_url,
-        profile_picture_url:data.profile_picture_url,
+        resume_url:data.resume,
+        profile_picture_url:data.profile,
     }})
    for(const skill of data.skills){
     await prisma.userSkill.create({data:{
@@ -61,20 +62,21 @@ export const InterviewerRegistrationService=async (data:any)=>{
         password:data.password,
         mobile_number:data.phone,
         role:"INTERVIEWER",
+        profile_url:data.profile,
         date_of_birth:data.dob,
-        genderId:data.genderId,
-        countryId:data.countryId,
-        languageId:data.languageId,
+        genderId:parseInt(data.genderId),
+        countryId:parseInt(data.countryId),
+        languageId:parseInt(data.languageId),
         github_url:data.github_url,
         linkedin_url:data.linkedin_url,
         portfolio_url:data.portfolio_url,
         resume_url:data.resume_url,
-        profile_picture_url:data.profile_picture_url,
+        profile_picture_url:data.profile,
     }})
     const userRole=await prisma.userPosition.create({data:{
         userId:createdUser.id,
-        positionId:data.positionId,
-        brandId:data.brandId,
+        positionId:parseInt(data.positionId),
+        brandId:parseInt(data.brandId),
         location:""
     
     }})

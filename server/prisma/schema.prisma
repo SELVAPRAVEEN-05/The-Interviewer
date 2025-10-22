@@ -75,6 +75,7 @@ model User {
   github_url        String
   linkedin_url      String
   portfolio_url     String? 
+  profile_url       String?
   yoe              Int @default(0)
   resume_url        String
   profile_picture_url String

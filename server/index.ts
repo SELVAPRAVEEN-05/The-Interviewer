@@ -1,4 +1,5 @@
 
+import { profileUpload } from './src/lib/storage';
 import fastify from './src/middleware/jwt';
 import { AdminDashboardRoute } from './src/routes/admin/admin';
 import { LoginUserRoute } from './src/routes/auth';
@@ -9,6 +10,7 @@ import InterviewerInterviewRoute from './src/routes/interviewer/interview';
 import { Registration } from './src/routes/registration';
 import { Skill } from './src/routes/skill';
 import { profile } from './src/routes/user';
+import multipart from '@fastify/multipart';
 fastify.get('/',{
             preHandler: [fastify.authenticateAdmin],
         }, async (request:any, reply:any) => {
@@ -18,6 +20,14 @@ fastify.get('/jwt', async (request:any, reply:any) => {
   console.log("Hi")
   return reply.status(200).send({ hello: 'world' })
 })
+fastify.post(
+  '/upload',
+  { preHandler: profileUpload.single('file') },
+  async (req, reply) => {
+    // `req.file` is available here
+    reply.send({ message: 'File uploaded successfully', file: req.file });
+  }
+);
 
 fastify.register(LoginUserRoute,{prefix:"/api/auth"})
 fastify.register(Skill,{prefix:"/api/skill"})
