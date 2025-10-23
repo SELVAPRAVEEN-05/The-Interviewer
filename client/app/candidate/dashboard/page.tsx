@@ -17,6 +17,7 @@ import {
 } from "recharts";
 
 import StatCard from "@/app/admin/components/statCard";
+import { useMemo } from "react";
 import {
   Award,
   BarChart3,
@@ -47,7 +48,8 @@ const CandidateDashboard = () => {
     <div className={`bg-gray-200 rounded ${className} animate-pulse`} />
   );
 
-  const skillPerformance = [
+  // fallback placeholder until dashboardData loads
+  const placeholderSkillPerformance = [
     { skill: "Algorithms", score: 85, maxScore: 100 },
     { skill: "SQL", score: 78, maxScore: 100 },
     { skill: "Problem Solving", score: 92, maxScore: 100 },
@@ -55,7 +57,7 @@ const CandidateDashboard = () => {
     { skill: "System Design", score: 75, maxScore: 100 },
   ];
 
-  const performanceTrend = [
+  const placeholderPerformanceTrend = [
     { date: "2025-08-10", points: 50 },
     { date: "2025-08-15", points: 65 },
     { date: "2025-08-20", points: 72 },
@@ -63,6 +65,33 @@ const CandidateDashboard = () => {
     { date: "2025-09-05", points: 85 },
     { date: "2025-09-09", points: 90 },
   ];
+
+  // derive chart data from dashboardData when available
+  const skillPerformance = useMemo(() => {
+    if (!dashboardData || !dashboardData.score || !Array.isArray(dashboardData.score))
+      return placeholderSkillPerformance;
+
+    // API returns array like: { skillName, _sum: { value } }
+    return dashboardData.score.map((s: any) => ({
+      skill: s.skillName ?? s.skill ?? "Unknown",
+      score: typeof s._sum?.value === "number" ? s._sum.value : Number(s._sum?.value) || 0,
+      maxScore: 100,
+    }));
+  }, [dashboardData]);
+
+  const performanceTrend = useMemo(() => {
+    if (!dashboardData || !dashboardData.performaceMetrics || !Array.isArray(dashboardData.performaceMetrics))
+      return placeholderPerformanceTrend;
+
+    // API returns performaceMetrics: [{ created_at, score }]
+    return dashboardData.performaceMetrics
+      .map((p: any) => ({
+        date: p.created_at ?? p.createdAt ?? new Date().toISOString(),
+        points: typeof p.score === "number" ? p.score : Number(p.score) || 0,
+      }))
+      // sort ascending by date so line chart reads left-to-right
+      .sort((a: any, b: any) => new Date(a.date).getTime() - new Date(b.date).getTime());
+  }, [dashboardData]);
 
   const meetingStats = {
     completed: 8,
@@ -105,34 +134,52 @@ const CandidateDashboard = () => {
         // normalize upcoming response
         const up: any = upRes as any;
         let upcomingArr: any[] = [];
-        if (up?.data && up.data.interviews) upcomingArr = up.data.interviews;
+        // API returns { data: [...] } where data is the array
+        if (up?.data && Array.isArray(up.data))
+          upcomingArr = up.data;
+        else if (up?.data && up.data.interviews) upcomingArr = up.data.interviews;
         else if (up?.interviews) upcomingArr = up.interviews;
         else if (Array.isArray(up)) upcomingArr = up;
 
-        if (upcomingArr.length > 0) {
-          const it = upcomingArr[0];
+        // Filter only SCHEDULED interviews and take the first one
+        const scheduledInterviews = upcomingArr.filter((it: any) =>
+          it.status === "SCHEDULED"
+        );
+
+        if (scheduledInterviews.length > 0) {
+          const it = scheduledInterviews[0];
           const scheduled = it?.scheduled_at ? new Date(it.scheduled_at) : null;
           const startTime = scheduled
             ? scheduled.toLocaleTimeString(undefined, {
-                hour: "2-digit",
-                minute: "2-digit",
-              })
+              hour: "2-digit",
+              minute: "2-digit",
+            })
             : "";
           const date = scheduled ? scheduled.toISOString().split("T")[0] : "";
+
+          // Extract company name from user.userPositions[0].brand.name
+          const brandName = it?.user?.userPositions?.[0]?.brand?.name ?? null;
           const interviewer = it?.user;
-          const companyName = it?.user?.first_name
-            ? `${it.user.first_name} ${it.user.last_name ?? ""}`.trim()
-            : (it?.user?.email ?? "Company");
+          const interviewerName = interviewer
+            ? `${interviewer.first_name ?? ""} ${interviewer.last_name ?? ""}`.trim()
+            : "Interviewer";
+          
+          // Build profile URL (prepend base URL if relative path)
+          const profileUrl = interviewer?.profile_url 
+            ? (interviewer.profile_url.startsWith('http') 
+                ? interviewer.profile_url 
+                : `${baseUrl}${interviewer.profile_url.replace(/\\/g, '/')}`)
+            : null;
 
           setUpcomingInterview({
             id: it.id,
             companyLogo: it?.companyLogo ?? "",
-            companyName,
-            interviewerName: interviewer
-              ? `${interviewer.first_name ?? ""} ${interviewer.last_name ?? ""}`.trim()
-              : "Interviewer",
-            interviewerRole: interviewer?.role ?? "",
+            companyName: brandName || interviewerName || "Company",
+            interviewerName: interviewerName,
+            interviewerRole: interviewer?.role ?? interviewer?.email ?? "",
+            interviewerProfileUrl: profileUrl,
             interviewType: it?.type ?? "Technical",
+            interviewName: it?.name ?? "",
             date,
             startTime,
             endTime: "",
@@ -146,7 +193,10 @@ const CandidateDashboard = () => {
         // normalize history response
         const hres: any = historyRes as any;
         let historyArr: any[] = [];
-        if (hres?.data && hres.data.interviews)
+        // API returns { data: [...] } where data is the array
+        if (hres?.data && Array.isArray(hres.data))
+          historyArr = hres.data;
+        else if (hres?.data && hres.data.interviews)
           historyArr = hres.data.interviews;
         else if (hres?.interviews) historyArr = hres.interviews;
         else if (Array.isArray(hres)) historyArr = hres;
@@ -156,31 +206,68 @@ const CandidateDashboard = () => {
             (it?.feedbacks && it.feedbacks.length > 0 && it.feedbacks[0]) ||
             null;
           const scheduled = it?.scheduled_at ? new Date(it.scheduled_at) : null;
+
+          // Extract company name from user.userPositions[0].brand.name
+          const brandName = it?.user?.userPositions?.[0]?.brand?.name ?? null;
+          const interviewerName = it?.user
+            ? `${it.user.first_name ?? ""} ${it.user.last_name ?? ""}`.trim()
+            : "Interviewer";
+
+          // Extract participant (candidate) info
+          const participant = it?.participants?.[0];
+          const sortlisted = participant?.sortlisted ?? false;
+          
+          // Build profile URL for history
+          const profileUrl = it?.user?.profile_url 
+            ? (it.user.profile_url.startsWith('http') 
+                ? it.user.profile_url 
+                : `${baseUrl}${it.user.profile_url.replace(/\\/g, '/')}`)
+            : null;
+
           return {
             id: it.id,
-            companyLogo: it?.companyLogo ?? "",
-            companyName: it?.user?.first_name
-              ? `${it.user.first_name} ${it.user.last_name ?? ""}`.trim()
-              : (it?.user?.email ?? "Company"),
-            interviewerName: it?.user
-              ? `${it.user.first_name ?? ""} ${it.user.last_name ?? ""}`.trim()
-              : "Interviewer",
+            companyLogo: profileUrl ?? it?.companyLogo ?? "",
+            companyName: brandName || interviewerName || "Company",
+            interviewerName: interviewerName,
             date: scheduled
               ? scheduled.toLocaleDateString(undefined, {
-                  day: "2-digit",
-                  month: "short",
-                  year: "numeric",
-                })
+                day: "2-digit",
+                month: "short",
+                year: "numeric",
+              })
               : (it?.created_at ?? ""),
-            status: it?.status ?? (feedback ? "shortlisted" : "pending"),
+            status: it?.status?.toLowerCase() ?? (feedback ? "completed" : "pending"),
             score: feedback?.score,
-            positiveReview: feedback?.comments ?? "",
-            negativeReview: "",
+            positiveReview: feedback?.positive_aspects ?? "",
+            negativeReview: feedback?.negative_aspects ?? "",
             rating: feedback?.rating,
           };
         });
 
-        setHistory(mappedHistory);
+        // Sort mapped history by the most recent timestamp available:
+        // prefer feedback.created_at, otherwise use scheduled_at, otherwise fallback to now
+        const sorted = mappedHistory.sort((a: any, b: any) => {
+          const getTime = (item: any) => {
+            // try to find feedback created_at on original historyArr entries
+            const orig = historyArr.find((h: any) => h.id === item.id) || {};
+            const fb = orig.feedbacks && orig.feedbacks.length > 0 ? orig.feedbacks[0] : null;
+            const t = fb?.created_at ?? orig.scheduled_at ?? orig.created_at ?? null;
+            return t ? new Date(t).getTime() : 0;
+          };
+          return getTime(b) - getTime(a);
+        });
+
+        // keep only the last two (most recent two)
+        const lastTwo = sorted.slice(0, 2);
+
+        console.log("📊 Dashboard - History data:", {
+          totalFetched: historyArr.length,
+          mapped: mappedHistory.length,
+          lastTwo: lastTwo.length,
+          data: lastTwo
+        });
+
+        setHistory(lastTwo);
         // normalize dashboard response
         const dres: any = dashRes as any;
         const ddata = dres?.data ?? dres;
@@ -307,10 +394,10 @@ const CandidateDashboard = () => {
 
   const formattedDate = upcomingInterview?.date
     ? new Date(upcomingInterview.date).toLocaleDateString("en-US", {
-        weekday: "long",
-        month: "short",
-        day: "numeric",
-      })
+      weekday: "long",
+      month: "short",
+      day: "numeric",
+    })
     : "No upcoming interviews";
 
   const getInitials = (name: string) => {
@@ -326,8 +413,8 @@ const CandidateDashboard = () => {
     meetingStats.completed + meetingStats.upcoming + meetingStats.missed;
 
   const averageScore = Math.round(
-    skillPerformance.reduce((acc, s) => acc + s.score, 0) /
-      skillPerformance.length
+    skillPerformance.reduce((acc: number, s: { score: number }) => acc + (s.score || 0), 0) /
+    Math.max(1, skillPerformance.length)
   );
 
   const handleViewFeedback = (id: string) => {
@@ -377,7 +464,13 @@ const CandidateDashboard = () => {
 
         <StatCard
           title="Total Points"
-          value={loading ? <Skeleton className="w-20 h-8" /> : dashboardData?.feedbackStats?.sumScore ?? performanceTrend.reduce((acc, cur) => acc + cur.points, 0)}
+          value={
+            loading ? (
+              <Skeleton className="w-20 h-8" />
+            ) : (
+              dashboardData?.feedbackStats?.sumScore ?? performanceTrend.reduce((acc: number, cur: { points: number }) => acc + (cur.points || 0), 0)
+            )
+          }
           icon={CheckCircle}
           color="green"
           subtitle={loading ? '' : 'Cumulative Interview Points'}
@@ -425,6 +518,11 @@ const CandidateDashboard = () => {
               <h2 className="text-lg font-bold text-gray-900">
                 {upcomingInterview?.companyName ?? "No upcoming interviews"}
               </h2>
+              {upcomingInterview?.interviewName && (
+                <p className="text-sm text-gray-600 mt-0.5">
+                  {upcomingInterview.interviewName}
+                </p>
+              )}
             </div>
           </div>
 
@@ -472,8 +570,16 @@ const CandidateDashboard = () => {
 
             {/* Interviewer */}
             <div className="flex items-start gap-3">
-              <div className="w-10 h-10 bg-orange-600 rounded-lg flex items-center justify-center flex-shrink-0 text-white font-bold text-sm">
-                {getInitials(upcomingInterview?.interviewerName ?? "--")}
+              <div className="w-10 h-10 bg-orange-600 rounded-lg flex items-center justify-center flex-shrink-0 text-white font-bold text-sm overflow-hidden">
+                {upcomingInterview?.interviewerProfileUrl ? (
+                  <img
+                    src={upcomingInterview.interviewerProfileUrl}
+                    alt={upcomingInterview.interviewerName}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  getInitials(upcomingInterview?.interviewerName ?? "--")
+                )}
               </div>
               <div>
                 <p className="text-xs text-gray-500 uppercase tracking-wide font-medium mb-1">
@@ -512,11 +618,10 @@ const CandidateDashboard = () => {
                 href={upcomingInterview?.meetingLink ?? "#"}
                 target="_blank"
                 rel="noreferrer"
-                className={`inline-flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-white shadow-md transition-all ${
-                  isInterviewNear()
-                    ? "bg-red-600 hover:bg-red-700 animate-pulse"
-                    : "bg-blue-500 hover:bg-blue-600"
-                }`}
+                className={`inline-flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-white shadow-md transition-all ${isInterviewNear()
+                  ? "bg-red-600 hover:bg-red-700 animate-pulse"
+                  : "bg-blue-500 hover:bg-blue-600"
+                  }`}
               >
                 <Video className="w-5 h-5" />
                 <span>Join Interview</span>

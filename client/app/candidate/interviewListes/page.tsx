@@ -37,23 +37,30 @@ export default function InterviewDashboard() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [apiPagination, setApiPagination] = useState<any | null>(null);
+  const [dashboardData, setDashboardData] = useState<any | null>(null);
 
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:5001/";
   const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null;
 
   // helper to map server interview object to InterviewCard shape
   const mapServerInterview = (it: any) => {
-    // server Interview model: id, scheduled_at, session_link, user (interviewer), participants[]
-    const companyName = it?.user?.first_name
-      ? `${it.user.first_name} ${it.user.last_name ?? ''}`.trim()
-      : it?.user?.email ?? 'Unknown Company';
+    // Extract company name from user.userPositions[0].brand.name
+    const brandName = it?.user?.userPositions?.[0]?.brand?.name ?? null;
+    const interviewer = it?.user;
+    const interviewerName = interviewer
+      ? `${interviewer.first_name ?? ''} ${interviewer.last_name ?? ''}`.trim()
+      : 'Interviewer';
 
-    // find participant entry for the current user (if needed) or use first participant as candidate
-    const interviewer = it?.user; // server stores interviewer in user
+    // Build profile URL for interviewer
+    const profileUrl = interviewer?.profile_url
+      ? (interviewer.profile_url.startsWith('http')
+        ? interviewer.profile_url
+        : `${baseUrl}${interviewer.profile_url.replace(/\\/g, '/')}`)
+      : null;
 
     const scheduled = it?.scheduled_at ? new Date(it.scheduled_at) : null;
     const date = scheduled
-      ? scheduled.toLocaleDateString(undefined, { day: '2-digit', month: 'short' })
+      ? scheduled.toLocaleDateString(undefined, { day: '2-digit', month: 'short', year: 'numeric' })
       : '';
     const startTime = scheduled
       ? scheduled.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })
@@ -61,15 +68,17 @@ export default function InterviewDashboard() {
 
     return {
       id: it.id,
-      companyLogo: it?.companyLogo ?? '',
-      companyName: companyName,
-      interviewerName: interviewer ? `${interviewer.first_name ?? ''} ${interviewer.last_name ?? ''}`.trim() : 'Interviewer',
-      interviewerRole: interviewer?.role ?? interviewer?.position ?? 'Recruiter',
+      companyLogo: profileUrl ?? it?.companyLogo ?? '',
+      companyName: brandName || interviewerName || 'Unknown Company',
+      interviewerName: interviewerName,
+      interviewerRole: interviewer?.role ?? interviewer?.email ?? 'Recruiter',
       interviewType: it?.type ?? 'Technical',
+      interviewName: it?.name ?? '',
       date,
       startTime,
       endTime: '',
       meetingLink: it?.session_link ?? it?.meetingLink ?? '',
+      status: it?.status ?? 'SCHEDULED',
       raw: it,
     };
   };
@@ -79,15 +88,15 @@ export default function InterviewDashboard() {
     setError(null);
     try {
       const res: any = await getRequest(
-        `${baseUrl}api/candidate/upcoming-interviews?page=${page}&limit=${limit}`,
+        `${baseUrl}api/candidate/upcoming-interviews`,
         {
           'Content-Type': 'application/json',
           Authorization: token ? `Bearer ${token}` : undefined,
         }
       );
+      console.log("Fetched upcoming interviews:", res);
 
-      // server candidate UpcomingInterviewsController (candidate) currently returns { message, Failed, data }
-      // but admin endpoint returns { data, pagination } — handle both shapes
+      // API returns { message, Failed, data: [...] }
       let interviewsData: any[] = [];
       let pagination: any = null;
 
@@ -101,12 +110,16 @@ export default function InterviewDashboard() {
       } else if (res?.data?.interviews) {
         interviewsData = res.data.interviews;
       } else if (Array.isArray(res)) {
-        // axios helper unwraps response.data so some callers return the inner data directly
         interviewsData = res;
       }
 
+      // Filter only SCHEDULED interviews for upcoming view
+      const scheduledInterviews = interviewsData.filter((it: any) =>
+        it.status === 'SCHEDULED'
+      );
+
       setApiPagination(pagination);
-      setApiInterviews(interviewsData.map(mapServerInterview));
+      setApiInterviews(scheduledInterviews.map(mapServerInterview));
     } catch (err: any) {
       console.error('Error fetching upcoming interviews', err);
       setError(err?.message ?? 'Failed to load interviews');
@@ -116,9 +129,31 @@ export default function InterviewDashboard() {
   };
 
   useEffect(() => {
-    // initial load
-    fetchInterviews(1, 50);
+    // Fetch both interviews and dashboard stats
+    const fetchData = async () => {
+      await Promise.all([
+        fetchInterviews(1, 50),
+        fetchDashboardStats()
+      ]);
+    };
+    fetchData();
   }, []);
+
+  const fetchDashboardStats = async () => {
+    try {
+      const dashRes: any = await getRequest(
+        `${baseUrl}api/candidate/dashboard`,
+        {
+          'Content-Type': 'application/json',
+          Authorization: token ? `Bearer ${token}` : undefined,
+        }
+      );
+      const ddata = dashRes?.data ?? dashRes;
+      setDashboardData(ddata ?? null);
+    } catch (err: any) {
+      console.error('Error fetching dashboard stats', err);
+    }
+  };
 
   // combine apiInterviews with client filters
   const filteredInterviews = apiInterviews.filter((interview) => {
@@ -132,7 +167,7 @@ export default function InterviewDashboard() {
   });
 
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5;
+  const itemsPerPage = 20; // Show 20 per page in table view
 
   const totalPages = Math.ceil(filteredInterviews.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
@@ -157,28 +192,28 @@ export default function InterviewDashboard() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <StatCard
           title="Total Interviews"
-          value={12}
+          value={dashboardData?.interviewsCount ?? 0}
           icon={Calendar}
           color="blue"
-          subtitle="Completed: 8 • Upcoming: 4"
+          subtitle={`Total scheduled interviews`}
         />
         <StatCard
           title="Total Points"
-          value={840}
+          value={dashboardData?.feedbackStats?.sumScore ?? 0}
           icon={CheckCircle}
           color="green"
           subtitle="Cumulative Interview Points"
         />
         <StatCard
           title="Average Score"
-          value={81}
+          value={Math.round(dashboardData?.feedbackStats?.averageScore ?? 0)}
           icon={Target}
           color="purple"
           subtitle="Across core skills"
         />
         <StatCard
           title="Shortlist Status"
-          value={5}
+          value={dashboardData?.interviewsSortListedCount ?? 0}
           icon={Award}
           color="orange"
           subtitle="Based on interviews"
@@ -362,11 +397,10 @@ export default function InterviewDashboard() {
                   <button
                     key={idx}
                     onClick={() => setCurrentPage(idx + 1)}
-                    className={`px-3 py-1 border rounded-md text-sm ${
-                      currentPage === idx + 1
-                        ? "bg-blue-500 text-white border-blue-500"
-                        : "text-gray-700 hover:bg-gray-100"
-                    }`}
+                    className={`px-3 py-1 border rounded-md text-sm ${currentPage === idx + 1
+                      ? "bg-blue-500 text-white border-blue-500"
+                      : "text-gray-700 hover:bg-gray-100"
+                      }`}
                   >
                     {idx + 1}
                   </button>

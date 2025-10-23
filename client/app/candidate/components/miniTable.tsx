@@ -61,11 +61,11 @@ export const InterviewMiniHistoryTable = ({
     <>
       <div className="overflow-hidden bg-gray-50 p-6 rounded-lg shadow-md">
         <div className="flex items-center mb-4">
-            <History className="w-5 h-5 text-purple-600" />
-            <h3 className="ml-3 text-lg font-semibold text-gray-900">
-              Interview History
-            </h3>
-          </div>
+          <History className="w-5 h-5 text-purple-600" />
+          <h3 className="ml-3 text-lg font-semibold text-gray-900">
+            Interview History
+          </h3>
+        </div>
         {/* Table Header */}
         <div className="grid grid-cols-6 gap-4 shadow-md bg-gray-200 px-4 py-5 font-semibold text-gray-700 border-gray-400 rounded-lg">
           <div>Company</div>
@@ -77,70 +77,77 @@ export const InterviewMiniHistoryTable = ({
         </div>
 
         {/* Table Rows */}
-        {currentInterviews.map((interview) => (
-          <div
-            key={interview.id}
-            className="grid grid-cols-6 gap-4 px-4 py-3 my-5 items-center border bg-gray-100 border-gray-300 hover:bg-gray-50 rounded-lg"
-          >
-            {/* Company */}
-            <div className="flex items-center gap-2">
-              <div
-                className={`w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center overflow-hidden ${
-                  interview.companyLogo
-                    ? ""
-                    : "border border-gray-300 rounded-full"
-                }`}
-              >
-                {interview.companyLogo ? (
-                  <img
-                    src={interview.companyLogo}
-                    alt={interview.companyName}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <Briefcase className="w-5 h-5 text-gray-400" />
-                )}
-              </div>
-              <span className="font-medium text-gray-900 truncate">
-                {interview.companyName}
-              </span>
-            </div>
-
-            {/* Interviewer */}
-            <div className="text-gray-900">{interview.interviewerName}</div>
-
-            {/* Date */}
-            <div className="text-gray-900">{interview.date}</div>
-
-            {/* Status */}
-            <div>
-              <span
-                className={`px-3 py-1 rounded-full text-sm font-medium border capitalize ${getStatusColor(
-                  interview.status
-                )}`}
-              >
-                {interview.status}
-              </span>
-            </div>
-
-            {/* Score */}
-            <div className="font-semibold text-gray-900">
-              {interview.status !== "pending" && interview.score !== undefined
-                ? `${interview.score}/100`
-                : "-"}
-            </div>
-
-            {/* Feedback Button */}
-            <div>
-              <button
-                onClick={() => handleOpen(interview)}
-                className="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors duration-200"
-              >
-                <Eye className="w-5 h-5 text-gray-600" />
-              </button>
-            </div>
+        {currentInterviews.length === 0 ? (
+          <div className="text-center py-12 text-gray-500">
+            <History className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+            <p className="text-lg font-medium">No interview history yet</p>
+            <p className="text-sm mt-1">Your completed interviews will appear here</p>
           </div>
-        ))}
+        ) : (
+          currentInterviews.map((interview) => (
+            <div
+              key={interview.id}
+              className="grid grid-cols-6 gap-4 px-4 py-3 my-5 items-center border bg-gray-100 border-gray-300 hover:bg-gray-50 rounded-lg"
+            >
+              {/* Company */}
+              <div className="flex items-center gap-2">
+                <div
+                  className={`w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center overflow-hidden ${interview.companyLogo
+                      ? ""
+                      : "border border-gray-300 rounded-full"
+                    }`}
+                >
+                  {interview.companyLogo ? (
+                    <img
+                      src={interview.companyLogo}
+                      alt={interview.companyName}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <Briefcase className="w-5 h-5 text-gray-400" />
+                  )}
+                </div>
+                <span className="font-medium text-gray-900 truncate">
+                  {interview.companyName}
+                </span>
+              </div>
+
+              {/* Interviewer */}
+              <div className="text-gray-900">{interview.interviewerName}</div>
+
+              {/* Date */}
+              <div className="text-gray-900">{interview.date}</div>
+
+              {/* Status */}
+              <div>
+                <span
+                  className={`px-3 py-1 rounded-full text-sm font-medium border capitalize ${getStatusColor(
+                    interview.status
+                  )}`}
+                >
+                  {interview.status}
+                </span>
+              </div>
+
+              {/* Score */}
+              <div className="font-semibold text-gray-900">
+                {interview.status !== "pending" && interview.score !== undefined
+                  ? `${interview.score}/100`
+                  : "-"}
+              </div>
+
+              {/* Feedback Button */}
+              <div>
+                <button
+                  onClick={() => handleOpen(interview)}
+                  className="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors duration-200"
+                >
+                  <Eye className="w-5 h-5 text-gray-600" />
+                </button>
+              </div>
+            </div>
+          ))
+        )}
       </div>
 
       {/* Feedback Modal */}
@@ -186,11 +193,10 @@ export const InterviewMiniHistoryTable = ({
                   {Array.from({ length: 5 }).map((_, i) => (
                     <Star
                       key={i}
-                      className={`w-6 h-6 ${
-                        i < (selected?.rating || 0)
+                      className={`w-6 h-6 ${i < (selected?.rating || 0)
                           ? "text-yellow-500 fill-yellow-500"
                           : "text-gray-300"
-                      }`}
+                        }`}
                     />
                   ))}
                 </div>

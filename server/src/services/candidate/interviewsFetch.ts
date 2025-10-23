@@ -47,6 +47,10 @@ export const candidateInterviewHistory=async(userId:any,q:string, page:number=1,
             user:{
                 
                 select:{
+                    id:true,
+                    email:true,
+                    first_name:true,
+                    last_name:true,
                     userPositions:{
                         take:1,
 
@@ -72,6 +76,7 @@ export const candidateInterviewHistory=async(userId:any,q:string, page:number=1,
                     
                     user:{
                         select:{
+                            profile_url:true,
                             first_name:true,
                             last_name:true,
                             email:true,
@@ -155,6 +160,7 @@ export const candidateUpcomingInterviews=async(userId:any,q:string)=>{
                     email:true,
                     first_name:true,
                     last_name:true, 
+                    profile_url:true,
                     userPositions:{
                         take:1,
                         select:{
