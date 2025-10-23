@@ -13,7 +13,7 @@ export const metadata: Metadata = {
   },
   description: siteConfig.description,
   icons: {
-    icon: "https://www.muraldecal.com/en/img/as1223-jpg/folder/products-listado-merchant/stickers-hi-haters.jpg",
+    icon: "https://c8.alamy.com/comp/2Y4W69N/google-duo-and-meet-are-merging-logo-png-2Y4W69N.jpg",
   },
 };
 

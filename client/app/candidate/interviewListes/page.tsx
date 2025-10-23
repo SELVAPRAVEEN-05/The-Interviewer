@@ -38,7 +38,7 @@ export default function InterviewDashboard() {
   const [error, setError] = useState<string | null>(null);
   const [apiPagination, setApiPagination] = useState<any | null>(null);
 
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:5000/";
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:5001/";
   const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null;
 
   // helper to map server interview object to InterviewCard shape

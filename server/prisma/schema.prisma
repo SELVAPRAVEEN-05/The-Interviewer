@@ -44,6 +44,7 @@ model Institute {
   name      String @unique
   city      String
   state     String
+  email    String @default("")
   countryId Int
   country   Country @relation(fields: [countryId], references: [id])
 
@@ -56,6 +57,8 @@ model Skill {
   category String
 
   userSkills UserSkill[]
+  interviewSkills InterviewSkill[]
+  feedbackSkills  FeedbackSkill[]
 }
 
 model User {
@@ -74,6 +77,7 @@ model User {
   github_url        String
   linkedin_url      String
   portfolio_url     String? 
+  profile_url       String?
   yoe              Int @default(0)
   resume_url        String
   profile_picture_url String
@@ -126,11 +130,15 @@ model Interview {
   status       String   @default("SCHEDULED")
   session_link String
   interviewerId String
+  duration     Int      @default(30)
+  type          String   @default("Technical")
+  name       String?    @default("Technical Interview")
   prize        Decimal? @db.Decimal(10, 2)
   created_at   DateTime @default(now())
   participants    InterviewParticipant[]
   codeSubmissions CodeSubmission[]
   feedbacks       Feedback[]
+  interviewSkills  InterviewSkill[]
   user      User      @relation(fields: [interviewerId], references: [id])
 }
 
@@ -200,10 +208,35 @@ model Feedback {
   given_to_user_id String
   rating           Int
   score            Int
-  comments         String
+ 
+  positive_aspects         String?
+  negative_aspects  String?
   created_at       DateTime @default(now())
 
   interview Interview @relation(fields: [interviewId], references: [id])
   givenBy   User      @relation("FeedbackGivenBy", fields: [given_by_user_id], references: [id])
   givenTo   User      @relation("FeedbackGivenTo", fields: [given_to_user_id], references: [id])
+  feedbackSkills FeedbackSkill[]
+}
+
+// Join table to store predefined skills for an Interview
+model InterviewSkill {
+  id          String   @id @default(uuid())
+  interviewId String
+  skillId     Int
+  // optional metadata for the skill in that interview
+  value    Int @default(0)
+  maxValue Int @default(100)
+  interview Interview @relation(fields: [interviewId], references: [id])
+  skill     Skill     @relation(fields: [skillId], references: [id])
+}
+// Store per-feedback ratings for individual skills
+model FeedbackSkill {
+  id         String @id @default(uuid())
+  feedbackId String
+  skillId    Int
+  value      Int    // rating or score given for this skill in this feedback
+
+  feedback Feedback @relation(fields: [feedbackId], references: [id])
+  skill    Skill    @relation(fields: [skillId], references: [id])
 }

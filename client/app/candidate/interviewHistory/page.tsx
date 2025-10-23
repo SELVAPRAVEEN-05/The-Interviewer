@@ -44,7 +44,7 @@ export default function RecentInterviews() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:5000/";
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:5001/";
 
   // Map server interview object to InterviewHistoryTable shape
   const mapInterviewHistory = (it: any) => {

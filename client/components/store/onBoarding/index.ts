@@ -32,7 +32,8 @@ type FormData = {
   github: string;
   linkedin: string;
   portfolio: string;
-  skills: string;
+  skills: string; // comma-separated labels for UI enablement
+  selectedSkillIds?: number[]; // ids to submit to API
 
   // Interviewer Fields
   interviewerName: string;
@@ -94,6 +95,7 @@ export const useFormStore = create<FormStore>((set, get) => ({
   linkedin: "",
   portfolio: "",
   skills: "",
+  selectedSkillIds: [],
 
   // Interviewer Fields
   interviewerName: "",
@@ -142,6 +144,7 @@ export const useFormStore = create<FormStore>((set, get) => ({
       linkedin,
       specialization,
       portfolio,
+      selectedSkillIds,
     } = get();
     
     // Get password from register store
@@ -162,7 +165,9 @@ export const useFormStore = create<FormStore>((set, get) => ({
       portfolio_url: portfolio,
       resume_url: "https://example.com/resume.pdf",
       profile_picture_url: "https://example.com/profile.jpg",
-      skills: [{ id: 1 }, { id: 2 }],
+      skills: Array.isArray(selectedSkillIds) && selectedSkillIds.length
+        ? selectedSkillIds.map((id) => ({ id }))
+        : [],
       education: {
         instituteId: 1,
         educationLevelId: 1,

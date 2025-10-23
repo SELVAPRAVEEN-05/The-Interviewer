@@ -15,6 +15,7 @@ export default function Login() {
 
   const { emailId, password, rememberMe, setData, handleLogin } =
     useLoginStore();
+  const { isLoading, error } = useLoginStore();
 
   const handleSubmit = async () => {
     const payload = {
@@ -35,6 +36,12 @@ export default function Login() {
     ) {
       localStorage.setItem("authToken", response.data.token);
       router.push("/interviewer/dashboard");
+    } else if (
+      response?.success === true &&
+      response?.data?.user?.role === "ADMIN"
+    ) {
+      localStorage.setItem("authToken", response.data.token);
+      router.push("/admin/dashboard");
     } else {
       alert("Login Failed");
     }
@@ -128,9 +135,14 @@ export default function Login() {
             color="primary"
             size="lg"
             onPress={handleSubmit}
+            isDisabled={isLoading}
           >
-            Log In
+            {isLoading ? "Logging in..." : "Log In"}
           </Button>
+
+          {error && (
+            <p className="text-red-600 text-sm mt-2 text-center">{error}</p>
+          )}
 
           {/* Divider */}
           <div className="flex items-center py-5">

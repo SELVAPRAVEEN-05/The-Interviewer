@@ -21,6 +21,9 @@ export const AdminDashboardService = async (): Promise<any> => {
       totalPendingInterviews,
       totalActiveCandidates,
       totalActiveRecruiters,
+      totalPendingCandidates,
+      totalPendingRecruiters,
+
     ] = await Promise.all([
       prisma.user.count({
         where: {
@@ -64,6 +67,18 @@ export const AdminDashboardService = async (): Promise<any> => {
           role:'RECRUITER'
         },
       }),
+      prisma.user.count({
+        where: {
+          status: 'PENDING',
+          role:'CANDIDATE'
+        },
+      }),
+      prisma.user.count({
+        where: {
+          status: 'PENDING',
+          role:'RECRUITER'
+        },
+      }),
       
        
        
@@ -74,10 +89,15 @@ export const AdminDashboardService = async (): Promise<any> => {
       totalRecruiterUsers,
       totalScheduledInterviews,
       totalCompletedInterviews,
-      totalCancelledInterviews,
-      totalPendingInterviews,
-      totalActiveCandidates,
-      totalActiveRecruiters,
+      totalPendingCandidates,
+      totalPendingRecruiters,
+      interview:{
+        totalCancelledInterviews,
+        totalPendingInterviews,
+        totalScheduledInterviews,
+        totalCompletedInterviews,
+      }
+      
     };
 
     // Update cache
