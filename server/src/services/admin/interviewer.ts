@@ -13,24 +13,24 @@ try {
     ] = await Promise.all([
       prisma.user.count({
         where: {
-          role: 'RECRUITER',
+          role: 'INTERVIEWER',
         },
       }),
       prisma.user.count({
         where: {
-          role: 'RECRUITER',
+          role: 'INTERVIEWER',
           status: 'APPROVED',
         },
       }),
      prisma.user.count({
         where: {
-          role: 'RECRUITER',
+          role: 'INTERVIEWER',
           status: 'PENDING',
         },
       }),
       prisma.user.count({
         where: {
-          role: 'RECRUITER',
+          role: 'INTERVIEWER',
           status: 'REJECTED',
         },
       }),
@@ -79,28 +79,89 @@ export const InterviewerDataTable=async(status:String,searchQuery:String,offset:
             ]
         }
         whereData['role']='INTERVIEWER'
-        const data=await prisma.user.findMany({
-            where:whereData,
+        const data:any=await prisma.user.findMany({
+            where:{
+              role:'INTERVIEWER',
+              ...whereData
+            },
             take:limit,
             skip:offset,  
-            include:{
-              // userPositions:{
-              //   where:{
-              //     position:{
-              //       // title:"RECRUITER",
-                   
-              //     }
-
-              //   }
-              // },
-              userPositions:{
-                include:{
-                  position:true,
-                  brand:true
-
+            select:{
+              id:true,
+              role:true,
+              mobile_number:true,
+              gender:{
+                select:{
+                    value:true
                 }
               },
-               Interview:true
+              date_of_birth:true,
+              first_name:true,
+              last_name:true,
+              email:true,
+              status:true,
+              created_at:true,
+              resume_url:true,
+              github_url:true,
+              linkedin_url:true,
+              portfolio_url:true,
+              educationDetails:{
+              
+
+
+                select:{
+                  specialization:true,
+                  year_of_passing:true,
+                  marks_obtained:true,
+                  max_marks:true,
+                  institute:{
+                   select:{
+                    name:true,
+                    email:true
+                   }
+                  },
+educationLevel:{
+  select:{
+    level_name:true
+  }
+}
+                }
+              },
+             Interview:{
+              select:{
+                id:true,
+                status:true,
+                scheduled_at:true,
+                session_link:true,
+                participants:{
+                  take:1,
+                orderBy:{
+                   interview:{
+                    scheduled_at:'desc'
+                   }  
+                },
+                  select:{
+                    user:{
+                      select:{
+
+                      first_name:true,
+                      last_name:true,
+                      email:true,
+                      }
+                    }
+                  }
+                }
+              }
+             },
+                userSkills:{
+                    select:{
+                        skill:{
+                         select:{
+                            name:true
+                         }
+                        }
+                    }
+                }
             }        
     })
     return {data:data,isFailed:false};

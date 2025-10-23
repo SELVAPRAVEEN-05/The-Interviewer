@@ -44,6 +44,7 @@ model Institute {
   name      String @unique
   city      String
   state     String
+  email    String @default("")
   countryId Int
   country   Country @relation(fields: [countryId], references: [id])
 
@@ -74,6 +75,7 @@ model User {
   github_url        String
   linkedin_url      String
   portfolio_url     String? 
+  profile_url       String?
   yoe              Int @default(0)
   resume_url        String
   profile_picture_url String
@@ -126,6 +128,9 @@ model Interview {
   status       String   @default("SCHEDULED")
   session_link String
   interviewerId String
+  duration     Int      @default(30)
+  type          String   @default("Technical")
+  name       String?    @default("Technical Interview")
   prize        Decimal? @db.Decimal(10, 2)
   created_at   DateTime @default(now())
   participants    InterviewParticipant[]
@@ -200,6 +205,11 @@ model Feedback {
   given_to_user_id String
   rating           Int
   score            Int
+  systemDesign     Int   @default(0)
+  problemSolving   Int    @default(0)
+  communication    Int    @default(0)
+  algorithm        Int    @default(0)
+  sql              Int    @default(0)
   comments         String
   created_at       DateTime @default(now())
 

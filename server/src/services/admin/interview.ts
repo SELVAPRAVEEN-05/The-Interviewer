@@ -48,10 +48,21 @@ export const upcomingInterviewsService = async (params: PaginationParams = {}) =
         orderBy: {
           scheduled_at: 'asc'
         },
-        include: {
-          user:true,
+        select: {
+          scheduled_at: true,
+          status: true,
+          session_link: true,
+          interviewerId: true,
+          user:{
+            select:{
+              first_name:true,
+              last_name:true,
+              email:true,
+              role:true
+            }
+          },
           participants: {
-            include: {
+            select: {
               user: {
                 select: {
                   id: true,

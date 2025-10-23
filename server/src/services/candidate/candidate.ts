@@ -13,8 +13,22 @@ export const candidateStatusUpdate=async(userId:any,status:string)=>{
     })
     return {
         data:user, // interviews where the user participates
-        
         isFailed: false
     };
 
 }
+export const candidateGet=async(query:string)=>{
+    const users=await prisma.user.findMany({where:{
+            OR:[
+                {first_name:{contains:query,mode:'insensitive'}},
+                {last_name:{contains:query,mode:'insensitive'}},
+                {email:{contains:query,mode:'insensitive'}}
+            ]
+    },select:{
+        id:true,
+        first_name:true,
+        last_name:true,
+        email:true,
+    }})
+return {users:users,isFailed:false}
+    }
