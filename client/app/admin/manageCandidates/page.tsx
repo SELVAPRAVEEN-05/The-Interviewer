@@ -45,7 +45,7 @@ const ManageCandidatesPage = () => {
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [activeTab, setActiveTab] = useState<TabType>("overview");
   const [searchQuery, setSearchQuery] = useState("");
-  const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:5000/";
+  const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:5001/";
   const [tableData, setTableData] = useState<any>([]);
   const [candidateData, setCandidateData] = useState<any>([]);
   const handleChangePage = (event: unknown, newPage: number) => {

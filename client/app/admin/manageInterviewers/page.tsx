@@ -53,7 +53,7 @@ import {
 import React, { useEffect, useMemo, useState } from "react";
 import StatCard from "../components/statCard";
 import { interviewers as rawInterviewers } from "../utils";
-import { getRequest } from "@/utils/axios/axios";
+import { getRequest, putRequest } from "@/utils/axios/axios";
 
 // Ensure interviewer.status is typed correctly
 const interviewers: Interviewer[] = rawInterviewers.map((iv) => ({
@@ -88,7 +88,7 @@ interface Interviewer {
 const ManageInterviewers = () => {
   // pagination
   const [page, setPage] = useState<number>(0);
-  const [rowsPerPage, setRowsPerPage] = useState<number>(5);
+  const [rowsPerPage, setRowsPerPage] = useState<number>(20);
 
   // search & filters
   const [searchTerm, setSearchTerm] = useState<string>("");
@@ -104,6 +104,30 @@ const ManageInterviewers = () => {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [selectedInterviewer, setSelectedInterviewer] =
     useState<Interviewer | null>(null);
+
+  // Helpers to safely render values that may be objects like { value: ... }
+  const safeDisplay = (v: any) => {
+    if (v === null || v === undefined) return "";
+    if (typeof v === "object") {
+      if ("value" in v) return String(v.value ?? "");
+      if (Array.isArray(v)) return v.join(", ");
+      try {
+        return String(v.toString ? v.toString() : JSON.stringify(v));
+      } catch (e) {
+        return JSON.stringify(v);
+      }
+    }
+    return String(v);
+  };
+
+  const toNumber = (v: any) => {
+    if (v === null || v === undefined) return 0;
+    if (typeof v === "object") {
+      if ("value" in v) return Number(v.value) || 0;
+      return Number(v) || 0;
+    }
+    return Number(v) || 0;
+  };
 
   // data source (replace with real import)
 
@@ -176,6 +200,36 @@ const ManageInterviewers = () => {
     onOpen(); // heroui disclosure open
   };
 
+  const [actionLoading, setActionLoading] = useState<boolean>(false);
+
+  const updateCandidateStatus = async (userId: string, status: string) => {
+    setActionLoading(true);
+    try {
+      const payload = { userId, status };
+      const headers = {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      };
+
+      // call PUT api/candidate/status-update
+      await putRequest(`${baseUrl}api/candidate/status-update`, payload, headers);
+
+      // optimistically update UI
+      if (selectedInterviewer) {
+        setSelectedInterviewer({ ...selectedInterviewer, status: status as any });
+      }
+
+      // refresh the table to reflect changes
+      InitalCall();
+      console.log("Status updated", payload);
+    } catch (err) {
+      console.error("Failed to update status:", err);
+      // optionally show user-facing error here
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
   const {
     isOpen: isDrawerOpen,
     onOpen: onDrawerOpen,
@@ -223,16 +277,42 @@ const ManageInterviewers = () => {
 
   const token = localStorage.getItem("authToken");
 
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:5000/";
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:5001/";
   const [table, setTableData] = useState<any[]>([]);
   const [totalRecords, setTotalRecords] = useState<number | null>(null);
+  const [cards, setCards] = useState<any>();
+  const [cardsLoading, setCardsLoading] = useState<boolean>(false);
+
+  const fetchCards = async () => {
+    setCardsLoading(true);
+    try {
+      const resp: any = await getRequest(
+        `${baseUrl}api/admin/interviewers`,
+        {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        }
+      );
+
+      // api shape may vary; prefer resp.data or resp.results
+      const items = resp?.data?.data ;
+      setCards(items);
+    } catch (err) {
+      console.error("Failed to fetch interviewer cards:", err);
+      setCards([]);
+    } finally {
+      setCardsLoading(false);
+    }
+  };
   const InitalCall = async () => {
     setLoading(true);
     try {
       const response: any = await getRequest(
         `${baseUrl}api/admin/interviewers-table?status=${encodeURIComponent(
           statusFilter === "All Status" ? "" : statusFilter
-        )}&searchQuery=${encodeURIComponent(searchTerm)}&page=${page + 1}&limit=${rowsPerPage}`,
+        )}&searchQuery=${encodeURIComponent(searchTerm)}&page=${page + 1}&limit=${rowsPerPage}&department=${encodeURIComponent(
+          departmentFilter === "All Departments" ? "" : departmentFilter
+        )}&role=${encodeURIComponent(roleFilter === "All Roles" ? "" : roleFilter)}`,
         {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
@@ -253,6 +333,8 @@ const ManageInterviewers = () => {
     }
   };
 
+
+
   // Debounce search input to avoid firing API on every keystroke
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -263,7 +345,11 @@ const ManageInterviewers = () => {
   }, [searchInput]);
 
   useEffect(() => {
+    // Fetch table whenever filters/pagination/search change
     InitalCall();
+    // fetch top 4 cards when filters/search/status/role/department change
+    // cards shouldn't depend on page/rowsPerPage
+    fetchCards();
   }, [
     page,
     rowsPerPage,
@@ -303,19 +389,19 @@ const ManageInterviewers = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mb-8">
         <StatCard
           title="Total Interviews"
-          value={248}
+          value={cards?.totalInterviewerUsers}
           icon={Calendar}
           color="orange"
         />
         <StatCard
           title="Active Interviewers"
-          value={117}
+          value={cards?.totalApprovedInterviewerUsers ?? 0}
           icon={Users}
           color="green"
         />
         <StatCard
           title="Total Interviewers"
-          value={148}
+          value={cards?.totalPendingInterviewerUsers ?? 0}
           icon={Clock}
           color="blue"
         />
@@ -326,6 +412,8 @@ const ManageInterviewers = () => {
           color="violet"
         />
       </div>
+
+ 
 
       {/* Search & Filters */}
       <div className="bg-gray-100 p-4 md:p-6 rounded-lg shadow-sm border border-gray-300 mb-6">
@@ -339,7 +427,7 @@ const ManageInterviewers = () => {
               placeholder="Search interviewers..."
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
-              className="pl-10 pr-4 py-3 mr-12 border w-[38rem] border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              className="pl-10 pr-4 py-3 mr-12 border w-[35rem] border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
             />
           </div>
 
@@ -350,8 +438,8 @@ const ManageInterviewers = () => {
             className="px-4  py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           >
             <option>All Status</option>
-            <option>Active</option>
-            <option>Inactive</option>
+            <option value={"APPROVED"}>Active</option>
+            <option value={"REJECTED"}>Inactive</option>
           </select>
 
           <select
@@ -491,7 +579,7 @@ const ManageInterviewers = () => {
           component="div"
           className="bg-gray-100"
           count={totalRecords ?? table?.length ?? 0}
-          rowsPerPageOptions={[5, 10, 25, 50, 100]}
+    rowsPerPageOptions={[10, 20, 25, 50, 100]}
           page={page}
           onPageChange={handleChangePage}
           rowsPerPage={rowsPerPage}
@@ -519,18 +607,18 @@ const ManageInterviewers = () => {
                   <div className="flex items-center gap-4">
                     <div className="h-16 w-16 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-xl">
                       {selectedInterviewer
-                        ? selectedInterviewer.name
+                        ? safeDisplay(selectedInterviewer.name)
                             .split(" ")
-                            .map((n) => n[0])
+                            .map((n: string) => n[0])
                             .join("")
                         : ""}
                     </div>
                     <div>
                       <h2 className="text-2xl font-bold text-gray-900">
-                        {selectedInterviewer?.name}
+                        {safeDisplay(selectedInterviewer?.name)}
                       </h2>
                       <p className="text-gray-600">
-                        {selectedInterviewer?.email}
+                        {safeDisplay(selectedInterviewer?.email)}
                       </p>
                     </div>
                   </div>
@@ -563,7 +651,7 @@ const ManageInterviewers = () => {
                                 Email
                               </p>
                               <p className="text-sm text-gray-900">
-                                {selectedInterviewer?.email}
+                                {safeDisplay(selectedInterviewer?.email)}
                               </p>
                             </div>
                           </div>
@@ -575,7 +663,7 @@ const ManageInterviewers = () => {
                                 Phone Number
                               </p>
                               <p className="text-sm text-gray-900">
-                                {selectedInterviewer?.phone}
+                                {safeDisplay(selectedInterviewer?.phone)}
                               </p>
                             </div>
                           </div>
@@ -587,7 +675,7 @@ const ManageInterviewers = () => {
                                 Gender
                               </p>
                               <p className="text-sm text-gray-900">
-                                {selectedInterviewer?.gender}
+                                {safeDisplay(selectedInterviewer?.gender)}
                               </p>
                             </div>
                           </div>
@@ -599,7 +687,7 @@ const ManageInterviewers = () => {
                                 Years of Experience
                               </p>
                               <p className="text-sm text-gray-900">
-                                {selectedInterviewer?.yearsOfExperience} years
+                                {safeDisplay(selectedInterviewer?.yearsOfExperience)} years
                               </p>
                             </div>
                           </div>
@@ -612,11 +700,11 @@ const ManageInterviewers = () => {
                               </p>
                               <div className="flex gap-3 items-center">
                                 <p className="text-sm text-gray-900">
-                                  {selectedInterviewer?.role}
+                                  {safeDisplay(selectedInterviewer?.role)}
                                 </p>
                                 <p className="flex items-center">-</p>
                                 <p className="text-sm text-gray-900">
-                                  {selectedInterviewer?.department}
+                                  {safeDisplay(selectedInterviewer?.department)}
                                 </p>
                               </div>
                             </div>
@@ -639,8 +727,7 @@ const ManageInterviewers = () => {
                                 Total Interviews
                               </p>
                               <p className="text-2xl font-bold text-blue-700">
-                                {selectedInterviewer?.stats.totalInterviews ??
-                                  0}
+                                {toNumber(selectedInterviewer?.stats?.totalInterviews ?? 0)}
                               </p>
                             </div>
                           </div>
@@ -653,8 +740,7 @@ const ManageInterviewers = () => {
                                 Completed
                               </p>
                               <p className="text-2xl font-bold text-green-700">
-                                {selectedInterviewer?.stats
-                                  .completedInterviews ?? 0}
+                                {toNumber(selectedInterviewer?.stats?.completedInterviews ?? 0)}
                               </p>
                             </div>
                           </div>
@@ -667,8 +753,7 @@ const ManageInterviewers = () => {
                                 Pending
                               </p>
                               <p className="text-2xl font-bold text-orange-700">
-                                {selectedInterviewer?.stats.pendingInterviews ??
-                                  0}
+                                {toNumber(selectedInterviewer?.stats?.pendingInterviews ?? 0)}
                               </p>
                             </div>
                           </div>
@@ -681,7 +766,7 @@ const ManageInterviewers = () => {
                                 Total Hires
                               </p>
                               <p className="text-2xl font-bold text-purple-700">
-                                {selectedInterviewer?.stats.totalHires ?? 0}
+                                {toNumber(selectedInterviewer?.stats?.totalHires ?? 0)}
                               </p>
                             </div>
                           </div>
@@ -696,11 +781,12 @@ const ManageInterviewers = () => {
                             <span className="text-sm font-bold text-gray-900">
                               {selectedInterviewer
                                 ? (
-                                    (selectedInterviewer.stats.totalHires /
+                                    (toNumber(selectedInterviewer.stats?.totalHires) /
                                       Math.max(
                                         1,
-                                        selectedInterviewer.stats
-                                          .completedInterviews
+                                        toNumber(
+                                          selectedInterviewer.stats?.completedInterviews
+                                        )
                                       )) *
                                     100
                                   ).toFixed(1)
@@ -717,11 +803,12 @@ const ManageInterviewers = () => {
                                   selectedInterviewer
                                     ? Math.min(
                                         100,
-                                        (selectedInterviewer.stats.totalHires /
+                                        (toNumber(selectedInterviewer.stats?.totalHires) /
                                           Math.max(
                                             1,
-                                            selectedInterviewer.stats
-                                              .completedInterviews
+                                            toNumber(
+                                              selectedInterviewer.stats?.completedInterviews
+                                            )
                                           )) *
                                           100
                                       )
@@ -735,6 +822,36 @@ const ManageInterviewers = () => {
                     </div>
                   </div>
                 </ModalBody>
+                {/* Modal Footer - Actions */}
+                <div className="flex items-center justify-end gap-3 p-6 border-t bg-white">
+                  <button
+                    onClick={async () => {
+                      // Reject -> CANCELLED
+                      if (!selectedInterviewer) return;
+                      await updateCandidateStatus(selectedInterviewer.id || "", "CANCELLED");
+                      onClose();
+                      setSelectedInterviewer(null);
+                    }}
+                    disabled={actionLoading}
+                    className="px-4 py-2 bg-red-50 text-red-700 rounded-lg hover:bg-red-100 disabled:opacity-60"
+                  >
+                    {actionLoading ? "Processing..." : "Reject"}
+                  </button>
+
+                  <button
+                    onClick={async () => {
+                      // Accept -> APPROVED
+                      if (!selectedInterviewer) return;
+                      await updateCandidateStatus(selectedInterviewer.id || "", "APPROVED");
+                      onClose();
+                      setSelectedInterviewer(null);
+                    }}
+                    disabled={actionLoading}
+                    className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-60"
+                  >
+                    {actionLoading ? "Processing..." : "Accept"}
+                  </button>
+                </div>
               </div>
             </>
           )}

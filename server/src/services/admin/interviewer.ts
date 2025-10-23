@@ -79,92 +79,142 @@ export const InterviewerDataTable=async(status:String,searchQuery:String,offset:
             ]
         }
         whereData['role']='INTERVIEWER'
-        const data:any=await prisma.user.findMany({
-            where:{
-              role:'INTERVIEWER',
+        // Fetch users (without loading full Interview arrays)
+        const users:any = await prisma.user.findMany({
+            where: {
+              role: 'INTERVIEWER',
+              userPositions:{
+                some:{
+                  position:{
+                    department:{
+                      contains:department,mode:'insensitive'
+                    }
+                  }
+                  
+                }
+              },
               ...whereData
             },
-            take:limit,
-            skip:offset,  
-            select:{
-              id:true,
-              role:true,
-              mobile_number:true,
-              gender:{
-                select:{
-                    value:true
+            take: limit,
+            skip: offset,
+            select: {
+              id: true,
+              profile_url: true,
+              role: true,
+              mobile_number: true,
+              gender: {
+                select: {
+                  value: true
                 }
               },
-              date_of_birth:true,
-              first_name:true,
-              last_name:true,
-              email:true,
-              status:true,
-              created_at:true,
-              resume_url:true,
-              github_url:true,
-              linkedin_url:true,
-              portfolio_url:true,
-              educationDetails:{
-              
-
-
-                select:{
-                  specialization:true,
-                  year_of_passing:true,
-                  marks_obtained:true,
-                  max_marks:true,
-                  institute:{
-                   select:{
-                    name:true,
-                    email:true
-                   }
+              first_name: true,
+              last_name: true,
+              email: true,
+              status: true,
+              created_at: true,
+              yoe: true,
+              userPositions: {
+                select: {
+                  position: {
+                    select: {
+                      department: true,
+                      title: true
+                    }
                   },
-educationLevel:{
-  select:{
-    level_name:true
-  }
-}
-                }
-              },
-             Interview:{
-              select:{
-                id:true,
-                status:true,
-                scheduled_at:true,
-                session_link:true,
-                participants:{
-                  take:1,
-                orderBy:{
-                   interview:{
-                    scheduled_at:'desc'
-                   }  
-                },
-                  select:{
-                    user:{
-                      select:{
-
-                      first_name:true,
-                      last_name:true,
-                      email:true,
-                      }
+                  brand: {
+                    select: {
+                      name: true
                     }
                   }
                 }
               }
-             },
-                userSkills:{
-                    select:{
-                        skill:{
-                         select:{
-                            name:true
-                         }
-                        }
+            }
+        });
+
+        // If no users found, return early
+        if (!users || users.length === 0) {
+            return { data: [], isFailed: false };
+        }
+
+        const userIds = users.map((u: any) => u.id);
+
+        // Group interviews by interviewerId and status to compute counts per status
+        const interviewsByStatus = await prisma.interview.groupBy({
+            by: ['interviewerId', 'status'],
+            where: {
+                interviewerId: { in: userIds }
+            },
+            _count: {
+                _all: true
+            }
+        });
+        console.log(interviewsByStatus)
+
+        // Group interview participants for shortlist counts (sortlisted = true)
+        // const shortlistedByUser = await prisma.interviewParticipant.groupBy({
+        //     by: ,
+        //     where: {
+        //         userId: { in: userIds },
+        //         sortlisted: true
+        //     },
+        //     _count: {
+        //         _all: true
+        //     }
+        // });
+        const shortlistedByUser = await prisma.interview.groupBy({
+            by: ['interviewerId'],
+            where: {
+                interviewerId: { in: userIds },
+                participants:{
+                    some:{
+                      sortlisted:true
                     }
                 }
-            }        
-    })
-    return {data:data,isFailed:false};
+            },
+            _count:{
+              _all:true
+            }
+        })
+
+
+        // Build maps for quick lookup
+        const statsMap: Record<string, { total: number; scheduled: number; completed: number }> = {};
+        for (const id of userIds) {
+            statsMap[id] = { total: 0, scheduled: 0, completed: 0 };
+        }
+
+        for (const row of interviewsByStatus as any[]) {
+            const id = row.interviewerId as string;
+            const cnt = row._count?._all ?? 0;
+            const statusVal = (row.status || '').toUpperCase();
+            statsMap[id] = statsMap[id] || { total: 0, scheduled: 0, completed: 0 };
+            statsMap[id].total += cnt;
+            if (statusVal === 'SCHEDULED') statsMap[id].scheduled += cnt;
+            if (statusVal === 'COMPLETED') statsMap[id].completed += cnt;
+        }
+
+        const shortlistMap: Record<string, number> = {};
+        for (const row of shortlistedByUser as any[]) {
+            const id = row.userId as string;
+            shortlistMap[id] = row._count?._all ?? 0;
+        }
+
+        // Attach interviewStats to each user
+        const data = users.map((u: any) => {
+            const s = statsMap[u.id] || { total: 0, scheduled: 0, completed: 0 };
+            const shortlisted = shortlistMap[u.id] || 0;
+            return {
+                ...u,
+                interviewStats: {
+                    total: s.total,
+                    scheduled: s.scheduled,
+                    completed: s.completed,
+                    shortlisted
+                }
+            };
+        });
+
+        return { data, isFailed: false };
     }
     catch(error){
         console.error('Error fetching candidate data table:', error);

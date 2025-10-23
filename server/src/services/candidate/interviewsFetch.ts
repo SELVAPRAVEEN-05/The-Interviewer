@@ -36,6 +36,7 @@ export const candidateInterviewHistory=async(userId:any,q:string, page:number=1,
         skip,
         take,
         select:{
+             id:true,
             scheduled_at:true,
             status:true,
             session_link:true,
@@ -48,6 +49,7 @@ export const candidateInterviewHistory=async(userId:any,q:string, page:number=1,
                 select:{
                     userPositions:{
                         take:1,
+
                         select:{
                             // position:{
                             //     select:{
@@ -67,14 +69,15 @@ export const candidateInterviewHistory=async(userId:any,q:string, page:number=1,
             },
             participants:{
                 select:{
-                    sortlisted:true,
+                    
                     user:{
                         select:{
                             first_name:true,
                             last_name:true,
                             email:true,
                         }
-                    }
+                    },
+                    sortlisted:true
                 }
             }
         },
@@ -139,18 +142,19 @@ export const candidateUpcomingInterviews=async(userId:any,q:string)=>{
 
         },
         select:{
+            id:true,
             scheduled_at:true,
             status:true,
             session_link:true,
             interviewerId:true,
             type:true,
             name:true,
-            
             user:{
-                
                 select:{
-                    
-                    
+                    id:true,
+                    email:true,
+                    first_name:true,
+                    last_name:true, 
                     userPositions:{
                         take:1,
                         select:{
@@ -179,6 +183,15 @@ export const candidateUpcomingInterviews=async(userId:any,q:string)=>{
                             email:true,
                         }
                     }
+                }
+            },
+            feedbacks:{
+                select:{
+                    score:true,
+                    rating:true,
+                    positive_aspects:true,
+                    negative_aspects:true,
+
                 }
             }
         },

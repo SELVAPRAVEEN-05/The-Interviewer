@@ -22,7 +22,7 @@ export default function Login() {
       email: emailId,
       password: password,
     };
-  const response = await handleLogin(payload);
+    const response = await handleLogin(payload);
 
     if (
       response?.success === true &&
@@ -36,6 +36,12 @@ export default function Login() {
     ) {
       localStorage.setItem("authToken", response.data.token);
       router.push("/interviewer/dashboard");
+    } else if (
+      response?.success === true &&
+      response?.data?.user?.role === "ADMIN"
+    ) {
+      localStorage.setItem("authToken", response.data.token);
+      router.push("/admin/dashboard");
     } else {
       alert("Login Failed");
     }

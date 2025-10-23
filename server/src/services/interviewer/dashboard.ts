@@ -127,7 +127,46 @@ const where: any = { given_by_user_id: userId };
   const scoreresult = Array.from(map.entries())
     .sort((a, b) => (a[0] < b[0] ? -1 : 1))
     .map(([week, v]) => ({ week, count: v.count, averageScore: v.count ? v.sumScore / v.count : 0, averageRating: v.count ? v.sumRating / v.count : 0 }));
+// Aggregate feedbackSkill values by skillId
+      const rawScore = await prisma.feedbackSkill.groupBy({
+        by: ['skillId'],
+        where: {
+          feedback: {
+            given_by_user_id: userId,
+          },
+        },
+        take: 5,
+        orderBy: {
+          _sum: {
+            value: 'desc',
+          },
+        },
+        _count:{
+          value:true
+        },
+        _sum: {
+          value: true,
+        },
+      });
+console.log("rawScore:",rawScore);
+      // Fetch skill names for the grouped skillIds and merge them into the result.
+      const skillIds = rawScore.map((r: any) => r.skillId).filter(Boolean);
+      let score: any[] = [];
+      if (skillIds.length > 0) {
+        const skills = await prisma.skill.findMany({
+          where: { id: { in: skillIds } },
+          select: { id: true, name: true },
+        });
 
+        score = rawScore.map((r: any) => {
+          const skill = skills.find((s: any) => s.id === r.skillId);
+          return {
+            skillName: skill ? skill.name : null,
+            // keep aggregated sums and other groupBy fields if needed
+            percentage: r._sum.value / r._count.value,
+          };
+        });
+      }
   return {
     data: {
       interviewCount,
@@ -139,8 +178,9 @@ const where: any = { given_by_user_id: userId };
         completed,
         cancelled,
       },
-      result,
-      scoreresult
+      MonthlyInterview: result,
+      AvgPerformance: scoreresult,
+      SkillsAssessment: score
     },
     isFailed: false,
   };
@@ -177,6 +217,7 @@ export const interviewerUpcomingInterviews = async (userId: any, q: string) => {
       ],
     },
     select: {
+      id:true,
       scheduled_at: true,
       status: true,
       session_link: true,
@@ -185,15 +226,19 @@ export const interviewerUpcomingInterviews = async (userId: any, q: string) => {
       name: true,
 
       user: {
+        
         select: {
+          first_name:true,
+          last_name:true,
+          email:true,
           userPositions: {
             take: 1,
             select: {
-              // position:{
-              //     select:{
-              //         title:true,
-              //     }
-              // },
+              position:{
+                  select:{
+                      title:true,
+                  }
+              },
               brand: {
                 select: {
                   name: true,
@@ -258,23 +303,41 @@ export const interviewerHistoryInterviews = async (
     skip,
     take,
     select: {
+      id:true,
       scheduled_at: true,
       status: true,
       session_link: true,
       interviewerId: true,
       type: true,
       name: true,
-      feedbacks: true,
+      
+      feedbacks: {
+        select:{
+          score:true,
+          rating:true,
+          positive_aspects:true,
+          negative_aspects:true,
+          feedbackSkills:{
+            select:{
+              value:true,
+              skill:true
+            }
+          }
+        }
+      },
       user: {
         select: {
+          first_name:true,
+          last_name:true,
+          email:true,
           userPositions: {
             take: 1,
             select: {
-              // position:{
-              //     select:{
-              //         title:true,
-              //     }
-              // },
+              position:{
+                  select:{
+                      title:true,
+                  }
+              },
               brand: {
                 select: {
                   name: true,

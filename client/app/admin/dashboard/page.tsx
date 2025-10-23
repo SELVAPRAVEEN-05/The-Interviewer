@@ -29,6 +29,7 @@ import { upcomingInterviews } from "../utils";
 import { QuickActionButton } from "@/components/quickCard/quickActionButton";
 
 const AdminDashboard = () => {
+  // fallback stats (used while API loads)
   const [stats] = useState({
     totalCandidates: 245,
     approvedCandidates: 189,
@@ -41,33 +42,19 @@ const AdminDashboard = () => {
     pendingApprovals: 62,
   });
 
+  // raw API payload (kept for any direct usage)
   const [data, setData] = useState<any>(null);
 
+  // UI-friendly structures derived from API
+  const [cards, setCards] = useState<any[]>([]);
+  const [graphItems, setGraphItems] = useState<any[]>([]);
+  const [quickActions, setQuickActions] = useState<any[]>([]);
+
+  // default graph items until API returns
   const [interviewData] = useState([
-    {
-      name: "Completed",
-      value:
-        data?.totalCompletedInterviews > 0
-          ? data?.totalCompletedInterviews
-          : 156,
-      color: "#22c55e",
-    },
-    {
-      name: "Scheduled",
-      value:
-        data?.totalScheduledInterviews > 0
-          ? data?.totalScheduledInterviews
-          : 42,
-      color: "#3b82f6",
-    },
-    {
-      name: "Cancelled",
-      value:
-        data?.totalCancelledInterviews > 0
-          ? data?.totalCancelledInterviews
-          : 18,
-      color: "#ef4444",
-    },
+    { name: "Completed", value: 156, color: "#22c55e" },
+    { name: "Scheduled", value: 42, color: "#3b82f6" },
+    { name: "Cancelled", value: 18, color: "#ef4444" },
   ]);
 
   const DateDisplay = () => {
@@ -84,7 +71,7 @@ const AdminDashboard = () => {
     return formattedDate;
   };
 
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:5000/";
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:5001/";
   // Pagination + Search state
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
@@ -123,7 +110,94 @@ const AdminDashboard = () => {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       });
-      setData(response?.data);
+
+      // Normalize response shape: server may return { data: { ... }, isFailed } or directly the data
+      const normalized = response?.data ?? response;
+      if (normalized?.Failed) {
+        // keep existing data or show fallback
+        setData(null);
+      } else {
+        // data might be wrapped: { data: {...} }
+        const payload = normalized?.data ?? normalized;
+        setData(payload);
+
+        // Build cards for StatCard components
+        const derivedCards = [
+          {
+            title: "Total Candidates",
+            value: payload?.totalCandidateUsers ?? payload?.totalCandidates ?? stats.totalCandidates,
+            icon: Users,
+            color: "blue",
+            subtitle: `${payload?.totalPendingCandidates ?? stats.pendingCandidates} pending approval`,
+          },
+          {
+            title: "Total Interviewers",
+            value: payload?.totalRecruiterUsers ?? payload?.totalInterviewers ?? stats.totalInterviewers,
+            icon: UserCheck,
+            color: "green",
+            subtitle: `${payload?.totalPendingRecruiters ?? stats.pendingInterviewers} pending approval`,
+          },
+          {
+            title: "Interviews Scheduled",
+            value: payload?.totalScheduledInterviews ?? stats.interviewsScheduled,
+            icon: Calendar,
+            color: "purple",
+          },
+          {
+            title: "Completed Interviews",
+            value: payload?.totalCompletedInterviews ?? stats.completedInterviews,
+            icon: CheckCircle,
+            color: "orange",
+          },
+        ];
+        setCards(derivedCards);
+
+        // Build graph items
+        const derivedGraph = [
+          {
+            name: "Completed",
+            value: payload?.totalCompletedInterviews ?? payload?.interview?.totalCompletedInterviews ?? 156,
+            color: "#22c55e",
+          },
+          {
+            name: "Scheduled",
+            value: payload?.totalScheduledInterviews ?? payload?.interview?.totalScheduledInterviews ?? 42,
+            color: "#3b82f6",
+          },
+          {
+            name: "Cancelled",
+            value: payload?.totalCancelledInterviews ?? payload?.interview?.totalCancelledInterviews ?? 18,
+            color: "#ef4444",
+          },
+        ];
+        setGraphItems(derivedGraph);
+
+        // Quick actions
+        const derivedQuick = [
+          {
+            title: "Approve Candidates",
+            description: `${payload?.totalPendingCandidates ?? stats.pendingCandidates} pending approval`,
+            icon: Users,
+            color: "blue",
+            href: "/admin/manageCandidates",
+          },
+          {
+            title: "Approve Interviewers",
+            description: `${payload?.totalPendingRecruiters ?? stats.pendingInterviewers} pending approval`,
+            icon: UserCheck,
+            color: "green",
+            href: "/admin/manageInterviewers",
+          },
+          {
+            title: "Schedule Interview",
+            description: "Create new interview session",
+            icon: Calendar,
+            color: "orange",
+            href: "/admin/createInterview",
+          },
+        ];
+        setQuickActions(derivedQuick);
+      }
     } catch (error) {
       throw error;
     }
@@ -170,36 +244,43 @@ const AdminDashboard = () => {
         <div className="py-6">
           {/* Key Metrics */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <StatCard
-              title="Total Candidates"
-              value={data?.totalCandidateUsers ?? stats.totalCandidates}
-              icon={Users}
-              color="blue"
-              subtitle={`${stats.approvedCandidates} approved, ${stats.pendingCandidates} pending`}
-            />
-            <StatCard
-              title="Total Interviewers"
-              value={data?.totalRecruiterUsers ?? stats.totalInterviewers}
-              icon={UserCheck}
-              color="green"
-              subtitle={`${stats.approvedInterviewers} approved, ${stats.pendingInterviewers} pending`}
-            />
-            <StatCard
-              title="Interviews Scheduled"
-              value={
-                data?.totalScheduledInterviews ?? stats.interviewsScheduled
-              }
-              icon={Calendar}
-              color="purple"
-            />
-            <StatCard
-              title="Completed Interviews"
-              value={
-                data?.totalCompletedInterviews ?? stats.completedInterviews
-              }
-              icon={CheckCircle}
-              color="orange"
-            />
+            {(cards && cards.length > 0 ? cards : [
+              {
+                title: "Total Candidates",
+                value: data?.totalCandidateUsers ?? stats.totalCandidates,
+                icon: Users,
+                color: "blue",
+                subtitle: `${stats.approvedCandidates} approved, ${stats.pendingCandidates} pending`,
+              },
+              {
+                title: "Total Interviewers",
+                value: data?.totalRecruiterUsers ?? stats.totalInterviewers,
+                icon: UserCheck,
+                color: "green",
+                subtitle: `${stats.approvedInterviewers} approved, ${stats.pendingInterviewers} pending`,
+              },
+              {
+                title: "Interviews Scheduled",
+                value: data?.totalScheduledInterviews ?? stats.interviewsScheduled,
+                icon: Calendar,
+                color: "purple",
+              },
+              {
+                title: "Completed Interviews",
+                value: data?.totalCompletedInterviews ?? stats.completedInterviews,
+                icon: CheckCircle,
+                color: "orange",
+              },
+            ]).map((c: any, idx: number) => (
+              <StatCard
+                key={idx}
+                title={c.title}
+                value={c.value}
+                icon={c.icon}
+                color={c.color}
+                subtitle={c.subtitle}
+              />
+            ))}
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
@@ -214,7 +295,10 @@ const AdminDashboard = () => {
                 <PieChart
                   series={[
                     {
-                      data: interviewData.map((item, index) => ({
+                      data: (graphItems && graphItems.length > 0
+                        ? graphItems
+                        : interviewData
+                      ).map((item: any, index: number) => ({
                         id: index,
                         value: item.value,
                         label: item.name,
@@ -234,31 +318,40 @@ const AdminDashboard = () => {
                 Quick Actions
               </h2>
               <div className="space-y-4">
-                <QuickActionButton
-                  title="Approve Candidates"
-                  description={`${stats.pendingCandidates} pending approval`}
-                  icon={Users}
-                  color="blue"
-                  onClick={() =>
-                    (window.location.href = "/admin/manageCandidates")
-                  }
-                />
-                <QuickActionButton
-                  title="Approve Interviewers"
-                  description={`${stats.pendingInterviewers} pending approval`}
-                  icon={UserCheck}
-                  color="green"
-                  onClick={() =>
-                    (window.location.href = "/admin/manageInterviewers")
-                  }
-                />
-                <QuickActionButton
-                  title="Schedule Interview"
-                  description="Create new interview session"
-                  icon={Calendar}
-                  color="orange"
-                  onClick={() => (window.location.href = "/admim")}
-                />
+                {(quickActions && quickActions.length > 0
+                  ? quickActions
+                  : [
+                      {
+                        title: "Approve Candidates",
+                        description: `${stats.pendingCandidates} pending approval`,
+                        icon: Users,
+                        color: "blue",
+                        href: "/admin/manageCandidates",
+                      },
+                      {
+                        title: "Approve Interviewers",
+                        description: `${stats.pendingInterviewers} pending approval`,
+                        icon: UserCheck,
+                        color: "green",
+                        href: "/admin/manageInterviewers",
+                      },
+                      {
+                        title: "Schedule Interview",
+                        description: "Create new interview session",
+                        icon: Calendar,
+                        color: "orange",
+                        href: "/admin/createInterview",
+                      },
+                    ]).map((q: any, i: number) => (
+                  <QuickActionButton
+                    key={i}
+                    title={q.title}
+                    description={q.description}
+                    icon={q.icon}
+                    color={q.color}
+                    onClick={() => (window.location.href = q.href ?? "/admin")}
+                  />
+                ))}
               </div>
             </div>
           </div>

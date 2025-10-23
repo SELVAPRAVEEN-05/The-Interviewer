@@ -19,6 +19,7 @@ export const candidateStatusUpdate=async(userId:any,status:string)=>{
 }
 export const candidateGet=async(query:string)=>{
     const users=await prisma.user.findMany({where:{
+        role:'CANDIDATE',
             OR:[
                 {first_name:{contains:query,mode:'insensitive'}},
                 {last_name:{contains:query,mode:'insensitive'}},

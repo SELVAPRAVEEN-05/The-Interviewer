@@ -80,7 +80,7 @@ const CandidateDashboard = () => {
       setLoading(true);
       setError(null);
       const baseUrl =
-        process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:5000/";
+        process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:5001/";
       const token =
         typeof window !== "undefined"
           ? localStorage.getItem("authToken")

@@ -1,18 +1,18 @@
 import { transporter } from "../../lib/mailer"
 import prisma from "../../lib/prisma"
 
-export const interviewSchedule=async (schedule:Date,url:string,userId:string,participants:string[],type:string,name:string,duration:number)=>{
+export const interviewSchedule=async (schedule:Date,url:string,userId:string,participants:string[],type:string,name:string,duration:number,skillId:number[])=>{
     console.log(schedule,url,userId,participants)
     const candidate=await prisma.user.findFirst({where:{
         id:participants[0]
     }})
-    console.log(candidate)
-
+    
     // Try to fetch interviewer's company/brand (if available)
     const interviewer = await prisma.user.findUnique({
         where: { id: userId },
         include: { userPositions: { include: { brand: true } } }
     })
+
 
     const companyName = interviewer?.userPositions?.[0]?.brand?.name || "Your Company";
     const interviewName = name || "Interview Session";
@@ -55,14 +55,32 @@ export const interviewSchedule=async (schedule:Date,url:string,userId:string,par
             }
         })
     })
+    await prisma.interviewSkill.createMany({
+    data:skillId.map(id=>({
+        interviewId:data?.id || "",
+        skillId:id,
+        value:0,
+        maxValue:100
+    }))
+}) 
     return {message:"Interview Scheduled Successfully",isFailed:false,data:data}
 }catch(err){
     console.log(err)
     return {message:"Failed to schedule interview",isFailed:true}
 }
 }
-export const interviewFeedBack=async (interviewId:string,given_to_user_id:string,given_by_user_id:string,rating:number,comments:string,score:number)=>{
-    console.log(interviewId,given_to_user_id,given_by_user_id,rating,comments,score)
+export const interviewFeedBack=async (
+    interviewId:string,
+    given_to_user_id:string,
+    given_by_user_id:string,
+    rating:number,
+    comments:string,
+    score:number,
+    feedbackSkills?: { skillId: number; value: number }[],
+    positiveComment?:string,
+    negativeComment?:string
+)=>{
+    console.log(interviewId,given_to_user_id,given_by_user_id,rating,comments,score,feedbackSkills)
     try{
        const data= await prisma.feedback.create({
         data:{
@@ -70,8 +88,13 @@ export const interviewFeedBack=async (interviewId:string,given_to_user_id:string
             given_to_user_id:given_to_user_id,
             given_by_user_id:given_by_user_id,
             rating:rating,
-            comments:comments,
-            score:score  
+            positive_aspects:positiveComment,
+            negative_aspects:negativeComment,
+            score:score,
+            // create per-feedback skill ratings when provided
+            feedbackSkills: feedbackSkills && feedbackSkills.length ? {
+                create: feedbackSkills.map(fs => ({ skillId: fs.skillId, value: fs.value }))
+            } : undefined
         }
     })
     await prisma.interview.update({
