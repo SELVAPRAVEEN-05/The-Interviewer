@@ -5,4 +5,5 @@ export const URL = {
   USER_PROFILE: "api/user/profile",
   MANAGE_CANDIDATES: "api/admin/candidates",
   INTERVIEW: "api/interview",
+  SKILLS: "api/skill/all",
 };
