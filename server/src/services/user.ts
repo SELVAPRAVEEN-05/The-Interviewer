@@ -41,7 +41,29 @@ export const profile=async (id:string)=>{
                 profile_url:true,
                 mobile_number:true, 
                 role:true,
+                country:true,
+                gender:true,
+                github_url:true,
+                linkedin_url:true,
+                portfolio_url:true,
+        language:true,
+        resume_url:true,
+        profile_picture_url:true,
+                
                 created_at:true,
+                educationDetails:{
+                    include:{
+                   institute:true,
+                  educationLevel:true
+                ,user:true
+
+                    }
+                },
+                userSkills:{
+                    include:{
+                        skill:true
+                    }
+                },
                 userPositions:{
                     select:{
                         position:{

@@ -8,10 +8,18 @@ import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 import { getRequest } from "@/utils";
 
 export default function RecentInterviews() {
+  const [dashboardData, setDashboardData] = useState<any | null>(null);
+  const [sampleHistory, setSampleHistory] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:5001/";
+
+  // Derive meeting stats from dashboard data
   const meetingStats = {
-    completed: 38,
-    upcoming: 13,
-    missed: 5,
+    completed: dashboardData?.interviewsCount ?? 0,
+    upcoming: 0, // API doesn't provide this separately
+    missed: 0, // API doesn't provide this
   };
 
   const pieData = [
@@ -20,90 +28,104 @@ export default function RecentInterviews() {
     { name: "Missed", value: meetingStats.missed, color: "#ef4444" },
   ];
 
-  const skillPerformance = [
-    { skill: "Algorithms", score: 85, maxScore: 100, change: +5 },
-    { skill: "SQL", score: 78, maxScore: 100, change: +3 },
-    { skill: "Problem Solving", score: 92, maxScore: 100, change: +8 },
-    { skill: "Communication", score: 88, maxScore: 100, change: +2 },
-  ];
-
-  const [sampleHistory, setSampleHistory] = useState<any[]>([
-    {
-      id: "1",
-      companyName: "TechCorp Solutions",
-      interviewerName: "Rajesh Kumar",
-      date: "25 Sep 2025",
-      status: "shortlisted",
-      score: 85,
-      positiveReview: "You explained algorithms very clearly.",
-      negativeReview: "Improve time management during coding tasks.",
-      rating: 4,
-    },
-  ]);
-
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:5001/";
+  // Derive skill performance from dashboard data
+  const skillPerformance = dashboardData?.score
+    ? dashboardData.score.map((s: any) => ({
+      skill: s.skillName ?? "Unknown",
+      score: s._sum?.value ?? 0,
+      maxScore: 100,
+      change: 0, // API doesn't provide change percentage
+    }))
+    : [
+      { skill: "Algorithms", score: 85, maxScore: 100, change: +5 },
+      { skill: "SQL", score: 78, maxScore: 100, change: +3 },
+      { skill: "Problem Solving", score: 92, maxScore: 100, change: +8 },
+      { skill: "Communication", score: 88, maxScore: 100, change: +2 },
+    ];
 
   // Map server interview object to InterviewHistoryTable shape
   const mapInterviewHistory = (it: any) => {
     const interviewer = it?.user;
     const feedback = (it?.feedbacks && it.feedbacks.length > 0 && it.feedbacks[0]) || null;
-    const status = it?.status ?? (feedback ? 'shortlisted' : 'pending');
     const scheduled = it?.scheduled_at ? new Date(it.scheduled_at) : null;
+
+    // Extract company name from user.userPositions[0].brand.name
+    const brandName = it?.user?.userPositions?.[0]?.brand?.name ?? null;
+    const interviewerName = interviewer
+      ? `${interviewer.first_name ?? ''} ${interviewer.last_name ?? ''}`.trim()
+      : 'Interviewer';
+
+    // Build profile URL
+    const profileUrl = interviewer?.profile_url
+      ? (interviewer.profile_url.startsWith('http')
+        ? interviewer.profile_url
+        : `${baseUrl}${interviewer.profile_url.replace(/\\/g, '/')}`)
+      : null;
 
     return {
       id: it.id,
-      companyLogo: it?.companyLogo ?? '',
-      companyName: it?.user?.first_name
-        ? `${it.user.first_name} ${it.user.last_name ?? ''}`.trim()
-        : it?.user?.email ?? 'Company',
-      interviewerName: interviewer ? `${interviewer.first_name ?? ''} ${interviewer.last_name ?? ''}`.trim() : 'Interviewer',
+      companyLogo: profileUrl ?? it?.companyLogo ?? '',
+      companyName: brandName || interviewerName || 'Company',
+      interviewerName: interviewerName,
       date: scheduled
         ? scheduled.toLocaleDateString(undefined, { day: '2-digit', month: 'short', year: 'numeric' })
         : it?.created_at ?? '',
-      status: status,
+      status: it?.status?.toLowerCase() ?? (feedback ? 'completed' : 'pending'),
       score: feedback?.score,
-      positiveReview: feedback?.comments ?? feedback?.positiveReview ?? '',
-      negativeReview: '',
+      positiveReview: feedback?.positive_aspects ?? '',
+      negativeReview: feedback?.negative_aspects ?? '',
       rating: feedback?.rating,
     };
   };
 
   useEffect(() => {
-    const fetchHistory = async () => {
+    const fetchData = async () => {
       setLoading(true);
       setError(null);
       try {
         const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null;
-        const res: any = await getRequest(`${baseUrl}api/candidate/interviews-history`, {
-          'Content-Type': 'application/json',
-          Authorization: token ? `Bearer ${token}` : undefined,
-        });
 
-        // candidate controller returns { message, Failed, data }
+        // Fetch both dashboard stats and interview history in parallel
+        const [dashRes, historyRes] = await Promise.all([
+          getRequest(`${baseUrl}api/candidate/dashboard`, {
+            'Content-Type': 'application/json',
+            Authorization: token ? `Bearer ${token}` : undefined,
+          }),
+          getRequest(`${baseUrl}api/candidate/interviews-history`, {
+            'Content-Type': 'application/json',
+            Authorization: token ? `Bearer ${token}` : undefined,
+          })
+        ]);
+
+        // Process dashboard data
+        const ddata = dashRes?.data ?? dashRes;
+        setDashboardData(ddata ?? null);
+
+        // Process interview history data
+        const hres: any = historyRes as any;
         let interviewsData: any[] = [];
-        if (res?.data && res.data.interviews) {
-          interviewsData = res.data.interviews;
-        } else if (res?.interviews) {
-          interviewsData = res.interviews;
-        } else if (Array.isArray(res)) {
-          interviewsData = res;
+        if (hres?.data && Array.isArray(hres.data)) {
+          interviewsData = hres.data;
+        } else if (hres?.data && hres.data.interviews) {
+          interviewsData = hres.data.interviews;
+        } else if (hres?.interviews) {
+          interviewsData = hres.interviews;
+        } else if (Array.isArray(hres)) {
+          interviewsData = hres;
         }
 
         if (interviewsData.length > 0) {
           setSampleHistory(interviewsData.map(mapInterviewHistory));
         }
       } catch (err: any) {
-        console.error('Failed to fetch interview history', err);
-        setError(err?.message ?? 'Failed to load interview history');
+        console.error('Failed to fetch data', err);
+        setError(err?.message ?? 'Failed to load data');
       } finally {
         setLoading(false);
       }
     };
 
-    fetchHistory();
+    fetchData();
   }, []);
 
   const handleViewFeedback = (id: string) => {
@@ -175,7 +197,7 @@ export default function RecentInterviews() {
               Skill Performance
             </h3>
           </div>
-          {skillPerformance.map((item, idx) => (
+          {skillPerformance.map((item: any, idx: number) => (
             <div key={idx} className="space-y-1">
               {/* Skill Name */}
               <div className="flex justify-between items-center">
