@@ -12,7 +12,8 @@ import {
   Users,
   XCircle,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { getRequest } from "@/utils";
 
 // Feedback Modal Component
 const FeedbackModal = ({
@@ -87,11 +88,10 @@ const FeedbackModal = ({
                 {Array.from({ length: 5 }).map((_, i) => (
                   <Star
                     key={i}
-                    className={`w-6 h-6 ${
-                      i < (interview.rating || 0)
+                    className={`w-6 h-6 ${i < (interview.rating || 0)
                         ? "text-yellow-500 fill-yellow-500"
                         : "text-gray-300"
-                    }`}
+                      }`}
                   />
                 ))}
               </div>
@@ -176,28 +176,72 @@ export default function InterviewerHistory() {
   const [selectedInterview, setSelectedInterview] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  // State for dashboard data
+  const [dashboardData, setDashboardData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
   const itemsPerPage = 5;
 
+  // Fetch dashboard data from API
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      setLoading(true);
+      setError(null);
+      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:5001/";
+      const token = typeof window !== "undefined" ? localStorage.getItem("authToken") : null;
+
+      try {
+        const response = await getRequest(`${baseUrl}api/interviewer/dashboard`, {
+          "Content-Type": "application/json",
+          Authorization: token ? `Bearer ${token}` : undefined,
+        });
+
+        const result: any = response as any;
+        const data = result?.data ?? result;
+
+        console.log("📊 Interview History - Dashboard Data:", data);
+        setDashboardData(data);
+      } catch (err: any) {
+        console.error("Error fetching dashboard data:", err);
+        setError(err?.message ?? "Failed to load dashboard data");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDashboardData();
+  }, []);
+
+  // Loading skeleton component
+  const Skeleton = ({ className = "" }: { className?: string }) => (
+    <div className={`bg-gray-200 rounded ${className} animate-pulse`} />
+  );
+
+  // Calculate stats from backend data
   const interviewStats = {
-    totalCompleted: 45,
-    totalConducted: 52,
-    avgRating: 4.2,
-    candidatesShortlisted: 28,
+    totalConducted: dashboardData?.interviewCount ?? 0,
+    totalCompleted: dashboardData?.interviewData?.completed ?? 0,
+    avgRating: dashboardData?.AvgPerformance?.[0]?.averageRating ?? 0,
+    candidatesShortlisted: dashboardData?.shortlisted ?? 0,
+    scheduled: dashboardData?.interviewData?.scheduled ?? 0,
+    cancelled: dashboardData?.interviewData?.cancelled ?? 0,
   };
 
   const performanceData = [
-    { name: "Completed", value: 45, color: "#10b981" },
-    { name: "Pending Reviews", value: 7, color: "#3b82f6" },
-    { name: "In Progress", value: 12, color: "#f59e0b" },
-    { name: "On Hold", value: 5, color: "#ef4444" },
+    { name: "Completed", value: interviewStats.totalCompleted, color: "#10b981" },
+    { name: "Scheduled", value: interviewStats.scheduled, color: "#3b82f6" },
+    { name: "Cancelled", value: interviewStats.cancelled, color: "#ef4444" },
+    { name: "Shortlisted", value: interviewStats.candidatesShortlisted, color: "#f59e0b" },
   ];
 
-  const skillTrends = [
-    { skill: "Communication", avg: 82, trend: +5 },
-    { skill: "Technical Skills", avg: 78, trend: +3 },
-    { skill: "Problem Solving", avg: 85, trend: +7 },
-    { skill: "Cultural Fit", avg: 80, trend: +2 },
-  ];
+  // Skills data from backend
+  const skillTrends = loading || !dashboardData?.SkillsAssessment
+    ? []
+    : dashboardData.SkillsAssessment.map((item: any) => ({
+      skill: item.skillName,
+      avg: Math.round(item.percentage ?? 0),
+    }));
 
   const sampleHistory = [
     {
@@ -329,31 +373,31 @@ export default function InterviewerHistory() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <StatCard
           title="Total Interviews"
-          value={interviewStats.totalConducted}
+          value={loading ? <Skeleton className="w-16 h-8" /> : interviewStats.totalConducted}
           icon={Calendar}
           color="blue"
-          subtitle={`Completed: ${interviewStats.totalCompleted}`}
+          subtitle={loading ? '' : `Completed: ${interviewStats.totalCompleted}`}
         />
         <StatCard
           title="Avg Rating Given"
-          value={interviewStats.avgRating}
+          value={loading ? <Skeleton className="w-12 h-8" /> : interviewStats.avgRating}
           icon={Star}
           color="purple"
           subtitle="Out of 5 stars"
         />
         <StatCard
           title="Shortlisted"
-          value={interviewStats.candidatesShortlisted}
+          value={loading ? <Skeleton className="w-12 h-8" /> : interviewStats.candidatesShortlisted}
           icon={CheckCircle}
           color="green"
           subtitle="Candidates recommended"
         />
         <StatCard
-          title="Rejection Rate"
-          value="46%"
+          title="Avg Duration"
+          value={loading ? <Skeleton className="w-16 h-8" /> : `${dashboardData?.avgDuration ?? 0}m`}
           icon={Target}
-          color="red"
-          subtitle="Based on assessments"
+          color="orange"
+          subtitle="Per interview"
         />
       </div>
 
@@ -367,25 +411,33 @@ export default function InterviewerHistory() {
               Interview Overview
             </h3>
           </div>
-          <div className="grid grid-cols-2 gap-4">
-            {performanceData.map((item, idx) => (
-              <div
-                key={idx}
-                className="bg-white border border-gray-300 rounded-lg p-4"
-              >
-                <div className="flex items-center justify-between mb-2">
-                  <span
-                    className="w-4 h-4 rounded-full"
-                    style={{ backgroundColor: item.color }}
-                  />
-                  <span className="text-2xl font-bold text-gray-900">
-                    {item.value}
-                  </span>
+          {loading ? (
+            <div className="grid grid-cols-2 gap-4">
+              {[1, 2, 3, 4].map((i) => (
+                <Skeleton key={i} className="h-24 rounded-lg" />
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 gap-4">
+              {performanceData.map((item, idx) => (
+                <div
+                  key={idx}
+                  className="bg-white border border-gray-300 rounded-lg p-4"
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <span
+                      className="w-4 h-4 rounded-full"
+                      style={{ backgroundColor: item.color }}
+                    />
+                    <span className="text-2xl font-bold text-gray-900">
+                      {item.value}
+                    </span>
+                  </div>
+                  <p className="text-sm text-gray-600">{item.name}</p>
                 </div>
-                <p className="text-sm text-gray-600">{item.name}</p>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Skill Performance Trends */}
@@ -396,31 +448,36 @@ export default function InterviewerHistory() {
               Avg Candidate Performance
             </h3>
           </div>
-          <div className="space-y-4">
-            {skillTrends.map((item, idx) => (
-              <div key={idx}>
-                <div className="flex justify-between items-center mb-1">
-                  <span className="font-medium text-gray-800 text-sm">
-                    {item.skill}
-                  </span>
-                  <div className="flex items-center gap-2">
-                    <span
-                      className={`text-xs font-semibold ${item.trend > 0 ? "text-green-600" : "text-red-600"}`}
-                    >
-                      {item.trend > 0 ? `+${item.trend}%` : `${item.trend}%`}
+          {loading ? (
+            <div className="space-y-4">
+              {[1, 2, 3, 4].map((i: number) => (
+                <Skeleton key={i} className="h-12 rounded" />
+              ))}
+            </div>
+          ) : skillTrends.length === 0 ? (
+            <div className="flex items-center justify-center h-[160px] text-gray-500">
+              No skills data available
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {skillTrends.map((item: any, idx: number) => (
+                <div key={idx}>
+                  <div className="flex justify-between items-center mb-1">
+                    <span className="font-medium text-gray-800 text-sm">
+                      {item.skill}
                     </span>
                     <span className="font-bold text-gray-900">{item.avg}%</span>
                   </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div
+                      className="bg-blue-600 h-2 rounded-full transition-all"
+                      style={{ width: `${item.avg}%` }}
+                    />
+                  </div>
                 </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div
-                    className="bg-blue-600 h-2 rounded-full transition-all"
-                    style={{ width: `${item.avg}%` }}
-                  />
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
@@ -519,11 +576,10 @@ export default function InterviewerHistory() {
                 <button
                   key={idx}
                   onClick={() => setCurrentPage(idx + 1)}
-                  className={`px-4 py-2 border rounded-lg text-sm transition ${
-                    currentPage === idx + 1
+                  className={`px-4 py-2 border rounded-lg text-sm transition ${currentPage === idx + 1
                       ? "bg-blue-600 text-white border-blue-600"
                       : "text-gray-700 border-gray-300 hover:bg-gray-100"
-                  }`}
+                    }`}
                 >
                   {idx + 1}
                 </button>
