@@ -1,6 +1,7 @@
 "use client";
 
 import StatCard from "@/app/admin/components/statCard";
+import { Button } from "@nextui-org/react";
 import {
   Briefcase,
   Calendar,
@@ -159,9 +160,9 @@ const FeedbackModal = ({
           <div className="flex justify-end pt-4 border-t border-gray-200">
             <button
               onClick={onClose}
-              className="px-6 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-900 transition"
+              className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
             >
-              Close
+              ShortList
             </button>
           </div>
         </div>
@@ -170,7 +171,6 @@ const FeedbackModal = ({
   );
 };
 
-// Main Component
 export default function InterviewerHistory() {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedInterview, setSelectedInterview] = useState(null);
@@ -360,7 +360,7 @@ export default function InterviewerHistory() {
       {/* Charts Section */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         {/* Interview Overview Chart */}
-        <div className="bg-gray-100 border border-gray-300 rounded-lg shadow-md p-6">
+        {/* <div className="bg-gray-100 border border-gray-300 rounded-lg shadow-md p-6">
           <div className="flex items-center mb-4">
             <Users className="w-5 h-5 text-blue-600" />
             <h3 className="ml-3 text-lg font-semibold text-gray-900">
@@ -386,10 +386,10 @@ export default function InterviewerHistory() {
               </div>
             ))}
           </div>
-        </div>
+        </div> */}
 
         {/* Skill Performance Trends */}
-        <div className="bg-gray-100 border border-gray-300 rounded-lg shadow-md p-6">
+        {/* <div className="bg-gray-100 border border-gray-300 rounded-lg shadow-md p-6">
           <div className="flex items-center mb-4">
             <TrendingUp className="w-5 h-5 text-green-600" />
             <h3 className="ml-3 text-lg font-semibold text-gray-900">
@@ -421,7 +421,7 @@ export default function InterviewerHistory() {
               </div>
             ))}
           </div>
-        </div>
+        </div> */}
       </div>
 
       {/* Interview History Table */}

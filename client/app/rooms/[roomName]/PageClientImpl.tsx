@@ -487,6 +487,11 @@ const VideoConferenceComponent = React.memo<{
             // For now, just log. Persistence can be added to POST to backend.
             console.log("Interviewer feedback submitted:", payload);
           }}
+          skills={[
+            { skillId: 1, skillName: "Problem Solving" },
+            { skillId: 2, skillName: "Communication" },
+            { skillId: 3, skillName: "System Design" },
+          ]}
         />
       )}
 
