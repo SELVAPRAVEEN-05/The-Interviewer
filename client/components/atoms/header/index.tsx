@@ -26,7 +26,7 @@ export default function Header() {
             width={150}
           />
           <div className="flex items-center h-full space-x-5 pr-4">
-            <div
+            {/* <div
               className="relative mt-[5px] xl:mt-2 cursor-pointer p-2 rounded-lg"
               onClick={handleNotificationClick}
             >
@@ -36,7 +36,7 @@ export default function Header() {
                   {notifications > 99 ? "99+" : notifications}
                 </span>
               )}
-            </div>
+            </div> */}
             <div
               onClick={() => router.push("/admin/profile")}
               className="w-9 h-9 bg-blue-500 rounded-full flex items-center justify-center text-white cursor-pointer"
