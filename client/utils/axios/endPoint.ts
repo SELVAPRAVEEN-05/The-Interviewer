@@ -6,4 +6,5 @@ export const URL = {
   MANAGE_CANDIDATES: "api/admin/candidates",
   INTERVIEW: "api/interview",
   SKILLS: "api/skill/all",
+  CANDIDATES: "api/candidate",
 };

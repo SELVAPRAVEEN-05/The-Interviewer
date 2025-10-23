@@ -8,10 +8,26 @@ import {
   User,
   User2,
   Video,
+  CheckCircle,
+  X,
+  AlertCircle,
 } from "lucide-react";
-import { useState } from "react";
-import { postRequest } from "@/utils/axios/axios";
+import { useState, useEffect } from "react";
+import { postRequest, getRequest } from "@/utils/axios/axios";
 import { URL } from "@/utils/axios/endPoint";
+
+interface Skill {
+  id: number;
+  name: string;
+  category: string;
+}
+
+interface Candidate {
+  id: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+}
 
 export default function CreateInterviewPage() {
   const [formData, setFormData] = useState({
@@ -20,12 +36,17 @@ export default function CreateInterviewPage() {
     interviewerName: "",
     interviewerRole: "",
     interviewType: "Technical",
+    interviewName: "",
     date: "",
     startTime: "",
     endTime: "",
     meetingLink: "",
     participants: "",
   });
+
+  const [showPopup, setShowPopup] = useState(false);
+  const [popupMessage, setPopupMessage] = useState("");
+  const [popupType, setPopupType] = useState<"success" | "error">("success");
 
   const handleChange = (e: { target: { name: any; value: any } }) => {
     const { name, value } = e.target;
@@ -35,12 +56,36 @@ export default function CreateInterviewPage() {
     }));
   };
 
+  const showNotification = (message: string, type: "success" | "error") => {
+    setPopupMessage(message);
+    setPopupType(type);
+    setShowPopup(true);
+    setTimeout(() => {
+      setShowPopup(false);
+    }, 4000);
+  };
+
   const handleSubmit = (e: { preventDefault: () => void }) => {
     e.preventDefault();
     // Build ISO schedule datetime from date + startTime
-    const { date, startTime, participants } = formData as any;
+    const { date, startTime, interviewName } = formData as any;
     if (!date || !startTime) {
-      alert("Please provide a date and start time.");
+      showNotification("Please provide a date and start time.", "error");
+      return;
+    }
+
+    if (!interviewName || interviewName.trim() === "") {
+      showNotification("Please provide an interview name.", "error");
+      return;
+    }
+
+    if (selectedCandidates.length === 0) {
+      showNotification("Please select at least one candidate.", "error");
+      return;
+    }
+
+    if (selectedSkills.length === 0) {
+      showNotification("Please select at least one skill.", "error");
       return;
     }
 
@@ -48,21 +93,28 @@ export default function CreateInterviewPage() {
 
     const token =
       typeof window !== "undefined" ? localStorage.getItem("authToken") : null;
-    // Parse participants input (comma-separated ids)
-    const participantList = participants
-      ? participants
-          .split(",")
-          .map((p: string) => p.trim())
-          .filter(Boolean)
-      : [];
+
+    // Get all selected candidate IDs
+    const participantIds = selectedCandidates.map((candidate) => candidate.id);
+
+    // Get skill IDs from selected skill names
+    const skillIds = selectedSkills.map((skillName) => {
+      const skill = skills.find((s) => s.name === skillName);
+      return skill?.id;
+    }).filter((id): id is number => id !== undefined);
+
+    const payload = {
+      schedule: schedule.toISOString(),
+      type: formData.interviewType,
+      name: interviewName,
+      participants: participantIds,
+      skill: skillIds,
+    };
 
     setLoading(true);
     postRequest(
       URL.INTERVIEW || "api/interview",
-      {
-        schedule,
-        participants: "5387ee4b-74d9-45e7-93fa-50f08c3558ec",
-      },
+      payload,
       {
         "Content-Type": "application/json",
         Authorization: token ? `Bearer ${token}` : undefined,
@@ -70,17 +122,24 @@ export default function CreateInterviewPage() {
     )
       .then((res) => {
         console.log("Interview Created:", res);
-        alert("Interview scheduled successfully!");
+        showNotification("Interview scheduled successfully!", "success");
         // Optionally reset form or navigate
       })
       .catch((err) => {
         console.error("Failed to schedule interview:", err);
-        alert("Failed to schedule interview. Check console for details.");
+        showNotification("Failed to schedule interview. Please try again.", "error");
       })
       .finally(() => setLoading(false));
   };
 
   const [loading, setLoading] = useState(false);
+  const [skills, setSkills] = useState<Skill[]>([]);
+  const [skillsLoading, setSkillsLoading] = useState(true);
+  const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
+  const [candidates, setCandidates] = useState<Candidate[]>([]);
+  const [candidatesLoading, setCandidatesLoading] = useState(true);
+  const [selectedCandidates, setSelectedCandidates] = useState<Candidate[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const interviewTypes = [
     "Technical",
@@ -92,8 +151,92 @@ export default function CreateInterviewPage() {
 
   const Names = ["sanjeev", "Naveen", "David"];
 
+  // Fetch skills from API
+  useEffect(() => {
+
+    const fetchSkills = async () => {
+      try {
+        setSkillsLoading(true);
+        const response: any = await getRequest(URL.SKILLS || "api/skill/all");
+        setSkills(response.data || response || []);
+      } catch (error) {
+        console.error("Failed to fetch skills:", error);
+      } finally {
+        setSkillsLoading(false);
+      }
+    };
+
+    fetchSkills();
+  }, []);
+
+  // Fetch candidates from API
+  useEffect(() => {
+    const fetchCandidates = async () => {
+      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:5001/";
+      const token = typeof window !== "undefined" ? localStorage.getItem("authToken") : null;
+      try {
+        setCandidatesLoading(true);
+        const response: any = await getRequest(`${URL.CANDIDATES || "api/candidate"}?q=${searchQuery}`, {
+          "Content-Type": "application/json",
+          Authorization: token ? `Bearer ${token}` : undefined,
+        });
+        const candidatesData = response.data?.users || response.users || [];
+        setCandidates(candidatesData);
+      } catch (error) {
+        console.error("Failed to fetch candidates:", error);
+      } finally {
+        setCandidatesLoading(false);
+      }
+    };
+
+    fetchCandidates();
+  }, [searchQuery]);
   return (
     <div className="min-h-screen">
+      {/* Success/Error Popup */}
+      {showPopup && (
+        <div className="fixed top-4 right-4 z-50 animate-slide-in">
+          <div
+            className={`flex items-center gap-3 px-6 py-4 rounded-lg shadow-2xl border-2 ${popupType === "success"
+                ? "bg-green-50 border-green-500"
+                : "bg-red-50 border-red-500"
+              }`}
+          >
+            {popupType === "success" ? (
+              <CheckCircle className="w-6 h-6 text-green-600" />
+            ) : (
+              <AlertCircle className="w-6 h-6 text-red-600" />
+            )}
+            <div className="flex-1">
+              <p
+                className={`font-semibold ${popupType === "success" ? "text-green-900" : "text-red-900"
+                  }`}
+              >
+                {popupType === "success" ? "Success!" : "Error!"}
+              </p>
+              <p
+                className={`text-sm ${popupType === "success" ? "text-green-700" : "text-red-700"
+                  }`}
+              >
+                {popupMessage}
+              </p>
+            </div>
+            <button
+              onClick={() => setShowPopup(false)}
+              className={`p-1 rounded-full hover:bg-opacity-20 transition ${popupType === "success"
+                  ? "hover:bg-green-600"
+                  : "hover:bg-red-600"
+                }`}
+            >
+              <X
+                className={`w-5 h-5 ${popupType === "success" ? "text-green-600" : "text-red-600"
+                  }`}
+              />
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex items-center mb-6 justify-between bg-gray-100 border border-gray-300 shadow-lg px-6 py-4 rounded-lg">
         <div>
@@ -115,7 +258,7 @@ export default function CreateInterviewPage() {
             className="bg-gray-100 rounded-2xl shadow-lg border border-gray-300 p-8"
           >
             {/* Company Information */}
-            <div className="mb-8">
+            {/* <div className="mb-8">
               <h2 className="text-xl font-semibold text-slate-900 mb-6 flex items-center">
                 <Building2 className="w-5 h-5 mr-2 text-blue-600" />
                 Company Information
@@ -150,10 +293,10 @@ export default function CreateInterviewPage() {
                   />
                 </div>
               </div>
-            </div>
+            </div> */}
 
             {/* Interviewer Details */}
-            <div className="mb-8">
+            {/* <div className="mb-8">
               <h2 className="text-xl font-semibold text-slate-900 mb-6 flex items-center">
                 <User className="w-5 h-5 mr-2 text-blue-600" />
                 Interviewer Details
@@ -188,7 +331,7 @@ export default function CreateInterviewPage() {
                   />
                 </div>
               </div>
-            </div>
+            </div> */}
 
             {/* Interview Configuration */}
             <div className="mb-8">
@@ -214,6 +357,20 @@ export default function CreateInterviewPage() {
                       </option>
                     ))}
                   </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">
+                    Interview Name
+                  </label>
+                  <input
+                    type="text"
+                    name="interviewName"
+                    value={formData.interviewName}
+                    onChange={handleChange}
+                    placeholder="e.g., Backend Stack, Frontend Developer Interview"
+                    className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+                    required
+                  />
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <div>
@@ -259,7 +416,7 @@ export default function CreateInterviewPage() {
                     />
                   </div>
                 </div>
-                <div>
+                {/* <div>
                   <label className="block text-sm font-medium text-slate-700 mb-2">
                     <Video className="w-4 h-4 inline mr-1" />
                     Meeting Link
@@ -273,8 +430,57 @@ export default function CreateInterviewPage() {
                     className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
                     required
                   />
-                </div>
+                </div> */}
+                <div className="w-full">
+                  <label className="block text-sm font-medium text-slate-700 mb-2">
+                    <User2 className="w-4 h-4 inline mr-1" />
+                    Add Skills
+                  </label>
 
+                  <div className="bg-white rounded-lg shadow-sm border border-gray-200 hover:border-blue-400 transition-all p-2">
+                    <Autocomplete
+                      multiple
+                      freeSolo
+                      options={skills.map((skill) => skill.name)}
+                      value={selectedSkills}
+                      onChange={(event, newValue) => {
+                        setSelectedSkills(newValue);
+                      }}
+                      loading={skillsLoading}
+                      groupBy={(option) => {
+                        const skill = skills.find((s) => s.name === option);
+                        return skill?.category || "Other";
+                      }}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          placeholder={
+                            skillsLoading
+                              ? "Loading skills..."
+                              : "Select or type skills"
+                          }
+                          variant="outlined"
+                          size="small"
+                          sx={{
+                            "& .MuiOutlinedInput-root": {
+                              border: "none",
+                              boxShadow: "none",
+                              backgroundColor: "transparent",
+                              fontSize: "0.9rem",
+                              paddingY: "4px",
+                            },
+                            "& .MuiOutlinedInput-notchedOutline": {
+                              border: "none",
+                            },
+                            "& .MuiInputBase-input": {
+                              paddingY: "5px",
+                            },
+                          }}
+                        />
+                      )}
+                    />
+                  </div>
+                </div>
                 <div className="w-full">
                   <label className="block text-sm font-medium text-slate-700 mb-2">
                     <User2 className="w-4 h-4 inline mr-1" />
@@ -284,12 +490,28 @@ export default function CreateInterviewPage() {
                   <div className="bg-white rounded-lg shadow-sm border border-gray-200 hover:border-blue-400 transition-all p-2">
                     <Autocomplete
                       multiple
-                      freeSolo
-                      options={Names}
+                      options={candidates}
+                      value={selectedCandidates}
+                      onChange={(event, newValue) => {
+                        setSelectedCandidates(newValue as Candidate[]);
+                      }}
+                      loading={candidatesLoading}
+                      getOptionLabel={(option) => {
+                        if (typeof option === "string") return option;
+                        return `${option.first_name} ${option.last_name} (${option.email})`;
+                      }}
+                      isOptionEqualToValue={(option, value) => option.id === value.id}
+                      onInputChange={(event, newInputValue) => {
+                        setSearchQuery(newInputValue);
+                      }}
                       renderInput={(params) => (
                         <TextField
                           {...params}
-                          placeholder="Select or type names"
+                          placeholder={
+                            candidatesLoading
+                              ? "Loading candidates..."
+                              : "Search and select candidates"
+                          }
                           variant="outlined"
                           size="small"
                           sx={{
@@ -412,6 +634,22 @@ export default function CreateInterviewPage() {
           </div>
         </div>
       </div>
+
+      <style jsx>{`
+        @keyframes slide-in {
+          from {
+            transform: translateX(100%);
+            opacity: 0;
+          }
+          to {
+            transform: translateX(0);
+            opacity: 1;
+          }
+        }
+        .animate-slide-in {
+          animation: slide-in 0.3s ease-out;
+        }
+      `}</style>
     </div>
   );
 }

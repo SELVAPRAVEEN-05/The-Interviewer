@@ -182,10 +182,12 @@ export default function InterviewerDashboard() {
       const token = typeof window !== "undefined" ? localStorage.getItem("authToken") : null;
 
       try {
-        const response = await getRequest(`${baseUrl}api/interviewer/upcoming?q=`, {
+        const response = await getRequest(`${baseUrl}api/interviewer/upcoming?q=`, 
+          {
           "Content-Type": "application/json",
           Authorization: token ? `Bearer ${token}` : undefined,
-        });
+        }
+      );
 
         const result: any = response as any;
         const data = result?.data ?? result;
