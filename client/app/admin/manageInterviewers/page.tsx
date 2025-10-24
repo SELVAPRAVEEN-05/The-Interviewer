@@ -205,6 +205,7 @@ const ManageInterviewers = () => {
   const updateCandidateStatus = async (userId: string, status: string) => {
     setActionLoading(true);
     try {
+      const token = typeof window !== 'undefined' ? localStorage.getItem("authToken") : null;
       const payload = { userId, status };
       const headers = {
         "Content-Type": "application/json",
@@ -275,8 +276,6 @@ const ManageInterviewers = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filteredInterviewers.length, rowsPerPage]);
 
-  const token = localStorage.getItem("authToken");
-
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:5001/";
   const [table, setTableData] = useState<any[]>([]);
   const [totalRecords, setTotalRecords] = useState<number | null>(null);
@@ -286,6 +285,7 @@ const ManageInterviewers = () => {
   const fetchCards = async () => {
     setCardsLoading(true);
     try {
+      const token = typeof window !== 'undefined' ? localStorage.getItem("authToken") : null;
       const resp: any = await getRequest(
         `${baseUrl}api/admin/interviewers`,
         {
@@ -307,6 +307,7 @@ const ManageInterviewers = () => {
   const InitalCall = async () => {
     setLoading(true);
     try {
+      const token = typeof window !== 'undefined' ? localStorage.getItem("authToken") : null;
       const response: any = await getRequest(
         `${baseUrl}api/admin/interviewers-table?status=${encodeURIComponent(
           statusFilter === "All Status" ? "" : statusFilter
