@@ -53,7 +53,7 @@ export const InterviewerFeedback = ({ isOpen, onClose, onSubmit, interviewId }: 
           setError(null);
           console.log("🔍 Fetching interview data for ID:", interviewId);
 
-          const response: any = await getRequest(`api/skill/interview/${interviewId}`);
+          const response: any = await getRequest(`https://codemeet-gamma.vercel.app/api/candidate/dashboard/api/skill/interview/${interviewId}`);
 
           console.log("📥 API Response:", response);
 
