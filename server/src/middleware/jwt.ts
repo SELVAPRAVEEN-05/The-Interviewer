@@ -4,7 +4,7 @@ import fastifyCookie from '@fastify/cookie';
 import cors from '@fastify/cors';
 import multipart from '@fastify/multipart';
 import fastifyStatic from '@fastify/static';
-import path from "path/win32";
+import path from "path";
 const fastify = Fastify();
 
 // Define the types for request user property
