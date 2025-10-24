@@ -29,18 +29,24 @@ export default function Login() {
       response?.data?.user?.role === "CANDIDATE"
     ) {
       localStorage.setItem("authToken", response.data.token);
+      localStorage.setItem("name", response?.data?.user?.first_name);
+
       router.push("/candidate/dashboard");
     } else if (
       response?.success === true &&
       response?.data?.user?.role === "INTERVIEWER"
     ) {
       localStorage.setItem("authToken", response.data.token);
+      localStorage.setItem("name", response?.data?.user?.first_name);
+
       router.push("/interviewer/dashboard");
     } else if (
       response?.success === true &&
       response?.data?.user?.role === "ADMIN"
     ) {
       localStorage.setItem("authToken", response.data.token);
+      localStorage.setItem("name", response?.data?.user?.first_name);
+
       router.push("/admin/dashboard");
     } else {
       alert("Login Failed");
