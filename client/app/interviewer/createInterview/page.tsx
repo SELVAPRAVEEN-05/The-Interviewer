@@ -535,7 +535,7 @@ export default function CreateInterviewPage() {
                     />
                   </div>
                 </div>
-                <div className="w-full">
+                {/* <div className="w-full">
                   <label className="block text-sm font-medium text-slate-700 mb-2">
                     <User2 className="w-4 h-4 inline mr-1" />
                     Add Skills
@@ -571,7 +571,7 @@ export default function CreateInterviewPage() {
                       )}
                     />
                   </div>
-                </div>
+                </div> */}
               </div>
             </div>
 
