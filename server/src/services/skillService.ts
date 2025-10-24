@@ -30,7 +30,7 @@ export const GetSkillsForInterview = async (interviewId: string) => {
         include: { skill: true }
     });
     // Map to a useful shape combining interviewSkill metadata with the skill fields
-    return interviewSkills.map((is) => ({
+    return {skill:interviewSkills.map((is) => ({
         interviewSkillId: is.id,
         interviewId: is.interviewId,
         value: is.value,
@@ -40,5 +40,11 @@ export const GetSkillsForInterview = async (interviewId: string) => {
             name: is.skill.name,
             category: is.skill.category,
         }
-    }));
+    })),
+    participant:await prisma.interview.findUnique({where:{id:interviewId},include:{participants:{select:{id:true,
+        user:{
+            select:{id:true,first_name:true}
+        }
+    }}}})
+};
 }

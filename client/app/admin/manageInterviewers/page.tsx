@@ -605,7 +605,7 @@ const ManageInterviewers = () => {
                 {/* Header */}
                 <ModalHeader className="flex items-start justify-between p-6 border-b">
                   <div className="flex items-center gap-4">
-                    <div className="h-16 w-16 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-xl">
+                    <div className="h-16 w-16 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold text-xl">
                       {selectedInterviewer
                         ? safeDisplay(selectedInterviewer.name)
                             .split(" ")
@@ -772,51 +772,13 @@ const ManageInterviewers = () => {
                           </div>
                         </div>
 
-                        {/* Success Rate */}
-                        <div className="mt-4 p-4 bg-gray-50 rounded-lg">
-                          <div className="flex items-center justify-between mb-2">
-                            <span className="text-sm font-medium text-gray-600">
-                              Success Rate
-                            </span>
-                            <span className="text-sm font-bold text-gray-900">
-                              {selectedInterviewer
-                                ? (
-                                    (toNumber(selectedInterviewer.stats?.totalHires) /
-                                      Math.max(
-                                        1,
-                                        toNumber(
-                                          selectedInterviewer.stats?.completedInterviews
-                                        )
-                                      )) *
-                                    100
-                                  ).toFixed(1)
-                                : "0.0"}
-                              %
-                            </span>
-                          </div>
-
-                          <div className="w-full bg-gray-200 rounded-full h-2">
-                            <div
-                              className="bg-gradient-to-r from-green-400 to-green-600 h-2 rounded-full transition-all duration-300"
-                              style={{
-                                width: `${
-                                  selectedInterviewer
-                                    ? Math.min(
-                                        100,
-                                        (toNumber(selectedInterviewer.stats?.totalHires) /
-                                          Math.max(
-                                            1,
-                                            toNumber(
-                                              selectedInterviewer.stats?.completedInterviews
-                                            )
-                                          )) *
-                                          100
-                                      )
-                                    : 0
-                                }%`,
-                              }}
-                            />
-                          </div>
+                        <div className="mt-4 p-4 flex gap-4 justify-end">
+                          <Button variant="solid" color="success" className="text-white">
+                            Approve
+                          </Button>
+                          <Button variant="bordered" color="danger">
+                            reject
+                          </Button>
                         </div>
                       </div>
                     </div>

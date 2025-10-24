@@ -11,6 +11,7 @@ import { RecordingIndicator } from "@/lib/RecordingIndicator";
 import { SettingsMenu } from "@/lib/SettingsMenu";
 import { ConnectionDetails } from "@/lib/types";
 import { useSetupE2EE } from "@/lib/useSetupE2EE";
+import { getRequest } from "@/utils";
 import {
   formatChatMessageLinks,
   LocalUserChoices,
@@ -56,78 +57,78 @@ const ResizableSplitPanel: React.FC<{
   minLeftWidth = 20,
   minRightWidth = 20,
 }) => {
-  const [leftWidth, setLeftWidth] = useState(initialLeftWidth);
-  const [isDragging, setIsDragging] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
+    const [leftWidth, setLeftWidth] = useState(initialLeftWidth);
+    const [isDragging, setIsDragging] = useState(false);
+    const containerRef = useRef<HTMLDivElement>(null);
 
-  const handleMouseDown = useCallback((e: React.MouseEvent) => {
-    e.preventDefault();
-    setIsDragging(true);
-  }, []);
+    const handleMouseDown = useCallback((e: React.MouseEvent) => {
+      e.preventDefault();
+      setIsDragging(true);
+    }, []);
 
-  const handleMouseMove = useCallback(
-    (e: MouseEvent) => {
-      if (!isDragging || !containerRef.current) return;
+    const handleMouseMove = useCallback(
+      (e: MouseEvent) => {
+        if (!isDragging || !containerRef.current) return;
 
-      const container = containerRef.current;
-      const containerRect = container.getBoundingClientRect();
-      const newLeftWidth =
-        ((e.clientX - containerRect.left) / containerRect.width) * 100;
+        const container = containerRef.current;
+        const containerRect = container.getBoundingClientRect();
+        const newLeftWidth =
+          ((e.clientX - containerRect.left) / containerRect.width) * 100;
 
-      // Enforce minimum widths
-      const clampedWidth = Math.max(
-        minLeftWidth,
-        Math.min(100 - minRightWidth, newLeftWidth)
-      );
+        // Enforce minimum widths
+        const clampedWidth = Math.max(
+          minLeftWidth,
+          Math.min(100 - minRightWidth, newLeftWidth)
+        );
 
-      setLeftWidth(clampedWidth);
-    },
-    [isDragging, minLeftWidth, minRightWidth]
-  );
+        setLeftWidth(clampedWidth);
+      },
+      [isDragging, minLeftWidth, minRightWidth]
+    );
 
-  const handleMouseUp = useCallback(() => {
-    setIsDragging(false);
-  }, []);
+    const handleMouseUp = useCallback(() => {
+      setIsDragging(false);
+    }, []);
 
-  useEffect(() => {
-    if (isDragging) {
-      document.addEventListener("mousemove", handleMouseMove);
-      document.addEventListener("mouseup", handleMouseUp);
-      document.body.style.cursor = "col-resize";
-      document.body.style.userSelect = "none";
+    useEffect(() => {
+      if (isDragging) {
+        document.addEventListener("mousemove", handleMouseMove);
+        document.addEventListener("mouseup", handleMouseUp);
+        document.body.style.cursor = "col-resize";
+        document.body.style.userSelect = "none";
 
-      return () => {
-        document.removeEventListener("mousemove", handleMouseMove);
-        document.removeEventListener("mouseup", handleMouseUp);
-        document.body.style.cursor = "";
-        document.body.style.userSelect = "";
-      };
-    }
-  }, [isDragging, handleMouseMove, handleMouseUp]);
+        return () => {
+          document.removeEventListener("mousemove", handleMouseMove);
+          document.removeEventListener("mouseup", handleMouseUp);
+          document.body.style.cursor = "";
+          document.body.style.userSelect = "";
+        };
+      }
+    }, [isDragging, handleMouseMove, handleMouseUp]);
 
-  return (
-    <div ref={containerRef} className="flex w-full h-full">
-      <div
-        className="flex-shrink-0 overflow-hidden"
-        style={{ width: `${leftWidth}%` }}
-      >
-        {leftPanel}
-      </div>
-
-      <div
-        className="w-2 bg-gray-300 hover:bg-gray-400 cursor-col-resize flex-shrink-0 transition-colors duration-150"
-        onMouseDown={handleMouseDown}
-        style={{ backgroundColor: isDragging ? "#9ca3af" : undefined }}
-      >
-        <div className="w-full h-full flex items-center justify-center">
-          <div className="w-1 h-12 bg-gray-500 rounded-full opacity-60" />
+    return (
+      <div ref={containerRef} className="flex w-full h-full">
+        <div
+          className="flex-shrink-0 overflow-hidden"
+          style={{ width: `${leftWidth}%` }}
+        >
+          {leftPanel}
         </div>
-      </div>
 
-      <div className="flex-1 overflow-hidden">{rightPanel}</div>
-    </div>
-  );
-};
+        <div
+          className="w-2 bg-gray-300 hover:bg-gray-400 cursor-col-resize flex-shrink-0 transition-colors duration-150"
+          onMouseDown={handleMouseDown}
+          style={{ backgroundColor: isDragging ? "#9ca3af" : undefined }}
+        >
+          <div className="w-full h-full flex items-center justify-center">
+            <div className="w-1 h-12 bg-gray-500 rounded-full opacity-60" />
+          </div>
+        </div>
+
+        <div className="flex-1 overflow-hidden">{rightPanel}</div>
+      </div>
+    );
+  };
 
 // Custom hook for connection details
 const useConnectionDetails = (roomName: string, region?: string) => {
@@ -278,6 +279,7 @@ export function PageClientImpl(props: {
                     connectionDetails={connectionDetails}
                     userChoices={preJoinChoices}
                     options={{ codec: props.codec, hq: props.hq }}
+                    roomName={props.roomName}
                   />
                 </div>
               </div>
@@ -300,7 +302,8 @@ const VideoConferenceComponent = React.memo<{
     hq: boolean;
     codec: VideoCodec;
   };
-}>(({ userChoices, connectionDetails, options }) => {
+  roomName: string;
+}>(({ userChoices, connectionDetails, options, roomName }) => {
   const router = useRouter();
   const { worker, e2eePassphrase } = useSetupE2EE();
   const [e2eeSetupComplete, setE2eeSetupComplete] = useState(false);
@@ -487,6 +490,7 @@ const VideoConferenceComponent = React.memo<{
             // For now, just log. Persistence can be added to POST to backend.
             console.log("Interviewer feedback submitted:", payload);
           }}
+          interviewId={roomName}
         />
       )}
 

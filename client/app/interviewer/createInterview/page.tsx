@@ -150,6 +150,7 @@ export default function CreateInterviewPage() {
   ];
 
   const Names = ["sanjeev", "Naveen", "David"];
+  const Skills = ["Data Base", "Naveen", "David"];
 
   // Fetch skills from API
   useEffect(() => {
@@ -512,6 +513,43 @@ export default function CreateInterviewPage() {
                               ? "Loading candidates..."
                               : "Search and select candidates"
                           }
+                          variant="outlined"
+                          size="small"
+                          sx={{
+                            "& .MuiOutlinedInput-root": {
+                              border: "none",
+                              boxShadow: "none",
+                              backgroundColor: "transparent",
+                              fontSize: "0.9rem",
+                              paddingY: "4px",
+                            },
+                            "& .MuiOutlinedInput-notchedOutline": {
+                              border: "none",
+                            },
+                            "& .MuiInputBase-input": {
+                              paddingY: "5px",
+                            },
+                          }}
+                        />
+                      )}
+                    />
+                  </div>
+                </div>
+                <div className="w-full">
+                  <label className="block text-sm font-medium text-slate-700 mb-2">
+                    <User2 className="w-4 h-4 inline mr-1" />
+                    Add Skills
+                  </label>
+
+                  <div className="bg-white rounded-lg shadow-sm border border-gray-200 hover:border-blue-400 transition-all p-2">
+                    <Autocomplete
+                      multiple
+                      freeSolo
+                      options={Names}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          placeholder="Select or type names"
                           variant="outlined"
                           size="small"
                           sx={{
