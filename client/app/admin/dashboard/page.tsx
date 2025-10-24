@@ -112,8 +112,8 @@ const AdminDashboard = () => {
       });
 
       // Normalize response shape: server may return { data: { ... }, isFailed } or directly the data
-      const normalized = response?.data ?? response;
-      if (normalized?.Failed) {
+      const normalized: any = response?.data ?? response;
+      if (normalized?.isFailed) {
         // keep existing data or show fallback
         setData(null);
       } else {
