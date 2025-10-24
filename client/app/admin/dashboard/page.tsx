@@ -103,9 +103,9 @@ const AdminDashboard = () => {
     setPage(0);
   };
 
-  const token = localStorage.getItem("authToken");
   const InitialCall = async () => {
     try {
+      const token = typeof window !== 'undefined' ? localStorage.getItem("authToken") : null;
       const response = await getRequest(URL?.ADMIN_DASHBOARD, {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
@@ -203,6 +203,7 @@ const AdminDashboard = () => {
     }
 
     try {
+      const token = typeof window !== 'undefined' ? localStorage.getItem("authToken") : null;
       const res = await getRequest(
         `${baseUrl}api/admin/upcoming-interviews?page=${page + 1}&limit=${rowsPerPage}`,
         {

@@ -150,9 +150,9 @@ const ManageCandidatesPage = () => {
 
   const { isOpen, onOpen, onClose } = useDisclosure();
 
-  const token = localStorage.getItem("authToken");
   const InitialCall = async () => {
     try {
+      const token = typeof window !== 'undefined' ? localStorage.getItem("authToken") : null;
       const response: any = await getRequest(URL?.MANAGE_CANDIDATES, {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
@@ -176,6 +176,7 @@ const ManageCandidatesPage = () => {
                 ? "CANCELED"
                 : "";
 
+      const token = typeof window !== 'undefined' ? localStorage.getItem("authToken") : null;
       const response = await getRequest(
         `${baseURL}api/admin/candidates-table?status=${encodeURIComponent(
           statusParam
@@ -207,6 +208,7 @@ const ManageCandidatesPage = () => {
 
   const updateCandidateStatus = async (userId: string, status: string) => {
     try {
+      const token = typeof window !== 'undefined' ? localStorage.getItem("authToken") : null;
       const payload = { userId, status };
       const headers = {
         "Content-Type": "application/json",
