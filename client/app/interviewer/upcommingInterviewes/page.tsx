@@ -306,13 +306,19 @@ export default function InterviewerDashboard() {
 
   const handleJoin = (link: string | URL | undefined) => {
     if (link) {
-      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:5001/";
-      // If link is a relative path, prepend the base URL
-      const fullLink = link.toString().startsWith('http')
-        ? link.toString()
-        : link.toString().startsWith('/')
-          ? `${baseUrl}${link.toString()}`
-          : link.toString();
+      const linkStr = link.toString();
+      let fullLink = linkStr;
+
+      // If it's a relative path (starts with /), use the client's base URL
+      if (linkStr.startsWith('/')) {
+        // Use the current window location origin for the client app
+        const clientBaseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://the-codemeet.vercel.app';
+        fullLink = `${clientBaseUrl}${linkStr}`;
+      } else if (!linkStr.startsWith('http')) {
+        // If it's not a full URL and doesn't start with /, treat it as relative
+        const clientBaseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://the-codemeet.vercel.app';
+        fullLink = `${clientBaseUrl}/${linkStr}`;
+      }
 
       window.open(fullLink, "_blank");
     }

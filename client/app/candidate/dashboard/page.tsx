@@ -141,10 +141,14 @@ const CandidateDashboard = () => {
         else if (up?.interviews) upcomingArr = up.interviews;
         else if (Array.isArray(up)) upcomingArr = up;
 
-        // Filter only SCHEDULED interviews and take the first one
-        const scheduledInterviews = upcomingArr.filter((it: any) =>
-          it.status === "SCHEDULED"
-        );
+        // Filter only SCHEDULED interviews and sort by date (earliest first)
+        const scheduledInterviews = upcomingArr
+          .filter((it: any) => it.status === "SCHEDULED")
+          .sort((a: any, b: any) => {
+            const dateA = a?.scheduled_at ? new Date(a.scheduled_at).getTime() : 0;
+            const dateB = b?.scheduled_at ? new Date(b.scheduled_at).getTime() : 0;
+            return dateA - dateB; // ascending order (earliest first)
+          });
 
         if (scheduledInterviews.length > 0) {
           const it = scheduledInterviews[0];
@@ -163,12 +167,12 @@ const CandidateDashboard = () => {
           const interviewerName = interviewer
             ? `${interviewer.first_name ?? ""} ${interviewer.last_name ?? ""}`.trim()
             : "Interviewer";
-          
+
           // Build profile URL (prepend base URL if relative path)
-          const profileUrl = interviewer?.profile_url 
-            ? (interviewer.profile_url.startsWith('http') 
-                ? interviewer.profile_url 
-                : `${baseUrl}${interviewer.profile_url.replace(/\\/g, '/')}`)
+          const profileUrl = interviewer?.profile_url
+            ? (interviewer.profile_url.startsWith('http')
+              ? interviewer.profile_url
+              : `${baseUrl}${interviewer.profile_url.replace(/\\/g, '/')}`)
             : null;
 
           setUpcomingInterview({
@@ -216,12 +220,12 @@ const CandidateDashboard = () => {
           // Extract participant (candidate) info
           const participant = it?.participants?.[0];
           const sortlisted = participant?.sortlisted ?? false;
-          
+
           // Build profile URL for history
-          const profileUrl = it?.user?.profile_url 
-            ? (it.user.profile_url.startsWith('http') 
-                ? it.user.profile_url 
-                : `${baseUrl}${it.user.profile_url.replace(/\\/g, '/')}`)
+          const profileUrl = it?.user?.profile_url
+            ? (it.user.profile_url.startsWith('http')
+              ? it.user.profile_url
+              : `${baseUrl}${it.user.profile_url.replace(/\\/g, '/')}`)
             : null;
 
           return {

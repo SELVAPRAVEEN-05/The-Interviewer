@@ -322,37 +322,37 @@ const AdminDashboard = () => {
                 {(quickActions && quickActions.length > 0
                   ? quickActions
                   : [
-                      {
-                        title: "Approve Candidates",
-                        description: `${stats.pendingCandidates} pending approval`,
-                        icon: Users,
-                        color: "blue",
-                        href: "/admin/manageCandidates",
-                      },
-                      {
-                        title: "Approve Interviewers",
-                        description: `${stats.pendingInterviewers} pending approval`,
-                        icon: UserCheck,
-                        color: "green",
-                        href: "/admin/manageInterviewers",
-                      },
-                      {
-                        title: "Schedule Interview",
-                        description: "Create new interview session",
-                        icon: Calendar,
-                        color: "orange",
-                        href: "/admin/createInterview",
-                      },
-                    ]).map((q: any, i: number) => (
-                  <QuickActionButton
-                    key={i}
-                    title={q.title}
-                    description={q.description}
-                    icon={q.icon}
-                    color={q.color}
-                    onClick={() => (window.location.href = q.href ?? "/admin")}
-                  />
-                ))}
+                    {
+                      title: "Approve Candidates",
+                      description: `${stats.pendingCandidates} pending approval`,
+                      icon: Users,
+                      color: "blue",
+                      href: "/admin/manageCandidates",
+                    },
+                    {
+                      title: "Approve Interviewers",
+                      description: `${stats.pendingInterviewers} pending approval`,
+                      icon: UserCheck,
+                      color: "green",
+                      href: "/admin/manageInterviewers",
+                    },
+                    {
+                      title: "Schedule Interview",
+                      description: "Create new interview session",
+                      icon: Calendar,
+                      color: "orange",
+                      href: "/admin/createInterview",
+                    },
+                  ]).map((q: any, i: number) => (
+                    <QuickActionButton
+                      key={i}
+                      title={q.title}
+                      description={q.description}
+                      icon={q.icon}
+                      color={q.color}
+                      onClick={() => (window.location.href = q.href ?? "/admin")}
+                    />
+                  ))}
               </div>
             </div>
           </div>
@@ -440,11 +440,10 @@ const AdminDashboard = () => {
 
                         <TableCell>
                           <span
-                            className={`px-3 py-1 rounded-full text-xs font-medium ${
-                              interview.status === "SCHEDULED"
+                            className={`px-3 py-1 rounded-full text-xs font-medium ${interview.status === "SCHEDULED"
                                 ? "bg-green-100 text-green-800"
                                 : "bg-yellow-100 text-yellow-800"
-                            }`}
+                              }`}
                           >
                             {interview.status}
                           </span>
