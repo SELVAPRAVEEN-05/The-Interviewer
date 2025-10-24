@@ -295,7 +295,7 @@ const ManageInterviewers = () => {
       );
 
       // api shape may vary; prefer resp.data or resp.results
-      const items = resp?.data?.data ;
+      const items = resp?.data?.data;
       setCards(items);
     } catch (err) {
       console.error("Failed to fetch interviewer cards:", err);
@@ -414,7 +414,7 @@ const ManageInterviewers = () => {
         />
       </div>
 
- 
+
 
       {/* Search & Filters */}
       <div className="bg-gray-100 p-4 md:p-6 rounded-lg shadow-sm border border-gray-300 mb-6">
@@ -531,11 +531,10 @@ const ManageInterviewers = () => {
                   <TableCell>{interviewer.email}</TableCell>
                   <TableCell>
                     <span
-                      className={`px-2 py-1 text-xs font-semibold rounded-full ${
-                        interviewer.status === "APPROVED"
+                      className={`px-2 py-1 text-xs font-semibold rounded-full ${interviewer.status === "APPROVED"
                           ? "bg-green-200 text-green-800"
                           : "bg-red-200 text-red-800"
-                      }`}
+                        }`}
                     >
                       {interviewer.status || "Active"}
                     </span>
@@ -580,7 +579,7 @@ const ManageInterviewers = () => {
           component="div"
           className="bg-gray-100"
           count={totalRecords ?? table?.length ?? 0}
-    rowsPerPageOptions={[10, 20, 25, 50, 100]}
+          rowsPerPageOptions={[10, 20, 25, 50, 100]}
           page={page}
           onPageChange={handleChangePage}
           rowsPerPage={rowsPerPage}
@@ -609,9 +608,9 @@ const ManageInterviewers = () => {
                     <div className="h-16 w-16 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold text-xl">
                       {selectedInterviewer
                         ? safeDisplay(selectedInterviewer.name)
-                            .split(" ")
-                            .map((n: string) => n[0])
-                            .join("")
+                          .split(" ")
+                          .map((n: string) => n[0])
+                          .join("")
                         : ""}
                     </div>
                     <div>
