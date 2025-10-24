@@ -15,8 +15,9 @@ import {
   Video,
   XCircle,
 } from "lucide-react";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { getRequest } from "@/utils";
 
 import {
   Bar,
@@ -53,6 +54,7 @@ const UpcomingInterviewCard: React.FC<UpcomingInterviewProps> = ({
   date,
   time,
 }) => {
+
   return (
     <div className="bg-white border border-gray-300 rounded-lg p-4 hover:shadow-md transition-all">
       <div className="flex items-start justify-between mb-3">
@@ -131,81 +133,177 @@ const ActivityItem: React.FC<{ activity: Activity }> = ({ activity }) => {
  * Main Dashboard Component
  */
 export default function InterviewerDashboard() {
-    const router = useRouter();
-  
-  // Stats Data
+  const router = useRouter();
+
+  // State for dashboard data
+  const [dashboardData, setDashboardData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // State for upcoming interviews
+  const [upcomingInterviews, setUpcomingInterviews] = useState<UpcomingInterviewProps[]>([]);
+  const [interviewsLoading, setInterviewsLoading] = useState(true);
+
+  // Fetch dashboard data from API
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      setLoading(true);
+      setError(null);
+      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:5001/";
+      const token = typeof window !== "undefined" ? localStorage.getItem("authToken") : null;
+
+      try {
+        const response = await getRequest(`${baseUrl}api/interviewer/dashboard`, {
+          "Content-Type": "application/json",
+          Authorization: token ? `Bearer ${token}` : undefined,
+        });
+
+        const result: any = response as any;
+        const data = result?.data ?? result;
+
+        console.log("📊 Interviewer Dashboard Data:", data);
+        setDashboardData(data);
+      } catch (err: any) {
+        console.error("Error fetching interviewer dashboard data:", err);
+        setError(err?.message ?? "Failed to load dashboard data");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDashboardData();
+  }, []);
+
+  // Fetch upcoming interviews from API
+  useEffect(() => {
+    const fetchUpcomingInterviews = async () => {
+      setInterviewsLoading(true);
+      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:5001/";
+      const token = typeof window !== "undefined" ? localStorage.getItem("authToken") : null;
+
+      try {
+        const response = await getRequest(`${baseUrl}api/interviewer/upcoming?q=`, 
+          {
+          "Content-Type": "application/json",
+          Authorization: token ? `Bearer ${token}` : undefined,
+        }
+      );
+
+        const result: any = response as any;
+        const data = result?.data ?? result;
+
+        console.log("📋 Dashboard Upcoming Interviews:", data);
+
+        // Transform the API data to match the component's expected format
+        const transformedInterviews: UpcomingInterviewProps[] = Array.isArray(data) ? data
+          .filter((interview: any) => interview.status === "SCHEDULED")
+          .map((interview: any) => {
+            const scheduled = interview.scheduled_at ? new Date(interview.scheduled_at) : null;
+            const candidate = interview.participants?.[0]?.user;
+            const position = interview.user?.userPositions?.[0]?.position?.title;
+
+            return {
+              id: interview.id,
+              candidateName: candidate ? `${candidate.first_name} ${candidate.last_name}`.trim() : "Unknown",
+              position: position || "Position",
+              type: interview.type || "Technical",
+              date: scheduled ? scheduled.toLocaleDateString("en-US", { day: "numeric", month: "short" }) : "TBD",
+              time: scheduled
+                ? `${scheduled.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })} - ${new Date(scheduled.getTime() + 60 * 60 * 1000).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })}`
+                : "TBD",
+            };
+          })
+          .slice(0, 2) // Get only the first 2 interviews
+          : [];
+
+        setUpcomingInterviews(transformedInterviews);
+      } catch (err: any) {
+        console.error("Error fetching upcoming interviews:", err);
+      } finally {
+        setInterviewsLoading(false);
+      }
+    };
+
+    fetchUpcomingInterviews();
+  }, []);
+
+  // Loading skeleton component
+  const Skeleton = ({ className = "" }: { className?: string }) => (
+    <div className={`bg-gray-200 rounded ${className} animate-pulse`} />
+  );
+
+  // Stats Data - using backend data when available
   const stats = {
-    totalInterviews: { value: 156, trend: 12, subtitle: "Total conducted" },
-    thisWeek: { value: 8, trend: 5, subtitle: "Scheduled this week" },
-    avgRating: { value: "4.3", trend: 3, subtitle: "Out of 5 stars" },
-    completionRate: { value: "94%", trend: 2, subtitle: "On-time completion" },
-    shortlisted: { value: 89, trend: 8, subtitle: "Candidates recommended" },
-    avgDuration: { value: "42m", trend: -5, subtitle: "Per interview" },
+    totalInterviews: {
+      value: loading ? <Skeleton className="w-16 h-8" /> : (dashboardData?.interviewCount ?? 0),
+      subtitle: "Total conducted"
+    },
+    thisWeek: {
+      value: loading ? <Skeleton className="w-12 h-8" /> : (dashboardData?.scheduledToday ?? 0),
+      subtitle: "Scheduled today"
+    },
+    shortlisted: {
+      value: loading ? <Skeleton className="w-12 h-8" /> : (dashboardData?.shortlisted ?? 0),
+      subtitle: "Candidates recommended"
+    },
+    avgDuration: {
+      value: loading ? <Skeleton className="w-16 h-8" /> : `${dashboardData?.avgDuration ?? 0}m`,
+      subtitle: "Per interview"
+    },
   };
 
-  // Pie Chart Data - Interview Status
-  const interviewStatusData = [
-    { name: "Completed", value: 120, color: "#10b981" },
-    { name: "Scheduled", value: 18, color: "#3b82f6" },
-    { name: "Cancelled", value: 12, color: "#ef4444" },
-    { name: "Pending Feedback", value: 6, color: "#f59e0b" },
-  ];
-
-  // Bar Chart Data - Monthly Interview Trends
-  const monthlyTrendsData = [
-    { month: "Jan", interviews: 18, shortlisted: 12 },
-    { month: "Feb", interviews: 22, shortlisted: 15 },
-    { month: "Mar", interviews: 25, shortlisted: 18 },
-    { month: "Apr", interviews: 28, shortlisted: 20 },
-    { month: "May", interviews: 32, shortlisted: 22 },
-    { month: "Jun", interviews: 31, shortlisted: 19 },
-  ];
-
-  // Line Chart Data - Performance Over Time
-  const performanceData = [
-    { week: "Week 1", score: 78 },
-    { week: "Week 2", score: 82 },
-    { week: "Week 3", score: 85 },
-    { week: "Week 4", score: 83 },
-    { week: "Week 5", score: 88 },
-    { week: "Week 6", score: 90 },
-  ];
-
-  // Skills Assessment Data
-  const skillsData = [
-    { skill: "Technical", score: 85 },
-    { skill: "Communication", score: 90 },
-    { skill: "Problem Solving", score: 82 },
-    { skill: "Cultural Fit", score: 88 },
-  ];
-
-  // Upcoming Interviews (sample)
-  const upcomingInterviews: UpcomingInterviewProps[] = [
+  // Pie Chart Data - Interview Status (from backend)
+  const interviewStatusData = loading ? [
+    { name: "Completed", value: 0, color: "#10b981" },
+    { name: "Scheduled", value: 0, color: "#3b82f6" },
+    { name: "Cancelled", value: 0, color: "#ef4444" },
+  ] : [
     {
-      id: 1,
-      candidateName: "Arjun Patel",
-      position: "Full Stack Developer",
-      type: "Technical",
-      date: "Today",
-      time: "2:00 PM - 3:00 PM",
+      name: "Completed",
+      value: dashboardData?.interviewData?.completed ?? 0,
+      color: "#10b981"
     },
     {
-      id: 2,
-      candidateName: "Priya Sharma",
-      position: "Frontend Developer",
-      type: "Technical",
-      date: "Tomorrow",
-      time: "10:00 AM - 11:00 AM",
+      name: "Scheduled",
+      value: dashboardData?.interviewData?.scheduled ?? 0,
+      color: "#3b82f6"
     },
     {
-      id: 3,
-      candidateName: "Vikram Singh",
-      position: "Backend Developer",
-      type: "HR Round",
-      date: "Oct 10",
-      time: "3:30 PM - 4:30 PM",
+      name: "Cancelled",
+      value: dashboardData?.interviewData?.cancelled ?? 0,
+      color: "#ef4444"
     },
   ];
+
+  // Bar Chart Data - Monthly Interview Trends (from backend)
+  const monthlyTrendsData = loading || !dashboardData?.MonthlyInterview
+    ? []
+    : dashboardData.MonthlyInterview.map((item: any) => {
+      const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+      const monthIndex = parseInt(item.month) - 1;
+      return {
+        month: monthNames[monthIndex] || item.month,
+        interviews: item.data?.count ?? 0,
+        shortlisted: item.data?.shortlisted ?? 0,
+      };
+    });
+
+  // Line Chart Data - Performance Over Time (from backend)
+  const performanceData = loading || !dashboardData?.AvgPerformance
+    ? []
+    : dashboardData.AvgPerformance.map((item: any) => ({
+      week: `Week ${item.week}`,
+      score: Math.round(item.averageScore ?? 0),
+      rating: item.averageRating ?? 0,
+    }));
+
+  // Skills Assessment Data (from backend)
+  const skillsData = loading || !dashboardData?.SkillsAssessment
+    ? []
+    : dashboardData.SkillsAssessment.map((item: any) => ({
+      skill: item.skillName,
+      score: Math.round(item.percentage ?? 0),
+    }));
 
   // Recent Activities
   const recentActivities: Activity[] = [
@@ -253,15 +351,13 @@ export default function InterviewerDashboard() {
           icon={Calendar}
           color="blue"
           subtitle={stats.totalInterviews.subtitle}
-          trend={stats.totalInterviews.trend}
         />
         <StatCard
-          title="This Week"
+          title="Scheduled Today"
           value={stats.thisWeek.value}
           icon={Clock}
           color="green"
           subtitle={stats.thisWeek.subtitle}
-          trend={stats.thisWeek.trend}
         />
         <StatCard
           title="Shortlisted"
@@ -269,7 +365,6 @@ export default function InterviewerDashboard() {
           icon={Award}
           color="green"
           subtitle={stats.shortlisted.subtitle}
-          trend={stats.shortlisted.trend}
         />
         <StatCard
           title="Avg Duration"
@@ -277,7 +372,6 @@ export default function InterviewerDashboard() {
           icon={Target}
           color="blue"
           subtitle={stats.avgDuration.subtitle}
-          trend={stats.avgDuration.trend}
         />
       </div>
 
@@ -293,42 +387,48 @@ export default function InterviewerDashboard() {
               </h3>
             </div>
           </div>
-          <div className="flex items-center justify-between">
-            <ResponsiveContainer width="50%" height={200}>
-              <PieChart>
-                <Pie
-                  data={interviewStatusData}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={50}
-                  outerRadius={80}
-                  dataKey="value"
-                  paddingAngle={3}
-                >
-                  {interviewStatusData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
-                  ))}
-                </Pie>
-                <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
-            <div className="space-y-3 flex-1 ml-4">
-              {interviewStatusData.map((entry, idx) => (
-                <div key={idx} className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span
-                      className="w-3 h-3 rounded-full"
-                      style={{ backgroundColor: entry.color }}
-                    />
-                    <span className="text-sm text-gray-700">{entry.name}</span>
-                  </div>
-                  <span className="font-semibold text-gray-900">
-                    {entry.value}
-                  </span>
-                </div>
-              ))}
+          {loading ? (
+            <div className="flex items-center justify-center h-[200px]">
+              <Skeleton className="w-32 h-32 rounded-full" />
             </div>
-          </div>
+          ) : (
+            <div className="flex items-center justify-between">
+              <ResponsiveContainer width="50%" height={200}>
+                <PieChart>
+                  <Pie
+                    data={interviewStatusData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={50}
+                    outerRadius={80}
+                    dataKey="value"
+                    paddingAngle={3}
+                  >
+                    {interviewStatusData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                </PieChart>
+              </ResponsiveContainer>
+              <div className="space-y-3 flex-1 ml-4">
+                {interviewStatusData.map((entry, idx) => (
+                  <div key={idx} className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span
+                        className="w-3 h-3 rounded-full"
+                        style={{ backgroundColor: entry.color }}
+                      />
+                      <span className="text-sm text-gray-700">{entry.name}</span>
+                    </div>
+                    <span className="font-semibold text-gray-900">
+                      {entry.value}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Monthly Trends Bar Chart */}
@@ -339,27 +439,37 @@ export default function InterviewerDashboard() {
               Monthly Interview Trends
             </h3>
           </div>
-          <ResponsiveContainer width="100%" height={200}>
-            <BarChart data={monthlyTrendsData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-              <XAxis dataKey="month" tick={{ fontSize: 12 }} />
-              <YAxis tick={{ fontSize: 12 }} />
-              <Tooltip />
-              <Legend />
-              <Bar
-                dataKey="interviews"
-                fill="#3b82f6"
-                radius={[8, 8, 0, 0]}
-                name="Total Interviews"
-              />
-              <Bar
-                dataKey="shortlisted"
-                fill="#10b981"
-                radius={[8, 8, 0, 0]}
-                name="Shortlisted"
-              />
-            </BarChart>
-          </ResponsiveContainer>
+          {loading ? (
+            <div className="flex items-center justify-center h-[200px]">
+              <Skeleton className="w-full h-full" />
+            </div>
+          ) : monthlyTrendsData.length === 0 ? (
+            <div className="flex items-center justify-center h-[200px] text-gray-500">
+              No data available
+            </div>
+          ) : (
+            <ResponsiveContainer width="100%" height={200}>
+              <BarChart data={monthlyTrendsData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                <XAxis dataKey="month" tick={{ fontSize: 12 }} />
+                <YAxis tick={{ fontSize: 12 }} />
+                <Tooltip />
+                <Legend />
+                <Bar
+                  dataKey="interviews"
+                  fill="#3b82f6"
+                  radius={[8, 8, 0, 0]}
+                  name="Total Interviews"
+                />
+                <Bar
+                  dataKey="shortlisted"
+                  fill="#10b981"
+                  radius={[8, 8, 0, 0]}
+                  name="Shortlisted"
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          )}
         </div>
       </div>
 
@@ -373,22 +483,32 @@ export default function InterviewerDashboard() {
               Candidate Avg Performance Trend
             </h3>
           </div>
-          <ResponsiveContainer width="100%" height={200}>
-            <LineChart data={performanceData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-              <XAxis dataKey="week" tick={{ fontSize: 12 }} />
-              <YAxis domain={[70, 100]} tick={{ fontSize: 12 }} />
-              <Tooltip />
-              <Line
-                type="monotone"
-                dataKey="score"
-                stroke="#8b5cf6"
-                strokeWidth={3}
-                dot={{ fill: "#8b5cf6", r: 5 }}
-                name="Avg Score"
-              />
-            </LineChart>
-          </ResponsiveContainer>
+          {loading ? (
+            <div className="flex items-center justify-center h-[200px]">
+              <Skeleton className="w-full h-full" />
+            </div>
+          ) : performanceData.length === 0 ? (
+            <div className="flex items-center justify-center h-[200px] text-gray-500">
+              No performance data available
+            </div>
+          ) : (
+            <ResponsiveContainer width="100%" height={200}>
+              <LineChart data={performanceData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                <XAxis dataKey="week" tick={{ fontSize: 12 }} />
+                <YAxis tick={{ fontSize: 12 }} />
+                <Tooltip />
+                <Line
+                  type="monotone"
+                  dataKey="score"
+                  stroke="#8b5cf6"
+                  strokeWidth={3}
+                  dot={{ fill: "#8b5cf6", r: 5 }}
+                  name="Avg Score"
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          )}
         </div>
 
         {/* Skills Assessment */}
@@ -399,26 +519,40 @@ export default function InterviewerDashboard() {
               Avg Skills Assessment
             </h3>
           </div>
-          <div className="space-y-4">
-            {skillsData.map((skill, idx) => (
-              <div key={idx}>
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-sm font-medium text-gray-700">
-                    {skill.skill}
-                  </span>
-                  <span className="text-sm font-bold text-gray-900">
-                    {skill.score}%
-                  </span>
+          {loading ? (
+            <div className="space-y-4">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i}>
+                  <Skeleton className="w-full h-12 mb-2" />
                 </div>
-                <div className="w-full bg-gray-200 rounded-full h-3">
-                  <div
-                    className="bg-blue-600 h-3 rounded-full transition-all"
-                    style={{ width: `${skill.score}%` }}
-                  />
+              ))}
+            </div>
+          ) : skillsData.length === 0 ? (
+            <div className="flex items-center justify-center h-[160px] text-gray-500">
+              No skills data available
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {skillsData.map((skill: { skill: string; score: number }, idx: number) => (
+                <div key={idx}>
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-sm font-medium text-gray-700">
+                      {skill.skill}
+                    </span>
+                    <span className="text-sm font-bold text-gray-900">
+                      {skill.score}%
+                    </span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-3">
+                    <div
+                      className="bg-blue-600 h-3 rounded-full transition-all"
+                      style={{ width: `${skill.score}%` }}
+                    />
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
@@ -433,20 +567,36 @@ export default function InterviewerDashboard() {
                 Upcoming Interviews
               </h3>
             </div>
-            {/* show "View All" only if there are more than 2 */}
-            {upcomingInterviews.length > 2 ? (
-              <button onClick={() => router.push("/interviewer/upcommingInterviewes")} className="text-sm text-blue-600 hover:text-blue-700 font-medium">
+            {/* show "View All" only if there are interviews */}
+            {!interviewsLoading && upcomingInterviews.length > 0 && (
+              <button
+                onClick={() => router.push("/interviewer/upcommingInterviewes")}
+                className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+              >
                 View All →
               </button>
-            ) : null}
+            )}
           </div>
 
-          {/* show exactly 2 cards (slice) - and pass props correctly */}
+          {/* show loading, empty state, or interview cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {upcomingInterviews.slice(0, 2).map((interview) => (
-              // Using spread so props align with destructured UpcomingInterviewCard
-              <UpcomingInterviewCard key={interview.id} {...interview} />
-            ))}
+            {interviewsLoading ? (
+              // Loading skeletons
+              Array.from({ length: 2 }).map((_, idx) => (
+                <div key={idx} className="bg-white border border-gray-300 rounded-lg p-4">
+                  <Skeleton className="w-full h-40" />
+                </div>
+              ))
+            ) : upcomingInterviews.length === 0 ? (
+              <div className="col-span-2 text-center py-8 text-gray-500">
+                No upcoming interviews scheduled
+              </div>
+            ) : (
+              upcomingInterviews.slice(0, 2).map((interview) => (
+                // Using spread so props align with destructured UpcomingInterviewCard
+                <UpcomingInterviewCard key={interview.id} {...interview} />
+              ))
+            )}
           </div>
         </div>
 

@@ -16,7 +16,8 @@ import {
   Video,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { getRequest } from "@/utils";
 
 type InterviewType = {
   id: string;
@@ -118,7 +119,7 @@ const InterviewerInterviewCard = ({
           className="px-4 py-2 bg-red-100 hover:bg-red-200 border border-red-300 text-red-600 rounded-lg font-medium text-sm transition flex items-center justify-center gap-2"
         >
           <Trash2 className="w-4 h-4" />
-          Delete
+          Cancel
         </button>
         <button
           onClick={() => onJoin(interview.meetingLink)}
@@ -145,60 +146,105 @@ export default function InterviewerDashboard() {
     "Behavioral",
   ]);
 
+  // State for dashboard data
+  const [dashboardData, setDashboardData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // State for upcoming interviews
+  const [upcomingInterviews, setUpcomingInterviews] = useState<any[]>([]);
+  const [interviewsLoading, setInterviewsLoading] = useState(true);
+
   const router = useRouter();
 
   const itemsPerPage = 6;
 
-  const sampleInterviews = [
-    {
-      id: "1",
-      companyLogo:
-        "https://img.freepik.com/free-vector/bird-colorful-gradient-design-vector_343694-2506.jpg",
-      companyName: "TechCorp Solutions",
-      candidateName: "Arjun Patel",
-      candidateRole: "Full Stack Developer",
-      interviewType: "Technical",
-      date: "29 Sep",
-      startTime: "10:00 AM",
-      endTime: "11:00 AM",
-      meetingLink: "https://the-codemeet.vercel.app/rooms/33",
-    },
-    {
-      id: "2",
-      companyName: "InnovateLabs",
-      candidateName: "Sneha Reddy",
-      candidateRole: "Frontend Developer",
-      interviewType: "HR Round",
-      date: "30 Sep",
-      startTime: "2:00 PM",
-      endTime: "3:00 PM",
-      meetingLink: "https://the-codemeet.vercel.app/rooms/33",
-    },
-    {
-      id: "3",
-      companyName: "DataSystems Inc",
-      candidateName: "Vikram Singh",
-      candidateRole: "Backend Developer",
-      interviewType: "Technical",
-      date: "1 Oct",
-      startTime: "11:00 AM",
-      endTime: "12:00 PM",
-      meetingLink: "https://the-codemeet.vercel.app/rooms/33",
-    },
-    {
-      id: "4",
-      companyName: "CloudNine Technologies",
-      candidateName: "Ananya Iyer",
-      candidateRole: "DevOps Engineer",
-      interviewType: "Managerial",
-      date: "2 Oct",
-      startTime: "3:00 PM",
-      endTime: "4:00 PM",
-      meetingLink: "https://the-codemeet.vercel.app/rooms/33",
-    },
-  ];
+  // Fetch dashboard data from API
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      setLoading(true);
+      setError(null);
+      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:5001/";
+      const token = typeof window !== "undefined" ? localStorage.getItem("authToken") : null;
 
-  const filteredInterviews = sampleInterviews.filter((interview) => {
+      try {
+        const response = await getRequest(`${baseUrl}api/interviewer/dashboard`, {
+          "Content-Type": "application/json",
+          Authorization: token ? `Bearer ${token}` : undefined,
+        });
+
+        const result: any = response as any;
+        const data = result?.data ?? result;
+
+        console.log("📊 Upcoming Interviews - Dashboard Data:", data);
+        setDashboardData(data);
+      } catch (err: any) {
+        console.error("Error fetching dashboard data:", err);
+        setError(err?.message ?? "Failed to load dashboard data");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDashboardData();
+  }, []);
+
+  // Fetch upcoming interviews from API
+  useEffect(() => {
+    const fetchUpcomingInterviews = async () => {
+      setInterviewsLoading(true);
+      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:5001/";
+      const token = typeof window !== "undefined" ? localStorage.getItem("authToken") : null;
+
+      try {
+        const response = await getRequest(`${baseUrl}api/interviewer/upcoming?q=`, {
+          "Content-Type": "application/json",
+          Authorization: token ? `Bearer ${token}` : undefined,
+        });
+
+        const result: any = response as any;
+        const data = result?.data ?? result;
+
+        console.log("📋 Upcoming Interviews List:", data);
+
+        // Transform the API data to match the component's expected format
+        const transformedInterviews = Array.isArray(data) ? data.map((interview: any) => {
+          const scheduled = interview.scheduled_at ? new Date(interview.scheduled_at) : null;
+          const candidate = interview.participants?.[0]?.user;
+          const brandName = interview.user?.userPositions?.[0]?.brand?.name;
+          const position = interview.user?.userPositions?.[0]?.position?.title;
+
+          return {
+            id: interview.id,
+            companyName: brandName || "Company",
+            candidateName: candidate ? `${candidate.first_name} ${candidate.last_name}`.trim() : "Unknown",
+            candidateRole: position || "Position",
+            interviewType: interview.type || "Technical",
+            date: scheduled ? scheduled.toLocaleDateString("en-US", { day: "numeric", month: "short" }) : "TBD",
+            startTime: scheduled ? scheduled.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" }) : "TBD",
+            endTime: scheduled ? new Date(scheduled.getTime() + 60 * 60 * 1000).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" }) : "TBD",
+            meetingLink: interview.session_link || "#",
+            status: interview.status,
+          };
+        }).filter((interview: any) => interview.status === "SCHEDULED") : [];
+
+        setUpcomingInterviews(transformedInterviews);
+      } catch (err: any) {
+        console.error("Error fetching upcoming interviews:", err);
+      } finally {
+        setInterviewsLoading(false);
+      }
+    };
+
+    fetchUpcomingInterviews();
+  }, []);
+
+  // Loading skeleton component
+  const Skeleton = ({ className = "" }: { className?: string }) => (
+    <div className={`bg-gray-200 rounded ${className} animate-pulse`} />
+  );
+
+  const filteredInterviews = upcomingInterviews.filter((interview) => {
     const matchesSearch =
       interview.candidateName
         .toLowerCase()
@@ -220,18 +266,57 @@ export default function InterviewerDashboard() {
     alert(`Edit interview with ${interview.candidateName}`);
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
     console.log("Delete interview:", id);
-    if (confirm("Are you sure you want to delete this interview?")) {
-      alert("Interview deleted");
+    if (!confirm("Are you sure you want to cancel this interview?")) {
+      return;
+    }
+
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:5001/";
+    const token = typeof window !== "undefined" ? localStorage.getItem("authToken") : null;
+
+    try {
+      const response = await fetch(`${baseUrl}api/interview/${id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token ? `Bearer ${token}` : "",
+        },
+        body: JSON.stringify({
+          status: "REJECTED",
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to cancel interview");
+      }
+
+      const result = await response.json();
+      console.log("Interview cancelled:", result);
+
+      // Remove the cancelled interview from the list
+      setUpcomingInterviews((prev) => prev.filter((interview) => interview.id !== id));
+
+      alert("Interview cancelled successfully");
+    } catch (err: any) {
+      console.error("Error cancelling interview:", err);
+      alert(err?.message ?? "Failed to cancel interview");
     }
   };
 
   const handleJoin = (link: string | URL | undefined) => {
-  if (link) {
-    window.open(link.toString(), "_self");
-  }
-};
+    if (link) {
+      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:5001/";
+      // If link is a relative path, prepend the base URL
+      const fullLink = link.toString().startsWith('http')
+        ? link.toString()
+        : link.toString().startsWith('/')
+          ? `${baseUrl}${link.toString()}`
+          : link.toString();
+
+      window.open(fullLink, "_blank");
+    }
+  };
 
   const handleCreateNew = () => {
     alert("Create new interview");
@@ -272,28 +357,28 @@ export default function InterviewerDashboard() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <StatCard
           title="Total Interviews"
-          value={24}
+          value={loading ? <Skeleton className="w-16 h-8" /> : (dashboardData?.interviewCount ?? 0)}
           icon={Calendar}
           color="blue"
-          subtitle="Completed: 18 • Upcoming: 6"
+          subtitle="Total conducted"
         />
         <StatCard
-          title="This Week"
-          value={6}
+          title="Scheduled Today"
+          value={loading ? <Skeleton className="w-12 h-8" /> : (dashboardData?.scheduledToday ?? 0)}
           icon={Clock}
           color="green"
-          subtitle="Scheduled interviews"
+          subtitle="Scheduled today"
         />
         <StatCard
-          title="Completion Rate"
-          value={"92 %"}
+          title="Shortlisted"
+          value={loading ? <Skeleton className="w-12 h-8" /> : (dashboardData?.shortlisted ?? 0)}
           icon={CheckCircle}
           color="purple"
-          subtitle="On-time completion"
+          subtitle="Candidates recommended"
         />
         <StatCard
           title="Avg Duration"
-          value={"45 m"}
+          value={loading ? <Skeleton className="w-16 h-8" /> : `${dashboardData?.avgDuration ?? 0}m`}
           icon={Target}
           color="orange"
           subtitle="Per interview session"
@@ -355,21 +440,19 @@ export default function InterviewerDashboard() {
           <div className="flex items-center gap-2 bg-gray-200 rounded-lg p-1">
             <button
               onClick={() => setSelectedView("grid")}
-              className={`px-4 py-2 rounded-md text-sm font-medium transition ${
-                selectedView === "grid"
-                  ? "bg-white text-gray-900 shadow-sm"
-                  : "text-gray-600 hover:text-gray-900"
-              }`}
+              className={`px-4 py-2 rounded-md text-sm font-medium transition ${selectedView === "grid"
+                ? "bg-white text-gray-900 shadow-sm"
+                : "text-gray-600 hover:text-gray-900"
+                }`}
             >
               Grid View
             </button>
             <button
               onClick={() => setSelectedView("table")}
-              className={`px-4 py-2 rounded-md text-sm font-medium transition ${
-                selectedView === "table"
-                  ? "bg-white text-gray-900 shadow-sm"
-                  : "text-gray-600 hover:text-gray-900"
-              }`}
+              className={`px-4 py-2 rounded-md text-sm font-medium transition ${selectedView === "table"
+                ? "bg-white text-gray-900 shadow-sm"
+                : "text-gray-600 hover:text-gray-900"
+                }`}
             >
               Table View
             </button>
@@ -380,7 +463,14 @@ export default function InterviewerDashboard() {
       {/* Content Area */}
       {selectedView === "grid" ? (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mb-8">
-          {paginatedInterviews.length > 0 ? (
+          {interviewsLoading ? (
+            // Loading skeletons
+            Array.from({ length: 6 }).map((_, idx) => (
+              <div key={idx} className="bg-gray-100 rounded-lg shadow-sm border border-gray-300 p-6">
+                <Skeleton className="w-full h-48" />
+              </div>
+            ))
+          ) : paginatedInterviews.length > 0 ? (
             paginatedInterviews.map((interview) => (
               <InterviewerInterviewCard
                 key={interview.id}
@@ -410,7 +500,14 @@ export default function InterviewerDashboard() {
             </div>
 
             {/* Table Body */}
-            {paginatedInterviews.length > 0 ? (
+            {interviewsLoading ? (
+              // Loading skeletons for table
+              Array.from({ length: 5 }).map((_, idx) => (
+                <div key={idx} className="mb-2">
+                  <Skeleton className="w-full h-16 rounded-lg" />
+                </div>
+              ))
+            ) : paginatedInterviews.length > 0 ? (
               paginatedInterviews.map((interview) => (
                 <div
                   key={interview.id}
@@ -460,7 +557,7 @@ export default function InterviewerDashboard() {
                     <button
                       onClick={() => handleDelete(interview.id)}
                       className="p-2 hover:bg-red-50 rounded-lg transition"
-                      title="Delete"
+                      title="Cancel Interview"
                     >
                       <Trash2 className="w-4 h-4 text-red-600" />
                     </button>
@@ -500,11 +597,10 @@ export default function InterviewerDashboard() {
                   <button
                     key={idx}
                     onClick={() => setCurrentPage(idx + 1)}
-                    className={`px-4 py-2 border rounded-lg text-sm transition ${
-                      currentPage === idx + 1
-                        ? "bg-blue-600 text-white border-blue-600"
-                        : "text-gray-700 border-gray-300 hover:bg-gray-50"
-                    }`}
+                    className={`px-4 py-2 border rounded-lg text-sm transition ${currentPage === idx + 1
+                      ? "bg-blue-600 text-white border-blue-600"
+                      : "text-gray-700 border-gray-300 hover:bg-gray-50"
+                      }`}
                   >
                     {idx + 1}
                   </button>

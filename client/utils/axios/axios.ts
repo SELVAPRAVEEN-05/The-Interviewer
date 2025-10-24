@@ -4,7 +4,7 @@ import axios, { AxiosResponse, InternalAxiosRequestConfig } from "axios";
 console.log(process.env.NEXT_PUBLIC_BASE_URL )
 // Create an Axios instance
 const axiosClient = axios.create({
-    baseURL: process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:5000/",// Replace with your API URL
+    baseURL: process.env.NEXT_PUBLIC_BASE_URL || "https://codemeet-gamma.vercel.app/",// Replace with your API URL
     headers: {
         "Content-Type": "application/json",
     },
@@ -16,7 +16,6 @@ const axiosClient = axios.create({
 //  **Response Interceptor**
 axiosClient.interceptors.response.use(
     <T>(response: AxiosResponse<T>): T => {
-        console.log("Response Received:", response);
         return response.data; // Directly return the data instead of full response
     },
     (error) => {

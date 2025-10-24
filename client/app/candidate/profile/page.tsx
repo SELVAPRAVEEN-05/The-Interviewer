@@ -16,39 +16,172 @@ import {
   Phone
 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { getRequest } from "@/utils";
 
 export default function Profile() {
   const router = useRouter();
 
-  // Static profile data
-  const profilePhoto: File | null = null;
-  const firstName = "Selva";
-  const lastName = "Praveen";
-  const mobile = "+91 9876543210";
-  const email = "selva@example.com";
-  const dob = "2000-01-01";
-  const gender = "Male";
-  const language = "English, Tamil";
-  const country = "India";
+  const [profileData, setProfileData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const college = "XYZ Engineering College";
-  const qualification = "B.Tech";
-  const specialization = "Computer Science";
-  const passingYear = "2022";
-  const cgpa = "8.5 CGPA";
-  const tenth = "90%";
-  const twelfth = "85%";
+  // Fetch profile data from API
+  useEffect(() => {
+    const fetchProfileData = async () => {
+      setLoading(true);
+      setError(null);
+      const baseUrl =
+        process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:5001/";
+      const token =
+        typeof window !== "undefined"
+          ? localStorage.getItem("authToken")
+          : null;
 
-  const github = "https://github.com/selvapraveen";
-  const linkedin = "https://linkedin.com/in/selvapraveen";
-  const portfolio = "https://selvapraveen.vercel.app";
-  const skills = "Next.js, React, Tailwind CSS, Express, MySQL";
+      try {
+        const response = await getRequest(`${baseUrl}api/user/profile`, {
+          "Content-Type": "application/json",
+          Authorization: token ? `Bearer ${token}` : undefined,
+        });
 
-  const resumeFile: File | null = null;
+        const data: any = response as any;
+        setProfileData(data?.data ?? data);
+      } catch (err: any) {
+        console.error("Error fetching profile data", err);
+        setError(err?.message ?? "Failed to load profile");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProfileData();
+  }, []);
+
+  // Simple skeleton box used for loading placeholders
+  const Skeleton = ({ className = "" }: { className?: string }) => (
+    <div className={`bg-gray-200 rounded ${className} animate-pulse`} />
+  );
+
+  // Extract data from profileData or use defaults
+  const firstName = profileData?.first_name || "User";
+  const lastName = profileData?.last_name || "";
+  const mobile = profileData?.mobile_number || "N/A";
+  const email = profileData?.email || "N/A";
+  const dob = profileData?.date_of_birth
+    ? new Date(profileData.date_of_birth).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    })
+    : "N/A";
+  const gender = profileData?.gender?.value || "N/A";
+  const language = profileData?.language?.name || "N/A";
+  const country = profileData?.country?.name || "N/A";
+
+  const github = profileData?.github_url || "";
+  const linkedin = profileData?.linkedin_url || "";
+  const portfolio = profileData?.portfolio_url || "";
+
   const fullName = `${firstName} ${lastName}`.trim();
-  const resumeUrl = resumeFile ? URL.createObjectURL(resumeFile) : null;
 
-  const skillsArray = skills.split(",").map((s) => s.trim());
+  // Build profile picture URL
+  const profilePictureUrl = profileData?.profile_picture_url
+    ? profileData.profile_picture_url.startsWith("http")
+      ? profileData.profile_picture_url
+      : `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:5001/"}${profileData.profile_picture_url.replace(/\\/g, "/")}`
+    : null;
+
+  // Build resume URL
+  const resumeUrl = profileData?.resume_url
+    ? profileData.resume_url.startsWith("http")
+      ? profileData.resume_url
+      : `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:5001/"}${profileData.resume_url.replace(/\\/g, "/")}`
+    : null;
+
+  // Extract education details
+  const educationDetails = profileData?.educationDetails || [];
+
+  // Find highest education (assume the first one with institute)
+  const primaryEducation = educationDetails.find((ed: any) => ed.institute) || educationDetails[0];
+  const college = primaryEducation?.institute?.name || "N/A";
+  const qualification = primaryEducation?.educationLevel?.level_name || "N/A";
+  const specialization = primaryEducation?.specialization || "N/A";
+  const passingYear = primaryEducation?.year_of_passing?.toString() || "N/A";
+
+  // Calculate CGPA/percentage if marks available
+  const cgpa =
+    primaryEducation?.marks_obtained && primaryEducation?.max_marks
+      ? `${((primaryEducation.marks_obtained / primaryEducation.max_marks) * 100).toFixed(2)}%`
+      : "N/A";
+
+  // Find 10th and 12th standard marks
+  const tenthEducation = educationDetails.find(
+    (ed: any) => ed.educationLevel?.level_name === "10th"
+  );
+  const twelfthEducation = educationDetails.find(
+    (ed: any) => ed.educationLevel?.level_name === "12th"
+  );
+
+  const tenth =
+    tenthEducation?.marks_obtained && tenthEducation?.max_marks
+      ? `${((tenthEducation.marks_obtained / tenthEducation.max_marks) * 100).toFixed(2)}%`
+      : tenthEducation?.marks_obtained || "N/A";
+
+  const twelfth =
+    twelfthEducation?.marks_obtained && twelfthEducation?.max_marks
+      ? `${((twelfthEducation.marks_obtained / twelfthEducation.max_marks) * 100).toFixed(2)}%`
+      : twelfthEducation?.marks_obtained || "N/A";
+
+  // Extract skills
+  const userSkills = profileData?.userSkills || [];
+  const skillsArray = userSkills.map((us: any) => us.skill?.name || "Unknown");
+
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen">
+        <div className="max-w-7xl mx-auto">
+          <div className="bg-gray-100 rounded-2xl shadow-sm border border-gray-300 overflow-hidden mb-6">
+            <Skeleton className="h-32 w-full" />
+            <div className="px-6 md:px-10 pb-8">
+              <div className="flex flex-col md:flex-row md:items-end md:justify-between -mt-16 gap-6">
+                <div className="flex flex-col md:flex-row items-start md:items-end gap-6">
+                  <Skeleton className="w-32 h-32 rounded-2xl" />
+                  <div className="pb-2 space-y-2">
+                    <Skeleton className="w-48 h-8" />
+                    <Skeleton className="w-64 h-6" />
+                    <Skeleton className="w-96 h-4" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="text-center py-8">
+            <p className="text-gray-600">Loading profile...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error state
+  if (error) {
+    return (
+      <div className="min-h-screen">
+        <div className="max-w-7xl mx-auto">
+          <div className="bg-red-50 rounded-2xl shadow-sm border border-red-300 p-6 text-center">
+            <p className="text-red-600 font-medium">{error}</p>
+            <button
+              onClick={() => window.location.reload()}
+              className="mt-4 px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors"
+            >
+              Retry
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen">
@@ -61,9 +194,9 @@ export default function Profile() {
               <div className="flex flex-col md:flex-row items-start md:items-end gap-6">
                 <div className="relative">
                   <div className="w-32 h-32 rounded-2xl bg-white border-4 border-white shadow-lg overflow-hidden flex items-center justify-center">
-                    {profilePhoto ? (
+                    {profilePictureUrl ? (
                       <img
-                        src={URL.createObjectURL(profilePhoto)}
+                        src={profilePictureUrl}
                         alt={fullName}
                         className="object-cover w-full h-full"
                       />
@@ -71,7 +204,7 @@ export default function Profile() {
                       <div className="w-full h-full bg-slate-100 flex items-center justify-center">
                         <span className="text-4xl font-bold text-slate-400">
                           {firstName[0]}
-                          {lastName[0]}
+                          {lastName[0] || ""}
                         </span>
                       </div>
                     )}
@@ -83,7 +216,7 @@ export default function Profile() {
                     {fullName}
                   </h1>
                   <p className="text-lg text-slate-600 mb-3">
-                    {qualification} in {specialization}
+                  {specialization} in {college}
                   </p>
                   <div className="flex flex-wrap gap-4 text-sm text-slate-600">
                     <span className="inline-flex items-center gap-2">
@@ -208,11 +341,10 @@ export default function Profile() {
                   href={resumeUrl || "#"}
                   target="_blank"
                   rel="noreferrer"
-                  className={`flex items-center gap-3 p-4 rounded-xl border-2 transition-all ${
-                    resumeUrl
+                  className={`flex items-center gap-3 p-4 rounded-xl border-2 transition-all ${resumeUrl
                       ? "border-indigo-300 bg-indigo-50 hover:bg-indigo-100"
                       : "border-gray-300 bg-white"
-                  }`}
+                    }`}
                 >
                   <FileText
                     className={`w-5 h-5 ${resumeUrl ? "text-indigo-600" : "text-slate-400"}`}
@@ -296,14 +428,18 @@ export default function Profile() {
                 Technical Skills
               </h2>
               <div className="flex flex-wrap gap-3">
-                {skillsArray.map((skill, index) => (
-                  <span
-                    key={index}
-                    className="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg text-sm font-medium border-2 border-slate-200 hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700 transition-all"
-                  >
-                    {skill}
-                  </span>
-                ))}
+                {skillsArray.length > 0 ? (
+                  skillsArray.map((skill: string, index: number) => (
+                    <span
+                      key={index}
+                      className="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg text-sm font-medium border-2 border-slate-200 hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700 transition-all"
+                    >
+                      {skill}
+                    </span>
+                  ))
+                ) : (
+                  <p className="text-sm text-slate-500">No skills added yet</p>
+                )}
               </div>
             </div>
           </div>

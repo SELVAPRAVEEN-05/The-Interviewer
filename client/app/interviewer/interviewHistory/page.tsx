@@ -13,7 +13,8 @@ import {
   Users,
   XCircle,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { getRequest } from "@/utils";
 
 // Feedback Modal Component
 const FeedbackModal = ({
@@ -88,11 +89,10 @@ const FeedbackModal = ({
                 {Array.from({ length: 5 }).map((_, i) => (
                   <Star
                     key={i}
-                    className={`w-6 h-6 ${
-                      i < (interview.rating || 0)
-                        ? "text-yellow-500 fill-yellow-500"
-                        : "text-gray-300"
-                    }`}
+                    className={`w-6 h-6 ${i < (interview.rating || 0)
+                      ? "text-yellow-500 fill-yellow-500"
+                      : "text-gray-300"
+                      }`}
                   />
                 ))}
               </div>
@@ -176,126 +176,171 @@ export default function InterviewerHistory() {
   const [selectedInterview, setSelectedInterview] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const itemsPerPage = 5;
+  // State for dashboard data
+  const [dashboardData, setDashboardData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
+  // State for interview history data
+  const [historyData, setHistoryData] = useState<any>(null);
+  const [historyLoading, setHistoryLoading] = useState(true);
+  const [historyError, setHistoryError] = useState<string | null>(null);
+  const [totalPages, setTotalPages] = useState(1);
+
+  const itemsPerPage = 10;
+
+  // Fetch dashboard data from API
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      setLoading(true);
+      setError(null);
+      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:5001/";
+      const token = typeof window !== "undefined" ? localStorage.getItem("authToken") : null;
+
+      try {
+        const response = await getRequest(`${baseUrl}api/interviewer/dashboard`, {
+          "Content-Type": "application/json",
+          Authorization: token ? `Bearer ${token}` : undefined,
+        });
+
+        const result: any = response as any;
+        const data = result?.data ?? result;
+
+        console.log("📊 Interview History - Dashboard Data:", data);
+        setDashboardData(data);
+      } catch (err: any) {
+        console.error("Error fetching dashboard data:", err);
+        setError(err?.message ?? "Failed to load dashboard data");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDashboardData();
+  }, []);
+
+  // Fetch interview history data from API
+  useEffect(() => {
+    const fetchHistoryData = async () => {
+      setHistoryLoading(true);
+      setHistoryError(null);
+      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:5001/";
+      const token = typeof window !== "undefined" ? localStorage.getItem("authToken") : null;
+
+      try {
+        const response: any = await getRequest(`${baseUrl}api/interviewer/history?page=${currentPage}`, {
+          "Content-Type": "application/json",
+          Authorization: token ? `Bearer ${token}` : undefined,
+        });
+
+        console.log("📋 Interview History - Raw Response:", response);
+
+        // The getRequest already returns response.data from axios interceptor
+        // So response is already the API response body: { message, Failed, data: [...], meta }
+        setHistoryData(response);
+
+        // Set total pages from meta data
+        if (response?.meta?.pages) {
+          setTotalPages(response.meta.pages);
+        }
+
+        console.log("📋 History Data Set:", {
+          dataArray: response?.data,
+          meta: response?.meta,
+          dataLength: response?.data?.length
+        });
+      } catch (err: any) {
+        console.error("Error fetching history data:", err);
+        setHistoryError(err?.message ?? "Failed to load interview history");
+      } finally {
+        setHistoryLoading(false);
+      }
+    };
+
+    fetchHistoryData();
+  }, [currentPage]);
+
+  // Loading skeleton component
+  const Skeleton = ({ className = "" }: { className?: string }) => (
+    <div className={`bg-gray-200 rounded ${className} animate-pulse`} />
+  );
+
+  // Calculate stats from backend data
   const interviewStats = {
-    totalCompleted: 45,
-    totalConducted: 52,
-    avgRating: 4.2,
-    candidatesShortlisted: 28,
+    totalConducted: dashboardData?.interviewCount ?? 0,
+    totalCompleted: dashboardData?.interviewData?.completed ?? 0,
+    avgRating: dashboardData?.AvgPerformance?.[0]?.averageRating ?? 0,
+    candidatesShortlisted: dashboardData?.shortlisted ?? 0,
+    scheduled: dashboardData?.interviewData?.scheduled ?? 0,
+    cancelled: dashboardData?.interviewData?.cancelled ?? 0,
   };
 
   const performanceData = [
-    { name: "Completed", value: 45, color: "#10b981" },
-    { name: "Pending Reviews", value: 7, color: "#3b82f6" },
-    { name: "In Progress", value: 12, color: "#f59e0b" },
-    { name: "On Hold", value: 5, color: "#ef4444" },
+    { name: "Completed", value: interviewStats.totalCompleted, color: "#10b981" },
+    { name: "Scheduled", value: interviewStats.scheduled, color: "#3b82f6" },
+    { name: "Cancelled", value: interviewStats.cancelled, color: "#ef4444" },
+    { name: "Shortlisted", value: interviewStats.candidatesShortlisted, color: "#f59e0b" },
   ];
 
-  const skillTrends = [
-    { skill: "Communication", avg: 82, trend: +5 },
-    { skill: "Technical Skills", avg: 78, trend: +3 },
-    { skill: "Problem Solving", avg: 85, trend: +7 },
-    { skill: "Cultural Fit", avg: 80, trend: +2 },
-  ];
+  // Skills data from backend
+  const skillTrends = loading || !dashboardData?.SkillsAssessment
+    ? []
+    : dashboardData.SkillsAssessment.map((item: any) => ({
+      skill: item.skillName,
+      avg: Math.round(item.percentage ?? 0),
+    }));
 
-  const sampleHistory = [
-    {
-      id: "1",
-      candidateName: "Arjun Patel",
-      candidateRole: "Full Stack Developer",
-      companyName: "TechCorp Solutions",
-      date: "25 Sep 2025",
-      status: "completed",
-      decision: "shortlisted",
-      score: 85,
-      rating: 4,
-      positiveReview:
-        "Excellent problem-solving skills and clear communication. Strong understanding of React and Node.js.",
-      negativeReview:
-        "Could improve on system design thinking and scalability considerations.",
-      skills: [
-        { name: "React", score: 90 },
-        { name: "Node.js", score: 85 },
-        { name: "System Design", score: 70 },
-      ],
-    },
-    {
-      id: "2",
-      candidateName: "Sneha Reddy",
-      candidateRole: "Frontend Developer",
-      companyName: "InnovateLabs",
-      date: "22 Sep 2025",
-      status: "completed",
-      decision: "shortlisted",
-      score: 92,
-      rating: 5,
-      positiveReview:
-        "Outstanding CSS skills and attention to detail. Great portfolio of work.",
-      negativeReview: "Need more experience with state management libraries.",
-      skills: [
-        { name: "CSS/UI", score: 95 },
-        { name: "JavaScript", score: 88 },
-        { name: "State Management", score: 75 },
-      ],
-    },
-    {
-      id: "3",
-      candidateName: "Vikram Singh",
-      candidateRole: "Backend Developer",
-      companyName: "DataSystems Inc",
-      date: "18 Sep 2025",
-      status: "completed",
-      decision: "rejected",
-      score: 58,
-      rating: 2,
-      positiveReview: "Basic understanding of database concepts.",
-      negativeReview:
-        "Struggled with complex algorithmic questions and optimization techniques.",
-      skills: [
-        { name: "Algorithms", score: 45 },
-        { name: "Databases", score: 65 },
-        { name: "API Design", score: 60 },
-      ],
-    },
-    {
-      id: "4",
-      candidateName: "Ananya Iyer",
-      candidateRole: "DevOps Engineer",
-      companyName: "CloudNine Tech",
-      date: "15 Sep 2025",
-      status: "completed",
-      decision: "shortlisted",
-      score: 88,
-      rating: 4,
-      positiveReview:
-        "Strong knowledge of CI/CD pipelines and cloud infrastructure.",
-      negativeReview: "Could benefit from more hands-on Kubernetes experience.",
-      skills: [
-        { name: "CI/CD", score: 90 },
-        { name: "AWS", score: 88 },
-        { name: "Kubernetes", score: 75 },
-      ],
-    },
-    {
-      id: "5",
-      candidateName: "Rohan Mehta",
-      candidateRole: "Data Scientist",
-      companyName: "AIWorks Pvt Ltd",
-      date: "10 Sep 2025",
-      status: "pending",
-      decision: "pending",
-      score: undefined,
-      rating: undefined,
-    },
-  ];
+  // Transform API data to match the component's expected format
+  const transformedHistory = historyLoading || !historyData?.data
+    ? []
+    : historyData.data.map((interview: any) => {
+      const feedback = interview.feedbacks?.[0];
+      const participant = interview.participants?.[0];
+      const candidateName = participant?.user
+        ? `${participant.user.first_name} ${participant.user.last_name}`
+        : "N/A";
+      const candidateEmail = participant?.user?.email ?? "";
 
-  const totalPages = Math.ceil(sampleHistory.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const paginatedHistory = sampleHistory.slice(
-    startIndex,
-    startIndex + itemsPerPage
-  );
+      const interviewerPosition = interview.user?.userPositions?.[0];
+      const companyName = interviewerPosition?.brand?.name ?? "N/A";
+
+      const date = new Date(interview.scheduled_at).toLocaleDateString('en-GB', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric'
+      });
+
+      const status = interview.status?.toLowerCase() ?? "pending";
+      const decision = participant?.sortlisted
+        ? "shortlisted"
+        : (status === "completed" ? "rejected" : "pending");
+
+      const skills = feedback?.feedbackSkills?.map((fs: any) => ({
+        name: fs.skill?.name ?? "Unknown",
+        score: fs.value ?? 0,
+      })) ?? [];
+
+      return {
+        id: interview.id,
+        candidateName,
+        candidateEmail,
+        candidateRole: interviewerPosition?.position?.title ?? "N/A",
+        companyName,
+        date,
+        status,
+        decision,
+        score: feedback?.score ?? undefined,
+        rating: feedback?.rating ?? undefined,
+        positiveReview: feedback?.positive_aspects ?? undefined,
+        negativeReview: feedback?.negative_aspects ?? undefined,
+        skills,
+        interviewType: interview.type,
+        interviewName: interview.name,
+        sessionLink: interview.session_link,
+      };
+    });
+
+  const paginatedHistory = transformedHistory;
 
   const getDecisionColor = (decision: any) => {
     switch (decision) {
@@ -317,6 +362,8 @@ export default function InterviewerHistory() {
 
   return (
     <div className="min-h-screen bg-white">
+
+
       {/* Header */}
       <div className="bg-gray-100 border border-gray-300 shadow-lg px-6 py-6 rounded-lg mb-6">
         <h1 className="text-2xl font-bold text-gray-900">Interview History</h1>
@@ -329,31 +376,31 @@ export default function InterviewerHistory() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <StatCard
           title="Total Interviews"
-          value={interviewStats.totalConducted}
+          value={loading ? <Skeleton className="w-16 h-8" /> : interviewStats.totalConducted}
           icon={Calendar}
           color="blue"
-          subtitle={`Completed: ${interviewStats.totalCompleted}`}
+          subtitle={loading ? '' : `Completed: ${interviewStats.totalCompleted}`}
         />
         <StatCard
           title="Avg Rating Given"
-          value={interviewStats.avgRating}
+          value={loading ? <Skeleton className="w-12 h-8" /> : interviewStats.avgRating}
           icon={Star}
           color="purple"
           subtitle="Out of 5 stars"
         />
         <StatCard
           title="Shortlisted"
-          value={interviewStats.candidatesShortlisted}
+          value={loading ? <Skeleton className="w-12 h-8" /> : interviewStats.candidatesShortlisted}
           icon={CheckCircle}
           color="green"
           subtitle="Candidates recommended"
         />
         <StatCard
-          title="Rejection Rate"
-          value="46%"
+          title="Avg Duration"
+          value={loading ? <Skeleton className="w-16 h-8" /> : `${dashboardData?.avgDuration ?? 0}m`}
           icon={Target}
-          color="red"
-          subtitle="Based on assessments"
+          color="orange"
+          subtitle="Per interview"
         />
       </div>
 
@@ -367,20 +414,29 @@ export default function InterviewerHistory() {
               Interview Overview
             </h3>
           </div>
-          <div className="grid grid-cols-2 gap-4">
-            {performanceData.map((item, idx) => (
-              <div
-                key={idx}
-                className="bg-white border border-gray-300 rounded-lg p-4"
-              >
-                <div className="flex items-center justify-between mb-2">
-                  <span
-                    className="w-4 h-4 rounded-full"
-                    style={{ backgroundColor: item.color }}
-                  />
-                  <span className="text-2xl font-bold text-gray-900">
-                    {item.value}
-                  </span>
+          {loading ? (
+            <div className="grid grid-cols-2 gap-4">
+              {[1, 2, 3, 4].map((i) => (
+                <Skeleton key={i} className="h-24 rounded-lg" />
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 gap-4">
+              {performanceData.map((item, idx) => (
+                <div
+                  key={idx}
+                  className="bg-white border border-gray-300 rounded-lg p-4"
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <span
+                      className="w-4 h-4 rounded-full"
+                      style={{ backgroundColor: item.color }}
+                    />
+                    <span className="text-2xl font-bold text-gray-900">
+                      {item.value}
+                    </span>
+                  </div>
+                  <p className="text-sm text-gray-600">{item.name}</p>
                 </div>
                 <p className="text-sm text-gray-600">{item.name}</p>
               </div>
@@ -396,20 +452,31 @@ export default function InterviewerHistory() {
               Avg Candidate Performance
             </h3>
           </div>
-          <div className="space-y-4">
-            {skillTrends.map((item, idx) => (
-              <div key={idx}>
-                <div className="flex justify-between items-center mb-1">
-                  <span className="font-medium text-gray-800 text-sm">
-                    {item.skill}
-                  </span>
-                  <div className="flex items-center gap-2">
-                    <span
-                      className={`text-xs font-semibold ${item.trend > 0 ? "text-green-600" : "text-red-600"}`}
-                    >
-                      {item.trend > 0 ? `+${item.trend}%` : `${item.trend}%`}
+          {loading ? (
+            <div className="space-y-4">
+              {[1, 2, 3, 4].map((i: number) => (
+                <Skeleton key={i} className="h-12 rounded" />
+              ))}
+            </div>
+          ) : skillTrends.length === 0 ? (
+            <div className="flex items-center justify-center h-[160px] text-gray-500">
+              No skills data available
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {skillTrends.map((item: any, idx: number) => (
+                <div key={idx}>
+                  <div className="flex justify-between items-center mb-1">
+                    <span className="font-medium text-gray-800 text-sm">
+                      {item.skill}
                     </span>
                     <span className="font-bold text-gray-900">{item.avg}%</span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div
+                      className="bg-blue-600 h-2 rounded-full transition-all"
+                      style={{ width: `${item.avg}%` }}
+                    />
                   </div>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
@@ -440,8 +507,46 @@ export default function InterviewerHistory() {
           <div>Actions</div>
         </div>
 
+        {/* Loading State */}
+        {historyLoading && (
+          <div className="space-y-2">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div
+                key={i}
+                className="grid grid-cols-6 gap-4 px-4 py-3 bg-white border border-gray-300 rounded-lg"
+              >
+                <Skeleton className="w-full h-12" />
+                <Skeleton className="w-full h-12" />
+                <Skeleton className="w-full h-12" />
+                <Skeleton className="w-full h-12" />
+                <Skeleton className="w-full h-12" />
+                <Skeleton className="w-full h-12" />
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Error State */}
+        {historyError && !historyLoading && (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700">
+            <p className="font-medium">Error loading interview history</p>
+            <p className="text-sm mt-1">{historyError}</p>
+          </div>
+        )}
+
+        {/* Empty State */}
+        {!historyLoading && !historyError && paginatedHistory.length === 0 && (
+          <div className="bg-gray-50 border border-gray-200 rounded-lg p-8 text-center">
+            <Calendar className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+            <p className="text-gray-600 font-medium">No interview history found</p>
+            <p className="text-sm text-gray-500 mt-1">
+              Your completed interviews will appear here
+            </p>
+          </div>
+        )}
+
         {/* Table Rows */}
-        {paginatedHistory.map((interview) => (
+        {!historyLoading && !historyError && paginatedHistory.map((interview: any) => (
           <div
             key={interview.id}
             className="grid grid-cols-6 gap-4 px-4 py-3 my-2 items-center bg-white border border-gray-300 hover:bg-gray-50 rounded-lg transition"
@@ -480,7 +585,7 @@ export default function InterviewerHistory() {
 
             {/* Score */}
             <div className="font-semibold text-gray-900">
-              {interview.score !== undefined ? `${interview.score}/100` : "-"}
+              {interview.score !== undefined ? `${interview.score}` : "-"}
             </div>
 
             {/* Actions */}
@@ -501,10 +606,11 @@ export default function InterviewerHistory() {
         ))}
 
         {/* Pagination */}
-        {totalPages > 1 && (
+        {!historyLoading && !historyError && totalPages > 1 && (
           <div className="flex justify-between items-center mt-6 pt-4 border-t border-gray-300">
             <p className="text-sm text-gray-600">
               Page {currentPage} of {totalPages}
+              {historyData?.meta?.total && ` • ${historyData.meta.total} total interviews`}
             </p>
             <div className="flex items-center gap-2">
               <button
@@ -515,19 +621,32 @@ export default function InterviewerHistory() {
                 Previous
               </button>
 
-              {Array.from({ length: totalPages }).map((_, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => setCurrentPage(idx + 1)}
-                  className={`px-4 py-2 border rounded-lg text-sm transition ${
-                    currentPage === idx + 1
+              {Array.from({ length: Math.min(totalPages, 5) }).map((_, idx) => {
+                // Show first page, last page, current page, and pages around current
+                let pageNum;
+                if (totalPages <= 5) {
+                  pageNum = idx + 1;
+                } else if (currentPage <= 3) {
+                  pageNum = idx + 1;
+                } else if (currentPage >= totalPages - 2) {
+                  pageNum = totalPages - 4 + idx;
+                } else {
+                  pageNum = currentPage - 2 + idx;
+                }
+
+                return (
+                  <button
+                    key={idx}
+                    onClick={() => setCurrentPage(pageNum)}
+                    className={`px-4 py-2 border rounded-lg text-sm transition ${currentPage === pageNum
                       ? "bg-blue-600 text-white border-blue-600"
                       : "text-gray-700 border-gray-300 hover:bg-gray-100"
-                  }`}
-                >
-                  {idx + 1}
-                </button>
-              ))}
+                      }`}
+                  >
+                    {pageNum}
+                  </button>
+                );
+              })}
 
               <button
                 disabled={currentPage === totalPages}

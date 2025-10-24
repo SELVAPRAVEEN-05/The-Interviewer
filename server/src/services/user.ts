@@ -1,128 +1,86 @@
 import prisma from "../lib/prisma"
 
-// Example 1: Simple include - just get basic related data
-export const profileBasic=async (id:string)=>{
-    try{
-        const data=await prisma.user.findFirst({
-            where:{id},
-            include:{
-                gender: true,
-                country: true,
-                language: true
-            }
+export const updateProfile=async (id:string,first_name:string,email:string,mobile_number:string)=>{
+    try {
+        const existingUser=await prisma.user.findFirst({
+               where:{id},
+        })
+    console.log("updating user", { id, first_name, mobile_number, email })
+        if(!existingUser){
+            return {isFailed:true,data:null}
+        }
+        // Only update the scalar fields we intend to change. Spreading the entire
+        // `existingUser` object into `data` can include nested relations or read-only
+        // fields which Prisma rejects (causing the validation error). Keep the update
+        // payload minimal and explicit.
+        const data = await prisma.user.update({
+            where: { id: existingUser.id },
+            data: {
+                id: existingUser.id,
+                first_name,
+                mobile_number,
+              
+            },
         })
         return {isFailed:false,data:data}
     }catch(error){
+        console.error('Error updating profile:', error);
         return {isFailed:true,data:null}
     }
 }
-
-// Example 2: Selective include with conditions
-export const profileWithSkills=async (id:string)=>{
-    try{
-        const data=await prisma.user.findFirst({
-            where:{id},
-            include:{
-                gender: true,
-                country: true,
-                language: true,
-                userSkills: {
-                    where: {
-                        proficiency: "Advanced" // Only get advanced skills
-                    },
-                    include: {
-                        skill: true
-                    },
-                    take: 5 // Limit to 5 skills
-                }
-            }
-        })
-        return {isFailed:false,data:data}
-    }catch(error){
-        return {isFailed:true,data:null}
-    }
-}
-
-// Example 3: Using select with include (you can select fields from included relations)
-export const profileSelectiveFields=async (id:string)=>{
-    try{
-        const data=await prisma.user.findFirst({
-            where:{id},
-            select: {
-                id: true,
-                first_name: true,
-                last_name: true,
-                email: true,
-                // Include related data with selected fields
-                gender: {
-                    select: {
-                        value: true
-                    }
-                },
-                country: {
-                    select: {
-                        name: true,
-                        iso_code: true
-                    }
-                },
-                userSkills: {
-                    select: {
-                        proficiency: true,
-                        years_of_experience: true,
-                        skill: {
-                            select: {
-                                name: true,
-                                category: true
-                            }
-                        }
-                    }
-                }
-            }
-        })
-        return {isFailed:false,data:data}
-    }catch(error){
-        return {isFailed:true,data:null}
-    }
-}
-
 export const profile=async (id:string)=>{
     try{
         const data=await prisma.user.findFirst(
             {
             where:{id},
-            include:{
-                // Include related models - this will fetch the actual related records
-                gender: true,           // Gets the Gender record
-                country: true,          // Gets the Country record  
-                language: true,         // Gets the Language record
-                educationDetails: {     // Gets all education details
-                    include: {
-                        educationLevel: true,  // Include education level info
-                        institute: {           // Include institute info
-                            include: {
-                                country: true  // Include institute's country
+            select:{
+               id:true,
+                first_name:true,
+                last_name:true,
+                email:true,
+                profile_url:true,
+                mobile_number:true, 
+                role:true,
+                country:true,
+                gender:true,
+                github_url:true,
+                linkedin_url:true,
+                portfolio_url:true,
+        language:true,
+        resume_url:true,
+        profile_picture_url:true,
+                
+                created_at:true,
+                educationDetails:{
+                    include:{
+                   institute:true,
+                  educationLevel:true
+                ,user:true
+
+                    }
+                },
+                userSkills:{
+                    include:{
+                        skill:true
+                    }
+                },
+                userPositions:{
+                    select:{
+                        position:{
+select:{
+    department:true,
+    title:true
+}
+                        },
+                        brand:{
+                            select:{
+                                name:true
                             }
                         }
                     }
-                },
-                userSkills: {           // Gets all user skills
-                    include: {
-                        skill: true     // Include skill details
-                    }
-                },
-                userPositions: {        // Gets all user positions
-                    include: {
-                        brand: true,    // Include brand details
-                        position: true  // Include position details
-                    }
                 }
-                // You can also include other relations like:
-                // interviewParticipations: true,
-                // codeSubmissions: true,
-                // feedbackGiven: true,
-                // feedbackReceived: true,
             }
-            }
+        }
             )
 
         return {isFailed:false,data:data}

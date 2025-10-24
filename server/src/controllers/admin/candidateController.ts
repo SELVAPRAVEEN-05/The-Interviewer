@@ -1,7 +1,28 @@
 import { FastifyReply, FastifyRequest } from "fastify";
-import { candidateData, CandidateDataTable as CandidateDataTableService } from "../../services/admin/candidate";
+import { candidateData, CandidateDataTable as CandidateDataTableService, CandidateInterviewData } from "../../services/admin/candidate";
 import { candidateStatusUpdate } from "../../services/candidate/candidate";
+// Interface for query parameters
+interface CandidateTableQuery {
+    status?: string;
+    searchQuery?: string;
+    page?: string;
+    limit?: string;
+}
+export const CandidateInterviewDataController = async (req: any, res: FastifyReply) => {
+        try {
+            const candidateId = req.user?.payload?.id;
+            const data: any = await CandidateInterviewData(candidateId);
 
+            if (data.isFailed) {
+                return res.status(400).send({ message: "Error in fetching candidate interview data", Failed: true, data: null });
+            }
+                return res.status(200).send({ message: "Candidate interview data fetched successfully", Failed: false, data: data.data });
+
+        } catch (error) {
+            console.error('Error fetching candidate interview data:', error);
+            return res.status(500).send({ message: "Internal Server Error", Failed: true, data: null });
+        }
+    }
 export const CandidateData = async (req: FastifyRequest, res: FastifyReply) => {
     try {
         const data: any = await candidateData();
@@ -28,13 +49,7 @@ export const CandidateStatusUpdate = async (req: FastifyRequest, res: FastifyRep
     }
 };
 
-// Interface for query parameters
-interface CandidateTableQuery {
-    status?: string;
-    searchQuery?: string;
-    page?: string;
-    limit?: string;
-}
+
 
 export const CandidateDataTable = async (
     req: FastifyRequest<{ Querystring: CandidateTableQuery }>, 

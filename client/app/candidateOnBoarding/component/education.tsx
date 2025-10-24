@@ -68,6 +68,8 @@ export default function Education({
     twelfth,
   } = useFormStore();
 
+  console.log(specialization);
+
   return (
     <div className="h-full w-full flex flex-col justify-between">
       <div className="h-[90%] overflow-y-auto scrollbar-hide">
@@ -88,7 +90,7 @@ export default function Education({
             onSelectionChange={(val) => setFormData({ college: val as string })}
           >
             {(item) => (
-              <AutocompleteItem key={item.label}>{item.label}</AutocompleteItem>
+              <AutocompleteItem key={item.key}>{item.label}</AutocompleteItem>
             )}
           </Autocomplete>
 

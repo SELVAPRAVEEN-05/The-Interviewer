@@ -8,6 +8,7 @@ import {
   TableHead,
   TablePagination,
   TableRow,
+  CircularProgress,
 } from "@mui/material";
 import {
   Modal,
@@ -29,12 +30,14 @@ import {
   X,
   XCircle,
 } from "lucide-react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import StatCard from "../components/statCard";
 import { candidates } from "../utils";
 import { EducationTab } from "./components/education";
 import { PersonalTab } from "./components/personal";
 import { SkillsTab } from "./components/skills";
+import { getRequest, putRequest } from "@/utils/axios/axios";
+import { URL } from "@/utils/axios/endPoint";
 
 type TabType = "overview" | "approved" | "pending" | "rejected";
 
@@ -43,7 +46,10 @@ const ManageCandidatesPage = () => {
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [activeTab, setActiveTab] = useState<TabType>("overview");
   const [searchQuery, setSearchQuery] = useState("");
-
+  const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:5001/";
+  const [tableData, setTableData] = useState<any>([]);
+  const [candidateData, setCandidateData] = useState<any>([]);
+  const [isTableLoading, setIsTableLoading] = useState(false);
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage);
   };
@@ -81,36 +87,25 @@ const ManageCandidatesPage = () => {
 
   const [selectedCandidate, setSelectedCandidate] = useState<any>(null);
 
-  const updateCandidateStatus = (
-    id: number,
-    newStatus: "approved" | "pending" | "canceled"
-  ) => {
-    setCandidateList((prev) =>
-      prev.map((candidate) =>
-        candidate.id === id ? { ...candidate, status: newStatus } : candidate
-      )
-    );
-  };
-
   const getStatusBadge = (status: string) => {
     const baseClasses =
       "px-3 py-1 text-xs w-fit font-medium rounded-full flex items-center gap-1";
     switch (status) {
-      case "approved":
+      case "APPROVED":
         return (
           <span className={`${baseClasses} bg-green-100 text-green-800`}>
             <CheckCircle size={12} />
             Approved
           </span>
         );
-      case "pending":
+      case "PENDING":
         return (
           <span className={`${baseClasses} bg-yellow-100 text-yellow-800`}>
             <Clock size={12} />
             Pending
           </span>
         );
-      case "canceled":
+      case "CANCELED":
         return (
           <span className={`${baseClasses} bg-red-100 text-red-800`}>
             <XCircle size={12} />
@@ -155,6 +150,90 @@ const ManageCandidatesPage = () => {
 
   const { isOpen, onOpen, onClose } = useDisclosure();
 
+  const token = localStorage.getItem("authToken");
+  const InitialCall = async () => {
+    try {
+      const response: any = await getRequest(URL?.MANAGE_CANDIDATES, {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      });
+
+      setCandidateData(response?.data?.data);
+    } catch (err) {
+      throw err;
+    }
+    // fetch paginated/filtered table and show loading state while doing so
+    setIsTableLoading(true);
+    try {
+      const statusParam =
+        activeTab === "overview"
+          ? ""
+          : activeTab === "approved"
+            ? "APPROVED"
+            : activeTab === "pending"
+              ? "PENDING"
+              : activeTab === "rejected"
+                ? "CANCELED"
+                : "";
+
+      const response = await getRequest(
+        `${baseURL}api/admin/candidates-table?status=${encodeURIComponent(
+          statusParam
+        )}&searchQuery=${encodeURIComponent(searchQuery)}&page=${page + 1}&limit=${rowsPerPage}`,
+        {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        }
+      );
+      setTableData(response?.data ?? []);
+    } catch (error) {
+      console.error("Failed to fetch candidates table:", error);
+      setTableData([]);
+    } finally {
+      setIsTableLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    InitialCall();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // re-fetch when pagination, filters or search query change
+  useEffect(() => {
+    InitialCall();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page, rowsPerPage, activeTab, searchQuery]);
+
+  const updateCandidateStatus = async (userId: string, status: string) => {
+    try {
+      const payload = { userId, status };
+      const headers = {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      };
+
+      // call PUT api/candidate/status-update
+      await putRequest(
+        `${baseURL}api/candidate/status-update`,
+        payload,
+        headers
+      );
+
+      // optimistic UI update for modal / table
+      setTableData((prev: any) =>
+        prev.map((row: any) =>
+          row.id === userId ? { ...row, status: status } : row
+        )
+      );
+
+      // refresh table from server to ensure consistency
+      InitialCall();
+    } catch (err) {
+      console.error("Failed to update candidate status:", err);
+    }
+  };
+
   return (
     <div className="">
       {/* Stats Cards */}
@@ -171,33 +250,34 @@ const ManageCandidatesPage = () => {
           </div>
         </div>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-        <StatCard
-          title="Total Candidates"
-          value={totalCandidates}
-          icon={Users}
-          color="blue"
-        />
-        <StatCard
-          title="Approved Candidates"
-          value={approvedCount}
-          icon={CheckCircle}
-          color="green"
-        />
-        <StatCard
-          title="Pending Candidates"
-          value={pendingCount}
-          icon={Clock}
-          color="orange"
-        />
-        <StatCard
-          title="Rejected Candidates"
-          value={canceledCount}
-          icon={XCircle}
-          color="red"
-        />
-      </div>
-
+      {candidateData && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+          <StatCard
+            title="Total Candidates"
+            value={candidateData?.totalCandidateUsers || totalCandidates}
+            icon={Users}
+            color="blue"
+          />
+          <StatCard
+            title="Approved Candidates"
+            value={candidateData?.totalApprovedCandidates || approvedCount}
+            icon={CheckCircle}
+            color="green"
+          />
+          <StatCard
+            title="Pending Candidates"
+            value={candidateData?.totalPendingCandidates ?? pendingCount}
+            icon={Clock}
+            color="orange"
+          />
+          <StatCard
+            title="Rejected Candidates"
+            value={candidateData?.totalRejectedInterviews ?? canceledCount}
+            icon={XCircle}
+            color="red"
+          />
+        </div>
+      )}
       {/* Tabs and Search */}
       <div className="bg-gray-100 border border-gray-300 rounded-lg shadow-sm mb-6">
         <div className="flex  items-center justify-between p-4 ">
@@ -253,61 +333,311 @@ const ManageCandidatesPage = () => {
           sx={{ backgroundColor: "#f3f4f6", border: "none", boxShadow: "none" }}
           className="px-4 bg-gray-100"
         >
-          <Table className="bg-gray-100 border border-gray-300 rounded-t-md">
-            <TableHead className="bg-gray-200">
-              <TableRow>
-                <TableCell>Candidate</TableCell>
-                <TableCell>Email</TableCell>
-                <TableCell>Status</TableCell>
-                <TableCell>Interview</TableCell>
-                <TableCell>Interviewer</TableCell>
-                <TableCell>Actions</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {(rowsPerPage > 0
-                ? filteredCandidates.slice(
-                    page * rowsPerPage,
-                    page * rowsPerPage + rowsPerPage
-                  )
-                : filteredCandidates
-              ).map((candidate) => (
-                <TableRow key={candidate.id}>
-                  <TableCell className="flex items-center gap-3">
-                    <div className="flex items-center">
-                      <img
-                        className="h-10 w-10 rounded-full object-cover"
-                        src={candidate.profilePhoto}
-                        alt={candidate.name}
-                      />
-                      <span className="ml-2 font-medium text-gray-900">
-                        {candidate.name}
-                      </span>
-                    </div>
-                  </TableCell>
-                  <TableCell>{candidate.email}</TableCell>
-                  <TableCell>{getStatusBadge(candidate.status)}</TableCell>
-                  <TableCell>
-                    {getInterviewStatusBadge(candidate.interviewStatus)}
-                  </TableCell>
-                  <TableCell>{candidate.assignedInterviewer}</TableCell>
-                  <TableCell>
-                    <button
-                      onClick={() => {
-                        setSelectedCandidate(candidate);
-                        onOpen();
-                      }}
-                      className="text-blue-600 hover:text-blue-800 flex items-center gap-1"
-                    >
-                      <Eye size={16} />
-                      View
-                    </button>
-                  </TableCell>
+     
+            <Table className="bg-gray-100 border border-gray-300 rounded-t-md">
+              <TableHead className="bg-gray-200">
+                <TableRow>
+                  <TableCell>Candidate</TableCell>
+                  <TableCell>Email</TableCell>
+                  <TableCell>Status</TableCell>
+                  <TableCell>Interview</TableCell>
+                  <TableCell>Interviewer</TableCell>
+                  <TableCell>Actions</TableCell>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHead>
+              <TableBody>
+                {isTableLoading ? (
+                  Array.from({ length: Math.min(Math.max(rowsPerPage, 5), 10) }).map((_, i) => (
+                    <TableRow key={`skeleton-${i}`}>
+                      <TableCell>
+                        <div className="flex items-center gap-3">
+                          <div className="h-10 w-10 rounded-full bg-gray-200 animate-pulse" />
+                          <div className="space-y-2">
+                            <div className="h-3 w-32 bg-gray-200 rounded animate-pulse"></div>
+                            <div className="h-3 w-20 bg-gray-200 rounded animate-pulse"></div>
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="h-3 w-40 bg-gray-200 rounded animate-pulse"></div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="h-3 w-20 bg-gray-200 rounded animate-pulse"></div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="h-3 w-24 bg-gray-200 rounded animate-pulse"></div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="h-3 w-32 bg-gray-200 rounded animate-pulse"></div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="h-8 w-20 bg-gray-200 rounded animate-pulse mx-auto"></div>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  tableData.map((candidate: any) => (
+                    <TableRow key={candidate.id}>
+                      <TableCell className="flex items-center gap-3">
+                        <div className="flex items-center">
+                          <img
+                            className="h-10 w-10 rounded-full object-cover"
+                            src={candidate.profilePhoto}
+                            alt={candidate.name}
+                          />
+                          <span className="ml-2 font-medium text-gray-900">
+                            {candidate.first_name + " " + candidate.last_name}
+                          </span>
+                        </div>
+                      </TableCell>
+                      <TableCell>{candidate.email}</TableCell>
+                      <TableCell>{getStatusBadge(candidate.status)}</TableCell>
+                      <TableCell>
+                        {getInterviewStatusBadge(
+                          candidate.interviewStatus > 0
+                            ? "scheduled"
+                            : "not_scheduled"
+                        )}
+                      </TableCell>
+                      <TableCell>{candidate.assignedInterviewer}</TableCell>
+                      <TableCell>
+                        <button
+                          onClick={() => {
+                            // normalize candidate shape so modal can read expected fields
+                            // build normalized shapes expected by the tab components
+                            const personalDetails = {
+                              firstName:
+                                candidate.personalDetails?.firstName ||
+                                candidate.personal_details?.first_name ||
+                                candidate.first_name ||
+                                candidate.firstName ||
+                                "",
+                              lastName:
+                                candidate.personalDetails?.lastName ||
+                                candidate.personal_details?.last_name ||
+                                candidate.last_name ||
+                                candidate.lastName ||
+                                "",
+                              // prefer API field mobile_number
+                              mobileNo:
+                                candidate.personalDetails?.mobileNo ||
+                                candidate.personal_details?.mobileNo ||
+                                candidate.mobile_number ||
+                                candidate.mobile ||
+                                candidate.phone ||
+                                "",
+                              email:
+                                candidate.email ||
+                                candidate.personalDetails?.email ||
+                                candidate.personal_details?.email ||
+                                "",
+                              // prefer date_of_birth from API
+                              dateOfBirth:
+                                candidate.personalDetails?.dateOfBirth ||
+                                candidate.personal_details?.date_of_birth ||
+                                candidate.date_of_birth ||
+                                candidate.dob ||
+                                "",
+                              // gender may be nested as { value: 'Male' }
+                              gender:
+                                candidate.personalDetails?.gender ||
+                                candidate.personal_details?.gender ||
+                                candidate.gender?.value ||
+                                candidate.gender ||
+                                "",
+                            };
 
+                            // derive a single education object from educationDetails array (API: educationDetails)
+                            const eduArray =
+                              candidate.educationDetails ||
+                              candidate.education_details ||
+                              [];
+                            // find college/higher-ed entry (prefer one with institute or not 10th/12th)
+                            const collegeEntry =
+                              eduArray.find(
+                                (e: any) =>
+                                  e.institute ||
+                                  (e.educationLevel &&
+                                    e.educationLevel.level_name &&
+                                    !["10th", "12th"].includes(
+                                      String(e.educationLevel.level_name)
+                                    ))
+                              ) ||
+                              eduArray[0] ||
+                              null;
+
+                            // prefer entries that include marks_obtained/max_marks for accurate percentage
+                            const tenthEntry =
+                              eduArray.find(
+                                (e: any) =>
+                                  e.educationLevel?.level_name === "10th" &&
+                                  (e.marks_obtained ?? e.marks ?? e.percentage)
+                              ) ||
+                              eduArray.find(
+                                (e: any) =>
+                                  e.educationLevel?.level_name === "10th"
+                              );
+
+                            const twelfthEntry =
+                              eduArray.find(
+                                (e: any) =>
+                                  e.educationLevel?.level_name === "12th" &&
+                                  (e.marks_obtained ?? e.marks ?? e.percentage)
+                              ) ||
+                              eduArray.find(
+                                (e: any) =>
+                                  e.educationLevel?.level_name === "12th"
+                              );
+
+                            const parseNumber = (v: any) => {
+                              if (v === null || v === undefined || v === "")
+                                return null;
+                              const n = Number(v);
+                              return isNaN(n) ? null : n;
+                            };
+
+                            const computePercent = (entry: any) => {
+                              if (!entry) return "";
+                              const marks = parseNumber(
+                                entry.marks_obtained ??
+                                  entry.marks ??
+                                  entry.marksObtained
+                              );
+                              const max = parseNumber(
+                                entry.max_marks ?? entry.maxMarks ?? entry.max
+                              );
+                              if (marks !== null && max !== null && max > 0) {
+                                return String(Math.round((marks / max) * 100));
+                              }
+                              // if only marks provided and looks like percent already, return it
+                              if (entry.marks_obtained)
+                                return String(entry.marks_obtained);
+                              if (entry.percentage) return String(entry.percentage);
+                              return "";
+                            };
+
+                            const education = {
+                              collegeName:
+                                collegeEntry?.institute?.name ||
+                                collegeEntry?.institute_name ||
+                                collegeEntry?.institute?.collegeName ||
+                                "",
+                              qualification:
+                                collegeEntry?.specialization ||
+                                collegeEntry?.qualification ||
+                                "",
+                              // prefer specialization as department if present
+                              department:
+                                collegeEntry?.specialization ||
+                                collegeEntry?.department ||
+                                "",
+                              yearOfPassing:
+                                collegeEntry?.year_of_passing ||
+                                collegeEntry?.yearOfPassing ||
+                                "",
+                              cgpa:
+                                collegeEntry?.marks_obtained || collegeEntry?.cgpa ||
+                                "",
+                              collegeEmail:
+                                collegeEntry?.institute?.email ||
+                                collegeEntry?.institute_email ||
+                                "",
+                              percentage10th: computePercent(tenthEntry),
+                              percentage12th: computePercent(twelfthEntry),
+                            };
+
+                            const skills = {
+                              // map API link fields
+                              resumeLink:
+                                candidate.skills?.resumeLink ||
+                                candidate.skills?.resume_link ||
+                                candidate.resume ||
+                                candidate.resume_link ||
+                                candidate.resume_url ||
+                                candidate.resumeUrl ||
+                                "",
+                              gitLink:
+                                candidate.skills?.gitLink ||
+                                candidate.skills?.git_link ||
+                                candidate.git_link ||
+                                candidate.github_url ||
+                                candidate.githubUrl ||
+                                "",
+                              linkedinLink:
+                                candidate.skills?.linkedinLink ||
+                                candidate.skills?.linkedin_link ||
+                                candidate.linkedin ||
+                                candidate.linkedin_url ||
+                                candidate.linkedinUrl ||
+                                "",
+                              portfolioLink:
+                                candidate.skills?.portfolioLink ||
+                                candidate.skills?.portfolio_link ||
+                                candidate.portfolio ||
+                                candidate.portfolio_url ||
+                                candidate.portfolioUrl ||
+                                "",
+                              skillsList: Array.isArray(
+                                candidate.skills?.skillsList
+                              )
+                                ? candidate.skills.skillsList
+                                : Array.isArray(candidate.skill_set)
+                                ? candidate.skill_set.map((s: any) =>
+                                    typeof s === "string"
+                                      ? s
+                                      : s?.name || s?.skill?.name || ""
+                                  )
+                                : Array.isArray(candidate.userSkills)
+                                ? candidate.userSkills
+                                    .map((us: any) => us?.skill?.name || us?.name)
+                                    .filter(Boolean)
+                                : typeof candidate.skills === "string"
+                                ? candidate.skills.split(",").map((s: string) => s.trim())
+                                : Array.isArray(candidate.skills)
+                                ? candidate.skills
+                                : [],
+                            };
+
+                            const normalized = {
+                              ...candidate,
+                              id:
+                                candidate.id || candidate.userId || candidate._id,
+                              name:
+                                candidate.name ||
+                                [
+                                  personalDetails.firstName,
+                                  personalDetails.lastName,
+                                ]
+                                  .filter(Boolean)
+                                  .join(" ") ||
+                                "",
+                              profilePhoto:
+                                candidate.profilePhoto ||
+                                candidate.profile_photo ||
+                                candidate.avatar ||
+                                "",
+                              personalDetails,
+                              education,
+                              skills,
+                              email: candidate.email || personalDetails.email || "",
+                              status: (candidate.status || "").toUpperCase(),
+                            };
+
+                            setSelectedCandidate(normalized);
+                            onOpen();
+                          }}
+                          className="text-blue-600 hover:text-blue-800 flex items-center gap-1"
+                        >
+                          <Eye size={16} />
+                          View
+                        </button>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+         
           {/* Pagination */}
           <TablePagination
             component="div"
@@ -405,36 +735,50 @@ const ManageCandidatesPage = () => {
                 <div className="flex justify-end gap-3 pt-6 border-t border-gray-200 mt-6">
                   {/* Reject button */}
                   <button
-                    onClick={() => {
-                      updateCandidateStatus(selectedCandidate.id, "canceled");
+                    onClick={async () => {
+                      if (!selectedCandidate) return;
+                      await updateCandidateStatus(
+                        selectedCandidate.id,
+                        "CANCELED"
+                      );
+                      setSelectedCandidate(
+                        (prev: any) => prev && { ...prev, status: "CANCELED" }
+                      );
                       onClose();
                     }}
                     className={`px-6 py-2 rounded-lg font-medium text-sm transition-colors ${
-                      selectedCandidate?.status === "canceled"
+                      selectedCandidate?.status === "CANCELED"
                         ? "bg-red-100 text-red-700 border border-red-200"
                         : "bg-red-600 text-white hover:bg-red-700"
                     }`}
-                    disabled={selectedCandidate?.status === "canceled"}
+                    disabled={selectedCandidate?.status === "CANCELED"}
                   >
-                    {selectedCandidate?.status === "canceled"
+                    {selectedCandidate?.status === "CANCELED"
                       ? "Already Rejected"
                       : "Reject"}
                   </button>
 
                   {/* Approve button */}
                   <button
-                    onClick={() => {
-                      updateCandidateStatus(selectedCandidate.id, "approved");
+                    onClick={async () => {
+                      if (!selectedCandidate) return;
+                      await updateCandidateStatus(
+                        selectedCandidate.id,
+                        "APPROVED"
+                      );
+                      setSelectedCandidate(
+                        (prev: any) => prev && { ...prev, status: "APPROVED" }
+                      );
                       onClose();
                     }}
                     className={`px-6 py-2 rounded-lg font-medium text-sm transition-colors ${
-                      selectedCandidate?.status === "approved"
+                      selectedCandidate?.status === "APPROVED"
                         ? "bg-green-100 text-green-700 border border-green-200"
                         : "bg-green-600 text-white hover:bg-green-700"
                     }`}
-                    disabled={selectedCandidate?.status === "approved"}
+                    disabled={selectedCandidate?.status === "APPROVED"}
                   >
-                    {selectedCandidate?.status === "approved"
+                    {selectedCandidate?.status === "APPROVED"
                       ? "Already Approved"
                       : "Approve"}
                   </button>

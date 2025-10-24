@@ -10,6 +10,7 @@ interface Interview {
   interviewerName: string;
   interviewerRole: string;
   interviewType: string;
+  interviewName?: string;
   date: string;
   startTime: string;
   endTime: string;
@@ -42,6 +43,11 @@ export const InterviewCard = ({ interview }: { interview: Interview }) => {
           <h3 className="text-xl font-semibold text-gray-900">
             {interview.companyName}
           </h3>
+          {interview.interviewName && (
+            <p className="text-sm text-gray-600 mt-1">
+              {interview.interviewName}
+            </p>
+          )}
         </div>
       </div>
 

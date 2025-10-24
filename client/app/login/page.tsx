@@ -13,7 +13,45 @@ export default function Login() {
   const [isVisible, setIsVisible] = React.useState(false);
   const toggleVisibility = () => setIsVisible((prev) => !prev);
 
-  const { emailId, password, rememberMe, setData } = useLoginStore();
+  const { emailId, password, rememberMe, setData, handleLogin } =
+    useLoginStore();
+  const { isLoading, error } = useLoginStore();
+
+  const handleSubmit = async () => {
+    const payload = {
+      email: emailId,
+      password: password,
+    };
+    const response = await handleLogin(payload);
+
+    if (
+      response?.success === true &&
+      response?.data?.user?.role === "CANDIDATE"
+    ) {
+      localStorage.setItem("authToken", response.data.token);
+      localStorage.setItem("name", response?.data?.user?.first_name);
+
+      router.push("/candidate/dashboard");
+    } else if (
+      response?.success === true &&
+      response?.data?.user?.role === "INTERVIEWER"
+    ) {
+      localStorage.setItem("authToken", response.data.token);
+      localStorage.setItem("name", response?.data?.user?.first_name);
+
+      router.push("/interviewer/dashboard");
+    } else if (
+      response?.success === true &&
+      response?.data?.user?.role === "ADMIN"
+    ) {
+      localStorage.setItem("authToken", response.data.token);
+      localStorage.setItem("name", response?.data?.user?.first_name);
+
+      router.push("/admin/dashboard");
+    } else {
+      alert("Login Failed");
+    }
+  };
 
   return (
     <div className="flex flex-col lg:flex-row h-screen bg-black">
@@ -98,17 +136,19 @@ export default function Login() {
             </span>
           </div>
 
-          {/* Log In Button */}
-          <div className="pt-4">
-            <Button
-              className="w-full text-white"
-              color="primary"
-              size="md"
-              onPress={() => router.push("/admin/dashboard")}
-            >
-              Log In
-            </Button>
-          </div>
+          <Button
+            className="text-white w-full"
+            color="primary"
+            size="lg"
+            onPress={handleSubmit}
+            isDisabled={isLoading}
+          >
+            {isLoading ? "Logging in..." : "Log In"}
+          </Button>
+
+          {error && (
+            <p className="text-red-600 text-sm mt-2 text-center">{error}</p>
+          )}
 
           {/* Divider */}
           <div className="flex items-center py-5">
